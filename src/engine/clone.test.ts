@@ -5,7 +5,7 @@ import { GameState, COMPANY_IDS, CompanyState } from './types';
 function baseState(): GameState {
   const companies = {} as Record<string, CompanyState>;
   for (const id of COMPANY_IDS) {
-    companies[id] = { treasury: 0, income: 0, sharesInSupply: 1, sharesRemoved: 0, cubesInSupply: 5, onMap: false, bonuses: [] };
+    companies[id] = { treasury: 0, income: 0, sharesInSupply: 1, sharesRemoved: 0, cubesInSupply: 5, onMap: false, removed: false, bonuses: [] };
   }
   return {
     seed: 1,

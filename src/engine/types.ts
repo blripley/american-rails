@@ -66,6 +66,7 @@ export interface CompanyState {
   sharesRemoved: number;
   cubesInSupply: number;
   onMap: boolean;
+  removed: boolean; // true only for the company removed during 3-player setup
   bonuses: string[]; // e.g. 'Chicago|New York' special-connection keys already awarded
 }
 

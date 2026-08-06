@@ -42,6 +42,7 @@ export function createGame(opts: CreateGameOptions): GameState {
       sharesRemoved: 0,
       cubesInSupply: COMPANIES[id].cubes,
       onMap: false,
+      removed: false,
       bonuses: [],
     };
   }
@@ -54,6 +55,7 @@ export function createGame(opts: CreateGameOptions): GameState {
     c.sharesRemoved = COMPANIES[removed].shares;
     c.sharesInSupply = 0;
     c.cubesInSupply = 0;
+    c.removed = true;
   }
 
   const empties = Object.fromEntries(
