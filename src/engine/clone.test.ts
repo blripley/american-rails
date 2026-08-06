@@ -25,6 +25,8 @@ function baseState(): GameState {
     auction: null,
     pendingStartCube: null,
     pendingExpand: null,
+    pendingAction: null,
+    setup: null,
     log: [],
     winnerIds: null,
   };

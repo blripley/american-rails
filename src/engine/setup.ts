@@ -77,6 +77,8 @@ export function createGame(opts: CreateGameOptions): GameState {
     auction: null,
     pendingStartCube: null,
     pendingExpand: null,
+    pendingAction: null,
+    setup: { selectorId: players[0]!.id, auctioned: [], claimedOrder: [] },
     log: [`Game created for ${count} players.`],
     winnerIds: null,
   };

@@ -111,8 +111,19 @@ export interface GameState {
   // first share (prep round or new-company purchase).
   pendingStartCube: { playerId: string; companyId: CompanyId } | null;
   pendingExpand: PendingExpand | null;
+  // during the action phase, an action awaiting its follow-up parameter
+  // (fund5 target, take2 mode, develop target, or auction company).
+  pendingAction: { kind: ActionType } | null;
+  // preparation-round bookkeeping (null once the action rounds begin).
+  setup: SetupState | null;
   log: string[];
   winnerIds: string[] | null;
+}
+
+export interface SetupState {
+  selectorId: string; // who chooses the next share to auction
+  auctioned: CompanyId[]; // companies whose prep share has been put up
+  claimedOrder: string[]; // players in the order they first won a share
 }
 
 export const STARTING_MONEY: Record<number, number> = { 3: 50, 4: 50, 5: 40 };
