@@ -248,9 +248,13 @@ function buildBoard(){ const hexes={};
 const BOARD = buildBoard();
 
 /* ============================ 2. HEX GEOMETRY ============================ */
-const HEX = 30;
+const HEX = 38;
 function hexPixel(c,r){ return { x: HEX*1.5*c, y: HEX*Math.sqrt(3)*(r+0.5*(c&1)) }; }
 function hexPoints(cx,cy){ let p=''; for (let i=0;i<6;i++){ const a=Math.PI/180*(60*i); p+=(cx+HEX*Math.cos(a))+','+(cy+HEX*Math.sin(a))+' '; } return p.trim(); }
+// deterministic per-hex RNG so each tile is unique but stable
+function hexRng(c,r){ let a=((c*73856093)^(r*19349663))>>>0; return ()=>{ a=(a+0x6D2B79F5)|0; let t=Math.imul(a^(a>>>15),1|a); t=(t+Math.imul(t^(t>>>7),61|t))^t; return ((t^(t>>>14))>>>0)/4294967296; }; }
+function R(rng,a,b){ return a+(b-a)*rng(); }
+function inHex(rng,rad){ const r=(rad||0.7)*HEX*Math.sqrt(rng()), t=rng()*6.2832; return [Math.cos(t)*r, Math.sin(t)*r]; }
 
 /* ============================ 3. STATE & SETUP ============================ */
 function startingMoney(n){ return n===5?40:50; }
@@ -497,60 +501,88 @@ function highlightSet(s){
   if (s.turnPhase==='expanding' && s.pending && s.pending.companyId) return new Set(legalExpandHexes(s, s.currentPlayer, s.pending.companyId));
   return new Set();
 }
+const TERR_BASE={plains:'#d3ab38',forest:'#66742f',mountain:'#7f858f',city:'#efe6d0'};
 function terrainDefs(){ return `<defs>
-  <pattern id="pat-plains" width="14" height="14" patternUnits="userSpaceOnUse">
-    <rect width="14" height="14" fill="#d9b641"/>
-    <g stroke="#a67d20" stroke-width="0.7" stroke-linecap="round" opacity="0.5">
-      <path d="M3 11 l1.1 -3.2"/><path d="M4.1 11 l0 -3.2"/><path d="M5.2 11 l-1.1 -3.2"/>
-      <path d="M10 6 l1.1 -3.2"/><path d="M11.1 6 l0 -3.2"/><path d="M12.2 6 l-1.1 -3.2"/></g></pattern>
-  <pattern id="pat-forest" width="16" height="16" patternUnits="userSpaceOnUse">
-    <rect width="16" height="16" fill="#6f7d38"/>
-    <g opacity="0.7"><circle cx="4" cy="5" r="2" fill="#515c27"/><circle cx="6.4" cy="4" r="1.5" fill="#5c6a2e"/><circle cx="5.1" cy="7" r="1.5" fill="#5c6a2e"/>
-      <circle cx="12" cy="12" r="2" fill="#515c27"/><circle cx="14.3" cy="11" r="1.4" fill="#5c6a2e"/><circle cx="12.7" cy="14.1" r="1.4" fill="#5c6a2e"/>
-      <circle cx="4" cy="4.6" r="0.7" fill="#83924a"/><circle cx="12" cy="11.6" r="0.7" fill="#83924a"/></g></pattern>
-  <pattern id="pat-mountain" width="18" height="14" patternUnits="userSpaceOnUse">
-    <rect width="18" height="14" fill="#8a909a"/>
-    <g fill="none" stroke="#555c67" stroke-width="0.9" opacity="0.75"><path d="M2 11 l3.4 -5 l3.4 5"/><path d="M10 12 l3.4 -5 l3.4 5"/><path d="M6 5 l1.9 -2.3 l1.9 2.3"/></g>
-    <g stroke="#c0c5cd" stroke-width="0.55" opacity="0.55"><path d="M5.4 6 l-1.4 2.1"/><path d="M13.4 7 l-1.4 2.1"/></g></pattern>
-  <filter id="paper" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch" result="n"/>
-    <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.15  0 0 0 0 0.11  0 0 0 0 0.05  0 0 0 0.5 0"/></filter>
-  <radialGradient id="vig" cx="50%" cy="45%" r="75%"><stop offset="62%" stop-color="#000" stop-opacity="0"/><stop offset="100%" stop-color="#2c1e0c" stop-opacity="0.4"/></radialGradient>
-  <linearGradient id="ocean" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c5e7a"/><stop offset="1" stop-color="#1b4056"/></linearGradient>
+  <filter id="paper" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.16  0 0 0 0 0.12  0 0 0 0 0.05  0 0 0 0.45 0"/></filter>
+  <radialGradient id="vig" cx="50%" cy="45%" r="78%"><stop offset="60%" stop-color="#000" stop-opacity="0"/><stop offset="100%" stop-color="#2c1e0c" stop-opacity="0.42"/></radialGradient>
+  <linearGradient id="ocean" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f6280"/><stop offset="1" stop-color="#193b50"/></linearGradient>
 </defs>`; }
-const TERR_FILL={plains:'url(#pat-plains)',forest:'url(#pat-forest)',mountain:'url(#pat-mountain)',city:'#efe6d0'};
-// little engraved rooftops behind a city label
-function cityBuildings(cx,cy){ const u=HEX*0.12; const roofs=[[-2.3,1.3],[-0.8,1.5],[0.8,1.3],[2.3,1.45]];
-  let s=`<g opacity="0.72">`;
-  for (const [dx,hh] of roofs){ const bx=cx+dx*u, by=cy+2.1*u, w=u*1.5, h=hh*u;
-    s+=`<rect x="${bx-w/2}" y="${by-h}" width="${w}" height="${h}" fill="#c3b184" stroke="#7c6a44" stroke-width="0.35"/>`;
-    s+=`<path d="M${bx-w/2-0.4} ${by-h} L${bx} ${by-h-u*0.9} L${bx+w/2+0.4} ${by-h} Z" fill="#9c8557"/>`; }
-  return s+`</g>`; }
-function renderBoard(s){
-  const wrap=$('#board-wrap'); const ids=Object.keys(BOARD);
-  const pts=ids.map(id=>{ const d=BOARD[id]; return hexPixel(d.col,d.row); });
+
+// ---- per-hex procedural terrain art (unique per tile, stable) ----
+function plainsArt(cx,cy){ const rng=hexRng(cx*7+1,cy*13+3); let s='';
+  for (let i=0;i<3;i++){ const [dx,dy]=inHex(rng,0.55); s+=`<circle cx="${(cx+dx).toFixed(1)}" cy="${(cy+dy).toFixed(1)}" r="${R(rng,HEX*0.4,HEX*0.72).toFixed(1)}" fill="${['#c99f2f','#dcbc4c','#c6a134'][i]}" opacity="0.3"/>`; }
+  const n=Math.floor(R(rng,16,22));
+  for (let i=0;i<n;i++){ const [dx,dy]=inHex(rng,0.78); const bx=cx+dx, by=cy+dy, h=R(rng,HEX*0.14,HEX*0.26), tl=R(rng,-0.35,0.35);
+    const col=rng()<0.5?'#94690f':'#ad8324';
+    s+=`<path d="M${bx.toFixed(1)} ${by.toFixed(1)} l${(-h*0.28+tl*h).toFixed(1)} ${(-h).toFixed(1)} M${bx.toFixed(1)} ${by.toFixed(1)} l${(tl*h).toFixed(1)} ${(-h*1.12).toFixed(1)} M${bx.toFixed(1)} ${by.toFixed(1)} l${(h*0.28+tl*h).toFixed(1)} ${(-h).toFixed(1)}" stroke="${col}" stroke-width="${(HEX*0.028).toFixed(2)}" stroke-linecap="round" fill="none" opacity="0.75"/>`; }
+  return s; }
+function forestArt(cx,cy){ const rng=hexRng(cx*11+5,cy*7+2); let s='';
+  const n=Math.floor(R(rng,13,18)); const pts=[];
+  for (let i=0;i<n;i++){ const [dx,dy]=inHex(rng,0.8); pts.push([cx+dx,cy+dy,R(rng,HEX*0.13,HEX*0.21)]); }
+  pts.sort((a,b)=>a[1]-b[1]);
+  for (const [bx,by,r] of pts){
+    s+=`<circle cx="${bx.toFixed(1)}" cy="${(by+r*0.35).toFixed(1)}" r="${r.toFixed(1)}" fill="#454f21"/>`;
+    s+=`<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="${(r*0.82).toFixed(1)}" fill="#5b6a2d"/>`;
+    s+=`<circle cx="${(bx-r*0.28).toFixed(1)}" cy="${(by-r*0.28).toFixed(1)}" r="${(r*0.38).toFixed(1)}" fill="#82914a"/>`; }
+  return s; }
+function mountainArt(cx,cy){ const rng=hexRng(cx*5+9,cy*17+4); let s='';
+  const n=Math.floor(R(rng,3,5)); const peaks=[];
+  for (let i=0;i<n;i++){ const [dx,dy]=inHex(rng,0.55); peaks.push([cx+dx,cy+dy+HEX*0.22,R(rng,HEX*0.34,HEX*0.55),R(rng,HEX*0.34,HEX*0.6)]); }
+  peaks.sort((a,b)=>a[1]-b[1]);
+  for (const [bx,by,w,h] of peaks){ const ax=bx+R(rng,-w*0.12,w*0.12);
+    s+=`<path d="M${(bx-w).toFixed(1)} ${by.toFixed(1)} L${ax.toFixed(1)} ${(by-h).toFixed(1)} L${(bx+w).toFixed(1)} ${by.toFixed(1)} Z" fill="#6c727c"/>`;
+    s+=`<path d="M${ax.toFixed(1)} ${(by-h).toFixed(1)} L${(bx+w).toFixed(1)} ${by.toFixed(1)} L${(bx+w*0.12).toFixed(1)} ${by.toFixed(1)} Z" fill="#9aa0aa"/>`;
+    s+=`<path d="M${ax.toFixed(1)} ${(by-h).toFixed(1)} l${(-w*0.16).toFixed(1)} ${(h*0.34).toFixed(1)} l${(w*0.14).toFixed(1)} ${(-h*0.12).toFixed(1)} l${(-w*0.1).toFixed(1)} ${(h*0.2).toFixed(1)}" stroke="#e8edf2" stroke-width="${(HEX*0.02).toFixed(2)}" fill="none" opacity="0.55"/>`; }
+  return s; }
+function cityArt(cx,cy){ const rng=hexRng(cx*3+7,cy*23+1); let s=''; const baseY=cy+HEX*0.5, sx=cx-HEX*0.42, n=6;
+  for (let i=0;i<n;i++){ const bx=sx+i*HEX*0.17, bh=R(rng,HEX*0.16,HEX*0.34), bw=HEX*0.15;
+    s+=`<rect x="${(bx-bw/2).toFixed(1)}" y="${(baseY-bh).toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" fill="#c8b788" stroke="#7c6a44" stroke-width="0.4"/>`;
+    if (rng()<0.6) s+=`<path d="M${(bx-bw/2-0.6).toFixed(1)} ${(baseY-bh).toFixed(1)} L${bx.toFixed(1)} ${(baseY-bh-HEX*0.09).toFixed(1)} L${(bx+bw/2+0.6).toFixed(1)} ${(baseY-bh).toFixed(1)} Z" fill="#9c8557"/>`;
+    s+=`<rect x="${(bx-bw*0.16).toFixed(1)}" y="${(baseY-bh*0.62).toFixed(1)}" width="${(bw*0.32).toFixed(1)}" height="${(bh*0.24).toFixed(1)}" fill="#6f5f3d" opacity="0.7"/>`; }
+  return s; }
+function tileArt(def,cx,cy){ if (def.terrain==='plains') return plainsArt(cx,cy); if (def.terrain==='forest') return forestArt(cx,cy); if (def.terrain==='mountain') return mountainArt(cx,cy); if (def.terrain==='city') return cityArt(cx,cy); return ''; }
+
+let BOARD_VB=null, BASE_SVG=null;
+function buildBaseBoard(){
+  const ids=Object.keys(BOARD); const pts=ids.map(id=>{const d=BOARD[id];return hexPixel(d.col,d.row);});
   const pad=HEX*2.2, minX=Math.min(...pts.map(p=>p.x))-pad, minY=Math.min(...pts.map(p=>p.y))-pad;
   const w=Math.max(...pts.map(p=>p.x))-minX+pad, h=Math.max(...pts.map(p=>p.y))-minY+pad;
-  const hi=highlightSet(s);
-  let svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX} ${minY} ${w} ${h}">`;
-  svg+=terrainDefs();
-  svg+=`<rect x="${minX}" y="${minY}" width="${w}" height="${h}" fill="url(#ocean)"/>`;
-  // land drop-shadow pass (offset dark hexes) for a raised-map feel
-  for (const id of ids){ const d=BOARD[id]; const {x,y}=hexPixel(d.col,d.row); svg+=`<polygon points="${hexPoints(x+1.5,y+2)}" fill="#0d2733" opacity="0.5"/>`; }
-  for (const id of ids){ const def=BOARD[id]; const {x,y}=hexPixel(def.col,def.row); const hs=s.hexes[id]||{cubes:[],developed:false}; const on=hi.has(id);
-    svg+=`<polygon class="hex-tile${on?' interactive':''}" data-hex="${id}" points="${hexPoints(x,y)}" fill="${TERR_FILL[def.terrain]}" stroke="${on?'#ffdd6b':'#3a2c18'}" stroke-width="${on?3:1.1}"/>`;
-    if (def.city){ svg+=cityBuildings(x,y);
-      svg+=`<text x="${x}" y="${y-HEX*0.34}" text-anchor="middle" class="city-name" font-size="${HEX*0.23}">${def.city.name}</text>`;
-      svg+=`<text x="${x}" y="${y+HEX*0.02}" text-anchor="middle" class="city-value" font-size="${HEX*0.4}">${def.city.full}/${def.city.shared}</text>`;
-      if (HUBS.has(def.city.name)) svg+=`<rect x="${x-HEX*0.64}" y="${y-HEX*0.52}" width="${HEX*0.17}" height="${HEX*0.17}" fill="#161310"/>`;
-      if (SPECIALS.has(def.city.name)) svg+=`<g><circle cx="${x+HEX*0.56}" cy="${y-HEX*0.44}" r="${HEX*0.12}" fill="#b8422f" stroke="#5f1d13" stroke-width="0.6"/><circle cx="${x+HEX*0.56}" cy="${y-HEX*0.44}" r="${HEX*0.05}" fill="#efe6d0"/></g>`; }
-    if (hs.developed) svg+=`<g><rect x="${x-HEX*0.17}" y="${y-HEX*0.6}" width="${HEX*0.34}" height="${HEX*0.26}" fill="#1a1712"/><path d="M${x-HEX*0.22} ${y-HEX*0.6} L${x} ${y-HEX*0.76} L${x+HEX*0.22} ${y-HEX*0.6} Z" fill="#1a1712"/></g>`;
-    hs.cubes.forEach((cid,i)=>{ const cs=HEX*0.3; const bx=x - hs.cubes.length*cs*0.62 + i*cs*1.24;
-      svg+=`<rect x="${bx+0.6}" y="${y+HEX*0.3+0.8}" width="${cs}" height="${cs}" rx="1" fill="#000" opacity="0.35"/>`;
-      svg+=`<rect x="${bx}" y="${y+HEX*0.3}" width="${cs}" height="${cs}" rx="1" fill="${COMPANIES[cid].color}" stroke="#1c1c1c" stroke-width="0.7"/>`; });
+  BOARD_VB={minX,minY,w,h};
+  let g=terrainDefs();
+  g+=`<rect x="${minX}" y="${minY}" width="${w}" height="${h}" fill="url(#ocean)"/>`;
+  for (const id of ids){ const d=BOARD[id]; const {x,y}=hexPixel(d.col,d.row); g+=`<polygon points="${hexPoints(x+2,y+2.5)}" fill="#0c2531" opacity="0.55"/>`; }
+  for (const id of ids){ const def=BOARD[id]; const {x,y}=hexPixel(def.col,def.row);
+    g+=`<polygon class="hex-tile" data-hex="${id}" points="${hexPoints(x,y)}" fill="${TERR_BASE[def.terrain]}" stroke="#3a2c18" stroke-width="1.1"/>`;
+    g+=`<g clip-path="none">${tileArt(def,x,y)}</g>`;
+    if (def.city){
+      g+=`<rect x="${(x-HEX*0.66).toFixed(1)}" y="${(y-HEX*0.5).toFixed(1)}" width="${(HEX*1.32).toFixed(1)}" height="${(HEX*0.5).toFixed(1)}" rx="2" fill="#efe6d0" opacity="0.82"/>`;
+      g+=`<text x="${x}" y="${(y-HEX*0.28).toFixed(1)}" text-anchor="middle" class="city-name" font-size="${(HEX*0.2).toFixed(1)}">${def.city.name}</text>`;
+      g+=`<text x="${x}" y="${(y+HEX*0.02).toFixed(1)}" text-anchor="middle" class="city-value" font-size="${(HEX*0.34).toFixed(1)}">${def.city.full}/${def.city.shared}</text>`;
+      if (HUBS.has(def.city.name)) g+=`<rect x="${(x-HEX*0.64).toFixed(1)}" y="${(y-HEX*0.66).toFixed(1)}" width="${(HEX*0.16).toFixed(1)}" height="${(HEX*0.16).toFixed(1)}" fill="#161310"/>`;
+      if (SPECIALS.has(def.city.name)) g+=`<g><circle cx="${(x+HEX*0.56).toFixed(1)}" cy="${(y-HEX*0.58).toFixed(1)}" r="${(HEX*0.11).toFixed(1)}" fill="#b8422f" stroke="#5f1d13" stroke-width="0.6"/><circle cx="${(x+HEX*0.56).toFixed(1)}" cy="${(y-HEX*0.58).toFixed(1)}" r="${(HEX*0.045).toFixed(1)}" fill="#efe6d0"/></g>`;
+    }
   }
-  svg+=`<rect x="${minX}" y="${minY}" width="${w}" height="${h}" filter="url(#paper)" opacity="0.5" style="mix-blend-mode:multiply" pointer-events="none"/>`;
-  svg+=`<rect x="${minX}" y="${minY}" width="${w}" height="${h}" fill="url(#vig)" pointer-events="none"/>`;
-  svg+=`</svg>`; wrap.innerHTML=svg;
+  g+=`<rect x="${minX}" y="${minY}" width="${w}" height="${h}" filter="url(#paper)" opacity="0.42" style="mix-blend-mode:multiply" pointer-events="none"/>`;
+  g+=`<rect x="${minX}" y="${minY}" width="${w}" height="${h}" fill="url(#vig)" pointer-events="none"/>`;
+  BASE_SVG=g;
+}
+function renderBoard(s){
+  const wrap=$('#board-wrap');
+  if (!BASE_SVG) buildBaseBoard();
+  const {minX,minY,w,h}=BOARD_VB;
+  const hi=highlightSet(s);
+  let ov='';
+  // highlights (legal targets)
+  for (const id of hi){ const d=BOARD[id]; const {x,y}=hexPixel(d.col,d.row); ov+=`<polygon points="${hexPoints(x,y)}" fill="#ffdd6b" opacity="0.18"/><polygon points="${hexPoints(x,y)}" fill="none" stroke="#ffe27a" stroke-width="3.2"/>`; }
+  // cubes + development markers
+  for (const id in s.hexes){ const hs=s.hexes[id]; const d=BOARD[id]; if (!d) continue; const {x,y}=hexPixel(d.col,d.row);
+    if (hs.developed) ov+=`<g><rect x="${(x-HEX*0.17).toFixed(1)}" y="${(y-HEX*0.62).toFixed(1)}" width="${(HEX*0.34).toFixed(1)}" height="${(HEX*0.26).toFixed(1)}" fill="#1a1712"/><path d="M${(x-HEX*0.22).toFixed(1)} ${(y-HEX*0.62).toFixed(1)} L${x} ${(y-HEX*0.8).toFixed(1)} L${(x+HEX*0.22).toFixed(1)} ${(y-HEX*0.62).toFixed(1)} Z" fill="#1a1712"/></g>`;
+    hs.cubes.forEach((cid,i)=>{ const cs=HEX*0.3, bx=x - hs.cubes.length*cs*0.62 + i*cs*1.24;
+      ov+=`<rect x="${(bx+0.6).toFixed(1)}" y="${(y+HEX*0.32+0.8).toFixed(1)}" width="${cs.toFixed(1)}" height="${cs.toFixed(1)}" rx="1" fill="#000" opacity="0.35"/>`;
+      ov+=`<rect x="${bx.toFixed(1)}" y="${(y+HEX*0.32).toFixed(1)}" width="${cs.toFixed(1)}" height="${cs.toFixed(1)}" rx="1" fill="${COMPANIES[cid].color}" stroke="#141414" stroke-width="0.8"/>`; });
+  }
+  wrap.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX} ${minY} ${w} ${h}">${BASE_SVG}<g id="overlay">${ov}</g></svg>`;
 }
 function renderPanels(s){
   $('#year-label').textContent = s.year;
