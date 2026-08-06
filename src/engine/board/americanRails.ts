@@ -71,20 +71,25 @@ const CITY_AT: Record<string, CityDef> = {
 const COLS = 17; // 0..16
 const ROWS = 13; // 0..12
 
+// The Atlantic coastline: the easternmost land column for each row (ocean lies
+// to the right of it). The coast steps west as it runs south from New England
+// to Florida, matching the board.
+const COAST_COL = [16, 15, 15, 15, 14, 14, 13, 14, 13, 13, 12, 11, 10];
+
 function isOcean(col: number, row: number): boolean {
-  if (col + row >= 22) return true; // south-east Atlantic beyond the coast
+  if (col > (COAST_COL[row] ?? 10)) return true; // Atlantic, east of the coast
   if (col >= 15 && row >= 2) return true; // north-east coast beyond Boston
   if (col <= 1 && row >= 11) return true; // gulf corner (south-west)
-  if (col >= 13 && row >= 10) return true; // Florida / south Atlantic
+  if (row >= 12 && col >= 3 && col <= 9) return true; // Gulf of Mexico
   return false;
 }
 
-// Appalachian mountain spine: a diagonal grey band from Pennsylvania down to
-// northern Georgia, plus a small patch in the north-east (Adirondacks).
+// Appalachian mountain spine: a narrow grey ridge from Pennsylvania down to
+// northern Georgia, plus a small patch in the north-east.
 function isMountain(col: number, row: number): boolean {
   if (row >= 2 && row <= 9) {
-    const center = 11 - (row - 2) * 0.72; // 11 at row2 -> ~6 at row9
-    if (Math.abs(col - center) <= 1) return true;
+    const center = 11 - (row - 2) * 0.7; // ~11 at Pittsburgh down to ~6 near N. Georgia
+    if (Math.abs(col - center) <= 0.7) return true;
   }
   if (row === 1 && col >= 12 && col <= 13) return true; // NE patch
   return false;
@@ -93,9 +98,9 @@ function isMountain(col: number, row: number): boolean {
 // Yellow plains: the west/midwest block, the New York/Philadelphia coastal
 // plain, and the gulf/Florida coastal strip. Everything else is forest.
 function isPlains(col: number, row: number): boolean {
-  if (col <= 7 && row <= 6) return true; // Illinois / Indiana / Missouri / Ohio-west
-  if (col >= 12 && row >= 3 && row <= 6) return true; // NY / Philadelphia coastal plain
-  if (row >= 11) return true; // gulf & Florida coast
+  if (col <= 8 && row <= 6) return true; // Illinois / Indiana / Missouri / Ohio-west
+  if (col >= 12 && row >= 3 && row <= 7) return true; // NY / Philadelphia / tidewater plain
+  if (row >= 10) return true; // gulf & Florida coast
   return false;
 }
 

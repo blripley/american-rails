@@ -2,6 +2,7 @@ import { GameState } from '../engine/types';
 import { BoardDef } from '../engine/board/boardTypes';
 import { hexPixel, parseCoord } from '../engine/board/hexGrid';
 import { Hex } from './Hex';
+import { TerrainDefs } from './terrainPatterns';
 
 export interface BoardProps {
   board: BoardDef;
@@ -29,7 +30,14 @@ export function Board({ board, state, highlighted, onHexClick }: BoardProps) {
   const height = Math.max(...ys) - Math.min(...ys) + pad * 2;
 
   return (
-    <svg className="board" viewBox={`${minX} ${minY} ${width} ${height}`} role="img" aria-label="American Rails map">
+    <svg
+      className="board"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox={`${minX} ${minY} ${width} ${height}`}
+      role="img"
+      aria-label="American Rails map"
+    >
+      <TerrainDefs />
       {centres.map(({ id, x, y }) => {
         const def = board.hexes[id]!;
         const hexState = state.hexes[id] ?? { cubes: [], developed: false };
