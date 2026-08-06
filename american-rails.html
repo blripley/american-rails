@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>American Rails</title>
+<!--
+================================================================================
+AMERICAN RAILS — rules reference (Tim Harrison / Quined Games, 2013)
+Every rule implemented below is listed here first. Do not add logic that isn't a
+rule; do not skip a rule.
+
+COMPONENTS
+- 6 companies (id, colour, cubes, shares): american(white,31,5) national(grey,29,4)
+  continental(green,26,3) majestic(yellow,22,4) liberty(red,19,2) republic(blue,17,3).
+  Totals: 144 cubes, 21 shares. 12 black development markers.
+- Board: hex map of the eastern US. Terrain: city, plains, forest, mountain.
+- Year track 1851..1857 (up to 7 rounds). Income track 0..~ per company.
+
+SETUP
+- Money: 3p $50 each, 4p $50 each, 5p $40 each.
+- 3 players: remove one random company entirely.
+- Each company income marker starts at 0. 12 dev markers in supply.
+
+PREPARATION ROUND (opening auctions)
+- One share from EACH company is auctioned, one at a time.
+- Seller puts a share up; min bid $10; clockwise each player bids higher or passes;
+  a passed player is out; last remaining wins, pays final bid into that company's
+  treasury, takes the share.
+- Winner then: places one cube of that company on any EMPTY city, sets company
+  income to that city's FULL value, and the company is now on the map.
+- If nobody bids, the share is removed from the game.
+- Continues until exactly one share per company has been offered.
+
+ROUND = 3 action phases + 1 dividend phase.
+
+ACTION PHASES & TURN ORDER (action track: rows = actions, 3 columns = phases)
+- Action rows top->bottom: Pass, Develop, Fund $5, Take $2 / Expand 2, Expand 3,
+  Auction a share, Expand 4.
+- Phase 1: players in turn-order pick an empty action slot in column 1 and may
+  perform it (or decline). A taken slot blocks later players that phase.
+- Phase 2 & 3: order = current action-track standings, top-to-bottom; pick in the
+  next column.
+- End of round: markers return to the turn-order track keeping relative order;
+  advance the year.
+
+ACTIONS
+- Pass: nothing.
+- Develop: place a black dev marker on any undeveloped city that has >=1 cube;
+  +$2 full / +$1 shared to that city. NOT on hubs (New York, Baltimore,
+  Philadelphia, Boston, Chicago).
+- Fund $5: take $5 from bank into any one company treasury.
+- Take $2: take $2 from bank (personal), OR take $2 from each other player. In
+  4-5p this slot may instead be Expand 2.
+- Auction a share: as preparation auction; if the company isn't on the map yet,
+  winner places a starting cube on an empty city and sets income to its full value.
+- Expand 2/3/4: place up to N cubes, one at a time, each of a company you own a
+  share in, on a hex adjacent to a same-colour cube. Pay from that company's
+  treasury: city/plains $2 + $2 per cube/dev already in hex; forest $3 (max 1 cube);
+  mountain $5 (max 1 cube). A hex never holds two cubes of the same colour. The
+  company must afford the full cost or the cube isn't placed.
+
+CITY INCOME (when a cube enters a city)
+- First company in a city: +full value. Second company: newcomer +shared, and the
+  incumbent(s) drop from full to shared (-(full-shared)). 3rd+: +shared.
+- Development marker: +$2 full / +$1 shared. When a city becomes shared, each
+  company's dev bonus becomes +$1.
+- Special connections: connecting Chicago<->New York, Chicago<->Atlanta, or
+  New York<->Atlanta gives +$10 once per pair (+$20 when the 3rd city completes two).
+
+DIVIDENDS (end of round): each company pays, per player-held share,
+ceil(income / number of player-held shares). Unsold/removed shares don't count.
+
+END OF GAME (after a dividend): year passed 1857, OR all shares sold/removed, OR
+a threshold of supplies (cube piles + dev marker pile) at <=2 remaining
+(3p:3, 4p:4, 5p:5). Most money wins; ties share.
+================================================================================
+-->
+<style>
+:root {
+  /* American Rails — aged railroad map palette */
+  --color-bg: #241c12;
+  --color-surface: #2f2517;
+  --color-surface-alt: #3a2f1d;
+  --color-parchment: #efe6cf;
+  --color-border: #4a3c25;
+  --color-text: #ece0c8;
+  --color-text-muted: #a8987a;
+  --color-ink: #201a10;
+  --color-accent: #c9a24b;        /* rail gold */
+  --color-accent-hover: #e0bd63;
+  --color-success: #6fae52;
+  --color-warning: #d8a53a;
+  --color-error: #c1502e;
+
+  --terrain-plains: #d7b346;
+  --terrain-forest: #6f7d38;
+  --terrain-mountain: #8b9099;
+  --terrain-city: #efe7d2;
+  --terrain-water: #24506b;
+
+  --co-american: #f2f2f2;
+  --co-national: #4a4a4a;
+  --co-continental: #2e8b57;
+  --co-majestic: #e8c30b;
+  --co-liberty: #c0392b;
+  --co-republic: #2f6fb0;
+
+  --font-main: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-display: Georgia, 'Times New Roman', serif;
+  --font-mono: 'Cascadia Code', 'Consolas', monospace;
+  --font-size-xs: 0.72rem; --font-size-sm: 0.85rem; --font-size-md: 1rem;
+  --font-size-lg: 1.2rem; --font-size-xl: 1.5rem; --font-size-2xl: 2rem;
+
+  --space-xs: 4px; --space-sm: 8px; --space-md: 16px; --space-lg: 24px; --space-xl: 32px;
+  --radius: 8px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.4);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.5);
+  --shadow-lg: 0 8px 28px rgba(0,0,0,.6);
+  --transition-fast: 150ms ease;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; min-height: 100vh;
+  font-family: var(--font-main); color: var(--color-text);
+  background:
+    radial-gradient(ellipse at top, #2e2415 0%, var(--color-bg) 70%);
+  line-height: 1.5;
+}
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 700; margin: 0; }
+.label { font-size: var(--font-size-xs); text-transform: uppercase; letter-spacing: .08em; color: var(--color-text-muted); }
+.mono { font-family: var(--font-mono); }
+
+button {
+  font-family: var(--font-main); font-size: var(--font-size-md); font-weight: 500;
+  padding: var(--space-sm) var(--space-md); border: 1px solid var(--color-border);
+  border-radius: 6px; background: var(--color-accent); color: var(--color-ink);
+  cursor: pointer; transition: background var(--transition-fast), transform var(--transition-fast);
+}
+button:hover { background: var(--color-accent-hover); transform: translateY(-1px); }
+button:active { transform: translateY(0); }
+button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+button.ghost { background: transparent; color: var(--color-text); }
+button.ghost:hover { background: rgba(255,255,255,.06); }
+
+input, select {
+  font-family: var(--font-main); font-size: var(--font-size-md);
+  padding: var(--space-sm) var(--space-md); border: 1px solid var(--color-border);
+  border-radius: 6px; background: var(--color-surface); color: var(--color-text);
+}
+
+/* ---------- Lobby ---------- */
+#lobby {
+  max-width: 620px; margin: 6vh auto; padding: var(--space-xl);
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius); box-shadow: var(--shadow-lg); text-align: center;
+}
+#lobby h1 { font-size: var(--font-size-2xl); letter-spacing: .06em; color: var(--color-accent); }
+#lobby .subtitle { color: var(--color-text-muted); margin-top: var(--space-xs); }
+.mode-buttons { display: flex; flex-direction: column; gap: var(--space-sm); margin: var(--space-lg) 0; }
+.panel-box { background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius); padding: var(--space-lg); margin-top: var(--space-md); text-align: left; }
+.player-names-list { display: flex; flex-direction: column; gap: var(--space-sm); margin: var(--space-md) 0; }
+.player-names-list input { width: 100%; }
+.room-code { font-family: var(--font-mono); font-size: var(--font-size-2xl); letter-spacing: .3em; color: var(--color-accent); }
+.field-row { display: flex; align-items: center; gap: var(--space-sm); margin: var(--space-sm) 0; flex-wrap: wrap; }
+
+/* ---------- Game layout ---------- */
+#game { display: none; height: 100vh; }
+#game.active { display: flex; }
+.board-area { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; padding: var(--space-sm); }
+.topbar {
+  display: flex; align-items: center; gap: var(--space-lg); padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius);
+  margin-bottom: var(--space-sm); flex-wrap: wrap;
+}
+.topbar h2 { font-size: var(--font-size-lg); color: var(--color-accent); letter-spacing: .05em; }
+.turn-status { font-weight: 600; }
+.turn-status .who { color: var(--color-accent); }
+.board-wrap { flex: 1 1 auto; min-height: 0; overflow: auto; background: var(--terrain-water); border: 3px solid #12303f; border-radius: var(--radius); box-shadow: var(--shadow-md) inset; }
+.board-wrap svg { display: block; width: 100%; height: auto; }
+
+.city-name { fill: #2a2118; font-weight: 600; font-family: var(--font-main); }
+.city-value { fill: #7a1f14; font-weight: 700; font-family: var(--font-display); }
+.hex-tile { transition: filter var(--transition-fast); }
+.hex-tile.interactive { cursor: pointer; }
+.hex-tile.interactive:hover { filter: brightness(1.12); }
+
+/* ---------- Sidebar ---------- */
+.sidebar { flex: 0 0 340px; display: flex; flex-direction: column; gap: var(--space-sm); padding: var(--space-sm); overflow-y: auto; background: var(--color-surface); border-left: 1px solid var(--color-border); }
+.card { background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius); padding: var(--space-sm) var(--space-md); box-shadow: var(--shadow-sm); }
+.card h3 { font-size: var(--font-size-sm); text-transform: uppercase; letter-spacing: .06em; color: var(--color-text-muted); margin-bottom: var(--space-sm); }
+
+.co-row, .pl-row { display: flex; align-items: center; gap: var(--space-sm); padding: 3px 0; font-size: var(--font-size-sm); }
+.swatch { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,.4); flex-shrink: 0; }
+.co-name { flex: 1 1 auto; }
+.co-stat { font-family: var(--font-mono); color: var(--color-text-muted); }
+.co-stat b { color: var(--color-text); }
+.pl-row.active { background: rgba(201,162,75,.14); border-radius: 6px; }
+.pl-money { font-family: var(--font-mono); font-weight: 700; color: var(--color-accent); margin-left: auto; }
+
+.actions-bar { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
+.actions-bar button { font-size: var(--font-size-sm); padding: 6px 10px; }
+
+#log { font-size: var(--font-size-sm); }
+#log .log-line { padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,.05); color: var(--color-text-muted); }
+#log .log-line:last-child { color: var(--color-text); }
+
+.hidden { display: none !important; }
+
+@media (max-width: 900px) {
+  #game.active { flex-direction: column; height: auto; }
+  .sidebar { flex-basis: auto; border-left: none; border-top: 1px solid var(--color-border); }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================ LOBBY ============================ -->
+<div id="lobby" data-screen="lobby">
+  <h1>AMERICAN RAILS</h1>
+  <div class="subtitle">Build railroads, buy shares, chase the biggest dividends.</div>
+
+  <div class="mode-buttons">
+    <button data-action="mode-local" id="btn-local">Local Game (one screen)</button>
+    <button data-action="mode-host" id="btn-host">Host Online Game</button>
+    <button data-action="mode-join" id="btn-join">Join Online Game</button>
+  </div>
+
+  <!-- Local / host player config -->
+  <div id="player-config" class="panel-box hidden">
+    <div class="field-row">
+      <label>Players:
+        <select id="player-count">
+          <option value="3">3</option>
+          <option value="4" selected>4</option>
+          <option value="5">5</option>
+        </select>
+      </label>
+    </div>
+    <div id="player-names" class="player-names-list"></div>
+    <button id="start-game" data-action="start-game">Start Game</button>
+  </div>
+
+  <!-- Online host waiting room -->
+  <div id="host-view" class="panel-box hidden">
+    <div class="label">Room code — share with your friends</div>
+    <div class="room-code" id="room-code" data-room-code>----</div>
+    <div id="connected-players" style="margin:var(--space-md) 0;"></div>
+    <button id="start-online" data-action="start-online" disabled>Start Game</button>
+  </div>
+
+  <!-- Online join -->
+  <div id="join-view" class="panel-box hidden">
+    <div class="field-row">
+      <label>Your name: <input id="join-name" maxlength="16" placeholder="Name"></label>
+    </div>
+    <div class="field-row">
+      <label>Room code: <input id="room-input" maxlength="6" placeholder="ABCD" style="text-transform:uppercase;width:120px;"></label>
+      <button id="join-btn" data-action="join">Join</button>
+    </div>
+    <p id="join-status" class="label"></p>
+  </div>
+</div>
+
+<!-- ============================ GAME ============================ -->
+<div id="game" data-screen="game">
+  <div class="board-area">
+    <div class="topbar">
+      <h2>AMERICAN RAILS</h2>
+      <div>Year <span class="mono" id="year-label" data-year>1851</span></div>
+      <div class="turn-status" id="turn-status" data-turn-status></div>
+      <div style="margin-left:auto;"><button class="ghost" data-action="quit">Leave</button></div>
+    </div>
+    <div class="board-wrap" id="board-wrap" data-board></div>
+    <div class="card" style="margin-top:var(--space-sm);">
+      <div class="actions-bar" id="actions-bar" data-actions></div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="card" id="companies-card"><h3>Companies</h3><div id="companies" data-companies></div></div>
+    <div class="card" id="players-card"><h3>Players</h3><div id="players" data-players></div></div>
+    <div class="card" id="log-card"><h3>Log</h3><div id="log" data-log></div></div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/peerjs@1/dist/peerjs.min.js"></script>
+<script>
+"use strict";
+/* ============================================================================
+   1. CONSTANTS & BOARD DATA
+   ==========================================================================*/
+const COMPANIES = {
+  american:    { name: 'American',    color: '#f2f2f2', cubes: 31, shares: 5 },
+  national:    { name: 'National',    color: '#4a4a4a', cubes: 29, shares: 4 },
+  continental: { name: 'Continental', color: '#2e8b57', cubes: 26, shares: 3 },
+  majestic:    { name: 'Majestic',    color: '#e8c30b', cubes: 22, shares: 4 },
+  liberty:     { name: 'Liberty',     color: '#c0392b', cubes: 19, shares: 2 },
+  republic:    { name: 'Republic',    color: '#2f6fb0', cubes: 17, shares: 3 },
+};
+const COMPANY_IDS = Object.keys(COMPANIES);
+const TOTAL_DEV_MARKERS = 12;
+const HUBS = new Set(['New York','Baltimore','Philadelphia','Boston','Chicago']);
+const SPECIALS = new Set(['Chicago','New York','Atlanta']);
+const ACTION_ROWS = ['pass','develop','fund5','take2','expand3','auction','expand4'];
+const ACTION_LABELS = {
+  pass:'Pass', develop:'Develop', fund5:'Fund $5', take2:'Take $2 / Expand 2',
+  expand3:'Expand 3', auction:'Auction a share', expand4:'Expand 4',
+};
+
+// City income values (full/shared), transcribed from the physical board photo
+// IMG_0728 (high confidence). coord "col,row" in an odd-q flat-top grid.
+const CITY_AT = {
+  '2,0':{name:'Milwaukee',full:3,shared:2}, '3,0':{name:'Chicago',full:7,shared:5},
+  '1,2':{name:'Rock Island',full:2,shared:1}, '0,4':{name:'St. Louis',full:5,shared:3},
+  '7,0':{name:'Detroit',full:4,shared:2}, '9,1':{name:'Cleveland',full:4,shared:2},
+  '5,2':{name:'Fort Wayne',full:2,shared:1}, '5,3':{name:'Indianapolis',full:4,shared:2},
+  '7,4':{name:'Cincinnati',full:4,shared:2}, '7,3':{name:'Columbus',full:1,shared:1},
+  '5,5':{name:'Louisville',full:1,shared:1}, '10,0':{name:'Buffalo',full:4,shared:3},
+  '12,0':{name:'Syracuse',full:2,shared:1}, '14,0':{name:'Albany',full:3,shared:2},
+  '16,0':{name:'Boston',full:5,shared:3}, '11,2':{name:'Pittsburg',full:5,shared:3},
+  '13,2':{name:'Harrisburg',full:1,shared:1}, '14,3':{name:'New York',full:8,shared:5},
+  '13,4':{name:'Philadelphia',full:6,shared:4}, '13,5':{name:'Baltimore',full:5,shared:3},
+  '14,6':{name:'Norfolk',full:2,shared:2}, '9,5':{name:'Charlestown',full:2,shared:1},
+  '11,5':{name:'Roanoke',full:2,shared:1}, '12,6':{name:'Richmond',full:3,shared:2},
+  '2,7':{name:'Memphis',full:3,shared:2}, '5,6':{name:'Nashville',full:3,shared:2},
+  '8,7':{name:'Knoxville',full:2,shared:1}, '6,8':{name:'Chattanooga',full:4,shared:2},
+  '10,7':{name:'Charlotte',full:3,shared:2}, '12,7':{name:'Raleigh',full:2,shared:1},
+  '13,8':{name:'Wilmington',full:2,shared:1}, '5,9':{name:'Birmingham',full:2,shared:1},
+  '7,9':{name:'Atlanta',full:5,shared:3}, '11,9':{name:'Charleston',full:3,shared:2},
+  '3,10':{name:'Jackson',full:3,shared:2}, '6,10':{name:'Montgomery',full:2,shared:1},
+  '9,10':{name:'Savannah',full:3,shared:2}, '5,11':{name:'Mobile',full:2,shared:1},
+  '8,11':{name:'Tallahassee',full:2,shared:1}, '2,11':{name:'New Orleans',full:5,shared:3},
+};
+
+const COLS = 18, ROWS = 12;
+const COAST_COL = [16,16,15,15,15,14,14,14,14,13,13,12]; // easternmost land per row
+function coordId(c,r){ return c+','+r; }
+function isOcean(c,r){
+  if (c > (COAST_COL[r] ?? 12)) return true;
+  if (c <= 0 && r >= 10) return true;               // sw gulf corner
+  if (r >= 11 && c >= 3 && c <= 10) return true;     // gulf of mexico
+  return false;
+}
+function isMountain(c,r){
+  if (r >= 2 && r <= 9) { const center = 11 - (r-2)*0.72; if (Math.abs(c-center) <= 0.75) return true; }
+  if (r === 1 && c >= 12 && c <= 13) return true;
+  return false;
+}
+function isPlains(c,r){
+  if (c <= 8 && r <= 6) return true;      // midwest
+  if (c >= 12 && r >= 3 && r <= 7) return true; // eastern seaboard plain
+  if (r >= 10) return true;               // gulf coast
+  return false;
+}
+// odd-q flat-top neighbours
+function neighborCoords(c,r){
+  const even = (c % 2) === 0;
+  const dirs = even
+    ? [[1,0],[1,-1],[0,-1],[-1,-1],[-1,0],[0,1]]
+    : [[1,1],[1,0],[0,-1],[-1,0],[-1,1],[0,1]];
+  return dirs.map(([dc,dr]) => coordId(c+dc, r+dr));
+}
+function buildBoard(){
+  const hexes = {};
+  for (let c=0;c<COLS;c++) for (let r=0;r<ROWS;r++){
+    if (isOcean(c,r)) continue;
+    const id = coordId(c,r);
+    const city = CITY_AT[id];
+    let terrain;
+    if (city) terrain = 'city';
+    else if (isMountain(c,r)) terrain = 'mountain';
+    else if (isPlains(c,r)) terrain = 'plains';
+    else terrain = 'forest';
+    hexes[id] = {
+      col:c, row:r, terrain,
+      city: city ? { name:city.name, full:city.full, shared:city.shared, developable: !HUBS.has(city.name) } : null,
+    };
+  }
+  // adjacency (only to existing hexes)
+  for (const id in hexes){
+    const {col,row} = hexes[id];
+    hexes[id].adj = neighborCoords(col,row).filter(n => hexes[n]);
+  }
+  return hexes;
+}
+const BOARD = buildBoard();
+
+/* ============================================================================
+   2. HEX GEOMETRY (rendering)
+   ==========================================================================*/
+const HEX = 30;
+function hexPixel(c,r){
+  const x = HEX * 1.5 * c;
+  const y = HEX * Math.sqrt(3) * (r + 0.5*(c & 1));
+  return { x, y };
+}
+function hexPoints(cx,cy){
+  let p = '';
+  for (let i=0;i<6;i++){ const a = Math.PI/180*(60*i); p += (cx+HEX*Math.cos(a))+','+(cy+HEX*Math.sin(a))+' '; }
+  return p.trim();
+}
+
+/* ============================================================================
+   3. STATE
+   ==========================================================================*/
+function startingMoney(n){ return n === 5 ? 40 : 50; }
+
+// minimal helper log
+function pushLog(state, msg){ state.log.push(msg); if (state.log.length > 200) state.log.shift(); }
+
+function createInitialState(config){
+  const names = config.names;
+  const n = names.length;
+  const companies = {};
+  for (const id of COMPANY_IDS){
+    companies[id] = {
+      treasury: 0, income: 0,
+      sharesInSupply: COMPANIES[id].shares, sharesRemoved: 0,
+      cubesInSupply: COMPANIES[id].cubes, onMap: false, bonuses: [],
+    };
+  }
+  const state = {
+    phase: 'playing',              // lobby | playing | gameOver
+    mode: config.mode || 'local',
+    players: names.map((nm,i) => ({ id:i, name:nm, money: startingMoney(n), shares: [], connected:true, isLocal:true })),
+    companies,
+    hexes: {},                      // id -> { cubes:[companyId], developed:bool }
+    developmentSupply: TOTAL_DEV_MARKERS,
+    year: 1851,
+    turnOrder: names.map((_,i)=>i),
+    currentPlayer: 0,
+    round: 1, actionPhase: 0,
+    log: [],
+    winner: null,
+    history: [],
+    config,
+    localPlayerId: 0,
+  };
+  pushLog(state, `Game started with ${n} players.`);
+  return state;
+}
+
+/* ============================================================================
+   4. RENDER
+   ==========================================================================*/
+const $ = (sel) => document.querySelector(sel);
+function show(screen){
+  $('#lobby').style.display = screen === 'lobby' ? '' : 'none';
+  $('#game').classList.toggle('active', screen === 'game');
+}
+
+function renderBoard(state){
+  const wrap = $('#board-wrap');
+  const ids = Object.keys(BOARD);
+  const pts = ids.map(id => { const {col,row}=BOARD[id]; return hexPixel(col,row); });
+  const pad = HEX*1.5;
+  const minX = Math.min(...pts.map(p=>p.x))-pad, minY = Math.min(...pts.map(p=>p.y))-pad;
+  const w = Math.max(...pts.map(p=>p.x))-minX+pad, h = Math.max(...pts.map(p=>p.y))-minY+pad;
+  const fill = { plains:'var(--terrain-plains)', forest:'var(--terrain-forest)', mountain:'var(--terrain-mountain)', city:'var(--terrain-city)' };
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX} ${minY} ${w} ${h}">`;
+  for (const id of ids){
+    const def = BOARD[id]; const {x,y} = hexPixel(def.col, def.row);
+    const hs = state.hexes[id] || { cubes:[], developed:false };
+    svg += `<polygon class="hex-tile" data-hex="${id}" points="${hexPoints(x,y)}" fill="${fill[def.terrain]}" stroke="#2c2519" stroke-width="1.1"/>`;
+    if (def.city){
+      svg += `<text x="${x}" y="${y-HEX*0.32}" text-anchor="middle" class="city-name" font-size="${HEX*0.24}">${def.city.name}</text>`;
+      svg += `<text x="${x}" y="${y+HEX*0.04}" text-anchor="middle" class="city-value" font-size="${HEX*0.36}">${def.city.full}/${def.city.shared}</text>`;
+      if (HUBS.has(def.city.name)) svg += `<rect x="${x-HEX*0.62}" y="${y-HEX*0.5}" width="${HEX*0.16}" height="${HEX*0.16}" fill="#161310"/>`;
+      if (SPECIALS.has(def.city.name)) svg += `<circle cx="${x+HEX*0.54}" cy="${y-HEX*0.42}" r="${HEX*0.1}" fill="#b8422f"/>`;
+    }
+    if (hs.developed) svg += `<rect x="${x-HEX*0.16}" y="${y-HEX*0.62}" width="${HEX*0.32}" height="${HEX*0.28}" fill="#1a1712"/>`;
+    hs.cubes.forEach((cid,i) => {
+      const cs = HEX*0.3;
+      svg += `<rect x="${x - hs.cubes.length*cs*0.62 + i*cs*1.24}" y="${y+HEX*0.3}" width="${cs}" height="${cs}" rx="1" fill="${COMPANIES[cid].color}" stroke="#1c1c1c" stroke-width="0.7"/>`;
+    });
+  }
+  svg += `</svg>`;
+  wrap.innerHTML = svg;
+}
+
+function renderPanels(state){
+  $('#year-label').textContent = state.year;
+  const cur = state.players[state.currentPlayer];
+  $('#turn-status').innerHTML = state.phase === 'gameOver'
+    ? `<span class="who">Game over</span>`
+    : `<span class="who">${cur ? cur.name : ''}</span>'s turn — round ${state.round}, phase ${state.actionPhase+1}`;
+
+  // companies
+  let ch = '';
+  for (const id of COMPANY_IDS){
+    const c = state.companies[id];
+    if (c.sharesRemoved && !c.onMap && c.cubesInSupply === 0 && c.sharesInSupply === 0) continue;
+    ch += `<div class="co-row"><span class="swatch" style="background:${COMPANIES[id].color}"></span>`
+       +  `<span class="co-name">${COMPANIES[id].name}</span>`
+       +  `<span class="co-stat">$<b>${c.treasury}</b> · inc <b>${c.income}</b> · <b>${c.cubesInSupply}</b>▪ · <b>${c.sharesInSupply}</b>◆</span></div>`;
+  }
+  $('#companies').innerHTML = ch;
+
+  // players
+  let ph = '';
+  state.players.forEach((p,i) => {
+    const sh = p.shares.map(s => `<span class="swatch" style="width:11px;height:11px;background:${COMPANIES[s].color}"></span>`).join('');
+    ph += `<div class="pl-row ${i===state.currentPlayer?'active':''}"><span>${p.name}</span> ${sh} <span class="pl-money">$${p.money}</span></div>`;
+  });
+  $('#players').innerHTML = ph;
+
+  // log
+  $('#log').innerHTML = state.log.slice(-12).map(l => `<div class="log-line">${l}</div>`).join('');
+}
+
+function render(state){
+  if (!state || state.phase === 'lobby') return;
+  renderBoard(state);
+  renderPanels(state);
+  renderActions(state);
+}
+
+// placeholder — real action buttons wired with the engine (next step)
+function renderActions(state){
+  $('#actions-bar').innerHTML = '<span class="label">Turn actions load with the rules engine (next build step).</span>';
+}
+
+/* ============================================================================
+   5. LOBBY WIRING (local mode first; online added next)
+   ==========================================================================*/
+let gameState = null;
+
+function buildNameInputs(count){
+  const wrap = $('#player-names');
+  const defaults = ['Ben','Wife','Friend 1','Friend 2','Friend 5'];
+  wrap.innerHTML = '';
+  for (let i=0;i<count;i++){
+    const inp = document.createElement('input');
+    inp.value = defaults[i] || ('Player '+(i+1));
+    inp.maxLength = 16; inp.dataset.playerName = i;
+    wrap.appendChild(inp);
+  }
+}
+
+document.addEventListener('click', (e) => {
+  const action = e.target.dataset.action;
+  if (!action) return;
+  if (action === 'mode-local'){
+    $('#player-config').classList.remove('hidden');
+    $('#host-view').classList.add('hidden');
+    $('#join-view').classList.add('hidden');
+    buildNameInputs(parseInt($('#player-count').value,10));
+  } else if (action === 'start-game'){
+    const names = [...document.querySelectorAll('[data-player-name]')].map(i => i.value.trim() || 'Player');
+    gameState = createInitialState({ mode:'local', names });
+    window.gameState = gameState;
+    show('game');
+    render(gameState);
+  } else if (action === 'quit'){
+    show('lobby');
+  } else if (action === 'mode-host' || action === 'mode-join'){
+    alert('Online play is the next build step — local game works now.');
+  }
+});
+$('#player-count').addEventListener('change', (e) => buildNameInputs(parseInt(e.target.value,10)));
+
+/* ============================================================================
+   6. TEST API (expanded with the engine)
+   ==========================================================================*/
+window.startGame = function(config){ gameState = createInitialState(config); window.gameState = gameState; show('game'); render(gameState); return true; };
+window.render_game_to_text = function(){
+  if (!gameState) return JSON.stringify({ phase:'lobby' });
+  return JSON.stringify({
+    phase: gameState.phase, mode: gameState.mode, year: gameState.year,
+    round: gameState.round, actionPhase: gameState.actionPhase,
+    currentPlayer: gameState.currentPlayer,
+    players: gameState.players.map(p => ({ id:p.id, name:p.name, money:p.money, shares:p.shares })),
+    companies: Object.fromEntries(COMPANY_IDS.map(id => [id, {
+      treasury: gameState.companies[id].treasury, income: gameState.companies[id].income,
+      onMap: gameState.companies[id].onMap, sharesInSupply: gameState.companies[id].sharesInSupply,
+    }])),
+    winner: gameState.winner,
+  });
+};
+</script>
+</body>
+</html>
