@@ -1,0 +1,37 @@
+:root {
+  --bg: #1b1a17;
+  --panel: #26241f;
+  --ink: #ece5d8;
+  --muted: #a89f8c;
+  --accent: #c9a24b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.app { padding: 1rem 1.25rem; }
+
+.topbar {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  border-bottom: 1px solid #3a372f;
+  padding-bottom: 0.5rem;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+
+.year { color: var(--muted); }
+.status { margin-top: 1rem; }
+.hint { color: var(--muted); font-style: italic; }
