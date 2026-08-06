@@ -722,6 +722,38 @@ function makeView(s, seat){ const v=JSON.parse(JSON.stringify(s)); v.localPlayer
 /* ============================ 13. TEST API ============================ */
 window.startGame = function(config){ gameState=createInitialState(config); window.gameState=gameState; show('game'); render(gameState); return true; };
 window.performMove = function(cmd){ if (!gameState) return {ok:false}; applyUi(gameState, cmd); afterMutate(); return {ok:true, state: JSON.parse(window.render_game_to_text())}; };
+// Built-in self-test: drives full games headlessly and checks invariants.
+window.__selfTest = function(){
+  const results=[]; const assert=(name,cond)=>results.push({name,pass:!!cond});
+  const cityIds=['3,0','14,3','7,9','0,4','16,0','11,2','13,4','10,0','7,4','2,11','9,10','5,6','6,10','12,7'];
+  function st(){ return JSON.parse(window.render_game_to_text()); }
+  function driveSetup(s){ let g=0; while(s.phase==='setup'&&g++<120){ if(s.turnPhase==='bidding'){ (s.auction.bid===0 && s.players[s.currentPlayer].money>=10)?applyUi(gameState,'bid:10'):applyUi(gameState,'pass'); } else { const occ=Object.keys(st().cubesOnBoard||{}); applyUi(gameState,'hex:'+cityIds.find(c=>!occ.includes(c))); } s=st(); } return s; }
+  function playToEnd(s){ let g=0; while(s.phase!=='gameOver'&&g++<4000){ const tp=s.turnPhase;
+    if(tp==='bidding'){ (s.auction.bid===0 && s.players[s.currentPlayer].money>=10) ? applyUi(gameState,'bid:10') : applyUi(gameState,'pass'); }
+    else if(tp==='placeStartCube'){ const occ=Object.keys(st().cubesOnBoard||{}); applyUi(gameState,'hex:'+cityIds.find(c=>!occ.includes(c))); }
+    else if(tp==='chooseAction'){ applyUi(gameState,'choose:'+s.availableRows[0]); }
+    else if(tp==='take2choice'){ applyUi(gameState,'take2:take'); }
+    else if(tp==='funding'){ applyUi(gameState,'fund:'+activeCompanyIds(gameState)[0]); }
+    else if(tp==='expanding'){ applyUi(gameState,'endexpand'); }
+    else applyUi(gameState,'decline'); s=st(); } return s; }
+  // 4-player full game
+  window.startGame({mode:'local',names:['A','B','C','D']}); let s=driveSetup(st());
+  assert('4p: setup reaches action phase', s.phase==='action');
+  assert('4p: all non-removed companies on map', Object.values(s.companies).filter(c=>!c.removed).every(c=>c.onMap));
+  s=playToEnd(s);
+  assert('4p: game ends at 1857', s.phase==='gameOver' && s.year===1857);
+  assert('4p: has a winner', (s.winner||[]).length>=1);
+  // 3-player removes one company
+  window.startGame({mode:'local',names:['A','B','C'],removed:'liberty'}); s=st();
+  assert('3p: one company removed', Object.values(s.companies).filter(c=>c.removed).length===1);
+  // illegal bid rejected
+  window.startGame({mode:'local',names:['A','B','C']}); s=st();
+  const before=st().auction.bid; bid(gameState,5); assert('illegal $5 bid rejected (min $10)', st().auction.bid===before);
+  bid(gameState,10); assert('valid $10 bid accepted', st().auction.bid===10);
+  render(gameState);
+  const passed=results.filter(r=>r.pass).length;
+  return { passed, total:results.length, results };
+};
 window.render_game_to_text = function(){ if (!gameState) return JSON.stringify({phase:'lobby'});
   const s=gameState;
   return JSON.stringify({
