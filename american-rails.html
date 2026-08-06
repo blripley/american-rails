@@ -497,24 +497,59 @@ function highlightSet(s){
   if (s.turnPhase==='expanding' && s.pending && s.pending.companyId) return new Set(legalExpandHexes(s, s.currentPlayer, s.pending.companyId));
   return new Set();
 }
+function terrainDefs(){ return `<defs>
+  <pattern id="pat-plains" width="14" height="14" patternUnits="userSpaceOnUse">
+    <rect width="14" height="14" fill="#d9b641"/>
+    <g stroke="#a67d20" stroke-width="0.7" stroke-linecap="round" opacity="0.5">
+      <path d="M3 11 l1.1 -3.2"/><path d="M4.1 11 l0 -3.2"/><path d="M5.2 11 l-1.1 -3.2"/>
+      <path d="M10 6 l1.1 -3.2"/><path d="M11.1 6 l0 -3.2"/><path d="M12.2 6 l-1.1 -3.2"/></g></pattern>
+  <pattern id="pat-forest" width="16" height="16" patternUnits="userSpaceOnUse">
+    <rect width="16" height="16" fill="#6f7d38"/>
+    <g opacity="0.7"><circle cx="4" cy="5" r="2" fill="#515c27"/><circle cx="6.4" cy="4" r="1.5" fill="#5c6a2e"/><circle cx="5.1" cy="7" r="1.5" fill="#5c6a2e"/>
+      <circle cx="12" cy="12" r="2" fill="#515c27"/><circle cx="14.3" cy="11" r="1.4" fill="#5c6a2e"/><circle cx="12.7" cy="14.1" r="1.4" fill="#5c6a2e"/>
+      <circle cx="4" cy="4.6" r="0.7" fill="#83924a"/><circle cx="12" cy="11.6" r="0.7" fill="#83924a"/></g></pattern>
+  <pattern id="pat-mountain" width="18" height="14" patternUnits="userSpaceOnUse">
+    <rect width="18" height="14" fill="#8a909a"/>
+    <g fill="none" stroke="#555c67" stroke-width="0.9" opacity="0.75"><path d="M2 11 l3.4 -5 l3.4 5"/><path d="M10 12 l3.4 -5 l3.4 5"/><path d="M6 5 l1.9 -2.3 l1.9 2.3"/></g>
+    <g stroke="#c0c5cd" stroke-width="0.55" opacity="0.55"><path d="M5.4 6 l-1.4 2.1"/><path d="M13.4 7 l-1.4 2.1"/></g></pattern>
+  <filter id="paper" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.15  0 0 0 0 0.11  0 0 0 0 0.05  0 0 0 0.5 0"/></filter>
+  <radialGradient id="vig" cx="50%" cy="45%" r="75%"><stop offset="62%" stop-color="#000" stop-opacity="0"/><stop offset="100%" stop-color="#2c1e0c" stop-opacity="0.4"/></radialGradient>
+  <linearGradient id="ocean" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c5e7a"/><stop offset="1" stop-color="#1b4056"/></linearGradient>
+</defs>`; }
+const TERR_FILL={plains:'url(#pat-plains)',forest:'url(#pat-forest)',mountain:'url(#pat-mountain)',city:'#efe6d0'};
+// little engraved rooftops behind a city label
+function cityBuildings(cx,cy){ const u=HEX*0.12; const roofs=[[-2.3,1.3],[-0.8,1.5],[0.8,1.3],[2.3,1.45]];
+  let s=`<g opacity="0.72">`;
+  for (const [dx,hh] of roofs){ const bx=cx+dx*u, by=cy+2.1*u, w=u*1.5, h=hh*u;
+    s+=`<rect x="${bx-w/2}" y="${by-h}" width="${w}" height="${h}" fill="#c3b184" stroke="#7c6a44" stroke-width="0.35"/>`;
+    s+=`<path d="M${bx-w/2-0.4} ${by-h} L${bx} ${by-h-u*0.9} L${bx+w/2+0.4} ${by-h} Z" fill="#9c8557"/>`; }
+  return s+`</g>`; }
 function renderBoard(s){
   const wrap=$('#board-wrap'); const ids=Object.keys(BOARD);
   const pts=ids.map(id=>{ const d=BOARD[id]; return hexPixel(d.col,d.row); });
-  const pad=HEX*1.5, minX=Math.min(...pts.map(p=>p.x))-pad, minY=Math.min(...pts.map(p=>p.y))-pad;
+  const pad=HEX*2.2, minX=Math.min(...pts.map(p=>p.x))-pad, minY=Math.min(...pts.map(p=>p.y))-pad;
   const w=Math.max(...pts.map(p=>p.x))-minX+pad, h=Math.max(...pts.map(p=>p.y))-minY+pad;
-  const fill={plains:'var(--terrain-plains)',forest:'var(--terrain-forest)',mountain:'var(--terrain-mountain)',city:'var(--terrain-city)'};
   const hi=highlightSet(s);
   let svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX} ${minY} ${w} ${h}">`;
-  for (const id of ids){ const def=BOARD[id]; const {x,y}=hexPixel(def.col,def.row); const hs=s.hexes[id]||{cubes:[],developed:false};
-    const on = hi.has(id);
-    svg+=`<polygon class="hex-tile${on?' interactive':''}" data-hex="${id}" points="${hexPoints(x,y)}" fill="${fill[def.terrain]}" stroke="${on?'#ffdd6b':'#2c2519'}" stroke-width="${on?3:1.1}"/>`;
-    if (def.city){ svg+=`<text x="${x}" y="${y-HEX*0.32}" text-anchor="middle" class="city-name" font-size="${HEX*0.24}">${def.city.name}</text>`;
-      svg+=`<text x="${x}" y="${y+HEX*0.04}" text-anchor="middle" class="city-value" font-size="${HEX*0.36}">${def.city.full}/${def.city.shared}</text>`;
-      if (HUBS.has(def.city.name)) svg+=`<rect x="${x-HEX*0.62}" y="${y-HEX*0.5}" width="${HEX*0.16}" height="${HEX*0.16}" fill="#161310"/>`;
-      if (SPECIALS.has(def.city.name)) svg+=`<circle cx="${x+HEX*0.54}" cy="${y-HEX*0.42}" r="${HEX*0.1}" fill="#b8422f"/>`; }
-    if (hs.developed) svg+=`<rect x="${x-HEX*0.16}" y="${y-HEX*0.62}" width="${HEX*0.32}" height="${HEX*0.28}" fill="#1a1712"/>`;
-    hs.cubes.forEach((cid,i)=>{ const cs=HEX*0.3; svg+=`<rect x="${x - hs.cubes.length*cs*0.62 + i*cs*1.24}" y="${y+HEX*0.3}" width="${cs}" height="${cs}" rx="1" fill="${COMPANIES[cid].color}" stroke="#1c1c1c" stroke-width="0.7"/>`; });
+  svg+=terrainDefs();
+  svg+=`<rect x="${minX}" y="${minY}" width="${w}" height="${h}" fill="url(#ocean)"/>`;
+  // land drop-shadow pass (offset dark hexes) for a raised-map feel
+  for (const id of ids){ const d=BOARD[id]; const {x,y}=hexPixel(d.col,d.row); svg+=`<polygon points="${hexPoints(x+1.5,y+2)}" fill="#0d2733" opacity="0.5"/>`; }
+  for (const id of ids){ const def=BOARD[id]; const {x,y}=hexPixel(def.col,def.row); const hs=s.hexes[id]||{cubes:[],developed:false}; const on=hi.has(id);
+    svg+=`<polygon class="hex-tile${on?' interactive':''}" data-hex="${id}" points="${hexPoints(x,y)}" fill="${TERR_FILL[def.terrain]}" stroke="${on?'#ffdd6b':'#3a2c18'}" stroke-width="${on?3:1.1}"/>`;
+    if (def.city){ svg+=cityBuildings(x,y);
+      svg+=`<text x="${x}" y="${y-HEX*0.34}" text-anchor="middle" class="city-name" font-size="${HEX*0.23}">${def.city.name}</text>`;
+      svg+=`<text x="${x}" y="${y+HEX*0.02}" text-anchor="middle" class="city-value" font-size="${HEX*0.4}">${def.city.full}/${def.city.shared}</text>`;
+      if (HUBS.has(def.city.name)) svg+=`<rect x="${x-HEX*0.64}" y="${y-HEX*0.52}" width="${HEX*0.17}" height="${HEX*0.17}" fill="#161310"/>`;
+      if (SPECIALS.has(def.city.name)) svg+=`<g><circle cx="${x+HEX*0.56}" cy="${y-HEX*0.44}" r="${HEX*0.12}" fill="#b8422f" stroke="#5f1d13" stroke-width="0.6"/><circle cx="${x+HEX*0.56}" cy="${y-HEX*0.44}" r="${HEX*0.05}" fill="#efe6d0"/></g>`; }
+    if (hs.developed) svg+=`<g><rect x="${x-HEX*0.17}" y="${y-HEX*0.6}" width="${HEX*0.34}" height="${HEX*0.26}" fill="#1a1712"/><path d="M${x-HEX*0.22} ${y-HEX*0.6} L${x} ${y-HEX*0.76} L${x+HEX*0.22} ${y-HEX*0.6} Z" fill="#1a1712"/></g>`;
+    hs.cubes.forEach((cid,i)=>{ const cs=HEX*0.3; const bx=x - hs.cubes.length*cs*0.62 + i*cs*1.24;
+      svg+=`<rect x="${bx+0.6}" y="${y+HEX*0.3+0.8}" width="${cs}" height="${cs}" rx="1" fill="#000" opacity="0.35"/>`;
+      svg+=`<rect x="${bx}" y="${y+HEX*0.3}" width="${cs}" height="${cs}" rx="1" fill="${COMPANIES[cid].color}" stroke="#1c1c1c" stroke-width="0.7"/>`; });
   }
+  svg+=`<rect x="${minX}" y="${minY}" width="${w}" height="${h}" filter="url(#paper)" opacity="0.5" style="mix-blend-mode:multiply" pointer-events="none"/>`;
+  svg+=`<rect x="${minX}" y="${minY}" width="${w}" height="${h}" fill="url(#vig)" pointer-events="none"/>`;
   svg+=`</svg>`; wrap.innerHTML=svg;
 }
 function renderPanels(s){
