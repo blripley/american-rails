@@ -2,96 +2,113 @@ import { buildBoard, coordId, HexSpec } from './hexGrid';
 import { Terrain } from '../types';
 import { CityInfo } from './boardTypes';
 
-// The real American Rails map, transcribed from the publisher's board render
-// (Pictures of the Game/Screenshot 2026-08-05 214949.png) plus docs/board-research.md.
+// The real American Rails map, transcribed from high-resolution photos of the
+// physical board (Pictures of the Game/IMG_0728.jpeg and quadrant crops).
 //
-// IMPORTANT — income values are best-effort reads off a ~700px image and are
-// marked `// VERIFY`. The city list, terrain regions, hubs (black square) and the
-// three special-connection cities are solid; the two numbers per city need a
-// glance at the physical board. Because the engine reads this file, fixing a
-// number later changes nothing else.
+// City names and their two income values (full/shared) are read directly from
+// the board and are believed correct. The exact hex-by-hex coastline is an
+// approximation; terrain is assigned by region to match the board's look
+// (yellow plains in the west/midwest, a grey Appalachian mountain band, green
+// forest across the south-east and north-east uplands). The engine reads this
+// file, so positions/terrain can be nudged without touching game logic.
 //
-// Coordinates are odd-q offset (col,row); geography runs west->east (col up) and
-// north->south (row up). Terrain is assigned by region, overridden by cities.
+// Coordinates are odd-q offset (col,row): col increases west->east, row
+// increases north->south.
 
 const HUBS = new Set(['New York', 'Baltimore', 'Philadelphia', 'Boston', 'Chicago']);
+const SPECIALS = new Set(['Chicago', 'New York', 'Atlanta']);
 
 interface CityDef { name: string; full: number; shared: number }
 
-// city coordinate -> value  (developable = not a hub)
+// city coordinate -> value. Values read from the physical board.
 const CITY_AT: Record<string, CityDef> = {
-  '2,0': { name: 'Milwaukee', full: 3, shared: 2 }, // VERIFY
-  '2,1': { name: 'Chicago', full: 7, shared: 5 }, // VERIFY (hub + special)
-  '1,2': { name: 'Rock Island', full: 3, shared: 2 }, // VERIFY
-  '0,4': { name: 'St. Louis', full: 3, shared: 2 }, // VERIFY
-  '4,0': { name: 'Detroit', full: 3, shared: 2 }, // VERIFY
-  '5,1': { name: 'Cleveland', full: 4, shared: 3 }, // VERIFY
-  '3,2': { name: 'Fort Wayne', full: 2, shared: 1 }, // VERIFY
-  '3,3': { name: 'Indianapolis', full: 4, shared: 2 }, // VERIFY
-  '4,4': { name: 'Cincinnati', full: 4, shared: 2 }, // VERIFY (develop example city)
-  '4,3': { name: 'Columbus', full: 2, shared: 1 }, // VERIFY
-  '3,5': { name: 'Louisville', full: 2, shared: 1 }, // VERIFY
-  '6,0': { name: 'Buffalo', full: 4, shared: 3 }, // HIGH (rulebook example)
-  '7,0': { name: 'Syracuse', full: 2, shared: 1 }, // VERIFY
-  '8,0': { name: 'Albany', full: 3, shared: 2 }, // VERIFY
-  '9,0': { name: 'Boston', full: 5, shared: 3 }, // VERIFY (hub)
-  '5,3': { name: 'Pittsburgh', full: 5, shared: 3 }, // MEDIUM
-  '6,2': { name: 'Harrisburg', full: 2, shared: 1 }, // VERIFY
-  '8,2': { name: 'New York', full: 8, shared: 5 }, // HIGH (hub + special)
-  '7,3': { name: 'Philadelphia', full: 6, shared: 4 }, // MEDIUM (hub)
-  '7,4': { name: 'Baltimore', full: 5, shared: 3 }, // VERIFY (hub)
-  '8,4': { name: 'Norfolk', full: 2, shared: 2 }, // VERIFY
-  '5,4': { name: 'Charleston WV', full: 1, shared: 1 }, // VERIFY
-  '6,4': { name: 'Roanoke', full: 2, shared: 1 }, // VERIFY
-  '7,5': { name: 'Richmond', full: 2, shared: 1 }, // VERIFY
-  '1,7': { name: 'Memphis', full: 3, shared: 2 }, // VERIFY
-  '3,6': { name: 'Nashville', full: 3, shared: 2 }, // VERIFY
-  '5,6': { name: 'Knoxville', full: 2, shared: 1 }, // VERIFY
-  '4,7': { name: 'Chattanooga', full: 4, shared: 2 }, // VERIFY
-  '6,6': { name: 'Charlotte', full: 3, shared: 2 }, // VERIFY
-  '7,6': { name: 'Raleigh', full: 2, shared: 1 }, // VERIFY
-  '8,6': { name: 'Wilmington', full: 2, shared: 1 }, // VERIFY
-  '3,8': { name: 'Birmingham', full: 2, shared: 1 }, // VERIFY
-  '5,8': { name: 'Atlanta', full: 3, shared: 2 }, // MEDIUM (special)
-  '7,8': { name: 'Charleston SC', full: 3, shared: 2 }, // VERIFY
-  '1,9': { name: 'Jackson', full: 3, shared: 2 }, // VERIFY
-  '4,9': { name: 'Montgomery', full: 2, shared: 1 }, // VERIFY
-  '6,9': { name: 'Savannah', full: 3, shared: 2 }, // VERIFY
-  '3,10': { name: 'Mobile', full: 2, shared: 1 }, // VERIFY
-  '5,10': { name: 'Tallahassee', full: 2, shared: 1 }, // VERIFY
-  '1,11': { name: 'New Orleans', full: 2, shared: 1 }, // VERIFY
+  // northern tier
+  '3,0': { name: 'Chicago', full: 7, shared: 5 },
+  '7,0': { name: 'Detroit', full: 4, shared: 2 },
+  '10,0': { name: 'Buffalo', full: 4, shared: 3 },
+  '12,0': { name: 'Syracuse', full: 2, shared: 1 },
+  '14,0': { name: 'Albany', full: 3, shared: 2 },
+  '16,0': { name: 'Boston', full: 5, shared: 3 },
+  // second tier
+  '2,1': { name: 'Rock Island', full: 2, shared: 1 },
+  '6,1': { name: 'Fort Wayne', full: 2, shared: 1 },
+  '9,1': { name: 'Cleveland', full: 4, shared: 2 },
+  '11,2': { name: 'Pittsburg', full: 5, shared: 3 },
+  '12,3': { name: 'Harrisburg', full: 1, shared: 1 },
+  '14,3': { name: 'New York', full: 8, shared: 5 },
+  // mid tier
+  '6,3': { name: 'Indianapolis', full: 4, shared: 2 },
+  '9,3': { name: 'Columbus', full: 1, shared: 1 },
+  '13,4': { name: 'Philadelphia', full: 6, shared: 4 },
+  '12,5': { name: 'Baltimore', full: 5, shared: 3 },
+  '2,4': { name: 'St. Louis', full: 5, shared: 3 },
+  '7,4': { name: 'Cincinnati', full: 4, shared: 2 },
+  '6,5': { name: 'Louisville', full: 1, shared: 1 },
+  '9,5': { name: 'Charlestown', full: 2, shared: 1 },
+  '10,6': { name: 'Roanoke', full: 2, shared: 1 },
+  '12,6': { name: 'Richmond', full: 3, shared: 2 },
+  '13,7': { name: 'Norfolk', full: 2, shared: 2 },
+  // southern tier
+  '2,7': { name: 'Memphis', full: 3, shared: 2 },
+  '5,7': { name: 'Nashville', full: 3, shared: 2 },
+  '8,7': { name: 'Knoxville', full: 2, shared: 1 },
+  '6,8': { name: 'Chattanooga', full: 4, shared: 2 },
+  '10,8': { name: 'Charlotte', full: 3, shared: 2 },
+  '12,8': { name: 'Raleigh', full: 2, shared: 1 },
+  '5,9': { name: 'Birmingham', full: 2, shared: 1 },
+  '7,9': { name: 'Atlanta', full: 5, shared: 3 },
+  '12,9': { name: 'Wilmington', full: 2, shared: 1 },
+  '11,10': { name: 'Charleston', full: 3, shared: 2 },
+  // gulf / deep south
+  '2,10': { name: 'Jackson', full: 3, shared: 2 },
+  '6,10': { name: 'Montgomery', full: 2, shared: 1 },
+  '10,11': { name: 'Savannah', full: 3, shared: 2 },
+  '4,11': { name: 'Mobile', full: 2, shared: 1 },
+  '7,11': { name: 'Tallahassee', full: 2, shared: 1 },
+  '2,12': { name: 'New Orleans', full: 5, shared: 3 },
 };
 
-// Appalachian mountain spine (blue-grey), diagonal from PA down to N. Georgia.
-const MOUNTAINS = new Set([
-  '5,2', '6,3', '4,5', '5,5', '6,5', '4,6', '5,7', '6,7', '5,9', '4,8', '6,8',
-]);
+const COLS = 17; // 0..16
+const ROWS = 13; // 0..12
 
-// Ocean / gulf cutouts to shape the coastline (not playable hexes).
-const OCEAN = new Set([
-  '9,5', '9,6', '9,7', '9,8', '9,9', '9,10', '9,11',
-  '8,9', '8,10', '8,11', '7,10', '7,11', '6,10', '6,11',
-  '0,10', '0,11', '9,3', '9,4',
-]);
+function isOcean(col: number, row: number): boolean {
+  if (col + row >= 22) return true; // south-east Atlantic beyond the coast
+  if (col >= 15 && row >= 2) return true; // north-east coast beyond Boston
+  if (col <= 1 && row >= 11) return true; // gulf corner (south-west)
+  if (col >= 13 && row >= 10) return true; // Florida / south Atlantic
+  return false;
+}
 
-const COLS = 10; // 0..9
-const ROWS = 12; // 0..11
+// Appalachian mountain spine: a diagonal grey band from Pennsylvania down to
+// northern Georgia, plus a small patch in the north-east (Adirondacks).
+function isMountain(col: number, row: number): boolean {
+  if (row >= 2 && row <= 9) {
+    const center = 11 - (row - 2) * 0.72; // 11 at row2 -> ~6 at row9
+    if (Math.abs(col - center) <= 1) return true;
+  }
+  if (row === 1 && col >= 12 && col <= 13) return true; // NE patch
+  return false;
+}
+
+// Yellow plains: the west/midwest block, the New York/Philadelphia coastal
+// plain, and the gulf/Florida coastal strip. Everything else is forest.
+function isPlains(col: number, row: number): boolean {
+  if (col <= 7 && row <= 6) return true; // Illinois / Indiana / Missouri / Ohio-west
+  if (col >= 12 && row >= 3 && row <= 6) return true; // NY / Philadelphia coastal plain
+  if (row >= 11) return true; // gulf & Florida coast
+  return false;
+}
 
 function regionTerrain(col: number, row: number): Terrain {
-  const id = coordId(col, row);
-  if (MOUNTAINS.has(id)) return 'mountain';
-  // Forest fills the south-east interior (Tennessee/Carolinas/Georgia uplands).
-  if (row >= 6 && col >= 2 && col <= 8) return 'forest';
-  // A little forest flanking the northern Appalachians too.
-  if ((col === 4 || col === 6) && row >= 3 && row <= 5) return 'forest';
-  return 'plains';
+  if (isMountain(col, row)) return 'mountain';
+  if (isPlains(col, row)) return 'plains';
+  return 'forest';
 }
 
 const specs: Record<string, HexSpec> = {};
 for (let col = 0; col < COLS; col++) {
   for (let row = 0; row < ROWS; row++) {
     const id = coordId(col, row);
-    if (OCEAN.has(id)) continue;
     const cityDef = CITY_AT[id];
     if (cityDef) {
       const city: CityInfo = {
@@ -101,7 +118,7 @@ for (let col = 0; col < COLS; col++) {
         developable: !HUBS.has(cityDef.name),
       };
       specs[id] = { terrain: 'city', city };
-    } else {
+    } else if (!isOcean(col, row)) {
       specs[id] = { terrain: regionTerrain(col, row) };
     }
   }
@@ -109,12 +126,11 @@ for (let col = 0; col < COLS; col++) {
 
 export const americanRailsBoard = buildBoard(specs);
 
-// Exported for the verification checklist and for UI layout.
 export const CITY_LIST = Object.entries(CITY_AT).map(([id, c]) => ({
   id,
   name: c.name,
   full: c.full,
   shared: c.shared,
   hub: HUBS.has(c.name),
-  special: c.name === 'Chicago' || c.name === 'New York' || c.name === 'Atlanta',
+  special: SPECIALS.has(c.name),
 }));
