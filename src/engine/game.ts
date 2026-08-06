@@ -26,7 +26,10 @@ export type Move =
   | { type: 'take2'; playerId: string; mode: Take2Mode }
   | { type: 'placeDevelopment'; playerId: string; hexId: string }
   | { type: 'placeCube'; playerId: string; companyId: CompanyId; hexId: string }
-  | { type: 'endExpand'; playerId: string };
+  | { type: 'endExpand'; playerId: string }
+  // finish the chosen action without implementing it (rules: a player "chooses
+  // whether or not to implement" the action they picked).
+  | { type: 'skipAction'; playerId: string };
 
 const EXPAND_COUNT: Partial<Record<ActionType, number>> = { expand2: 2, expand3: 3, expand4: 4 };
 
@@ -64,6 +67,10 @@ export function applyMove(s: GameState, board: BoardDef, move: Move): GameState 
       return doExpandCube(s, board, move.playerId, move.companyId, move.hexId);
     case 'endExpand':
       return finishAction(assertActive(s, move.playerId));
+    case 'skipAction':
+      assertActive(s, move.playerId);
+      if (!s.pendingAction && !s.pendingExpand) throw new Error('no action to skip');
+      return finishAction(s);
   }
 }
 
@@ -305,6 +312,7 @@ export function legalMoves(s: GameState, board: BoardDef, playerId: string): Mov
       }
     }
     moves.push({ type: 'endExpand', playerId });
+    moves.push({ type: 'skipAction', playerId });
     return moves;
   }
 
@@ -328,6 +336,7 @@ export function legalMoves(s: GameState, board: BoardDef, playerId: string): Mov
         }
         break;
     }
+    moves.push({ type: 'skipAction', playerId }); // may always decline to implement
     return moves;
   }
 
