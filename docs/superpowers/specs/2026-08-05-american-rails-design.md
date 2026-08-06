@@ -119,7 +119,9 @@ The rulebook explains the rules but not the full map. The engine reads a **board
 - Hex adjacency (which hexes touch which).
 - The **action track layout**: which action occupies each row and their top-to-bottom order (this drives turn-order priority).
 
-This file is produced by: (a) online research for a first draft, then (b) verification/correction against clear photos of the physical board. The engine and UI are built to read this file, so the map can be filled in and corrected without changing code.
+This file is produced by transcribing the publisher's clean board render (`Pictures of the Game/Screenshot 2026-08-05 214949.png`, which shows every city, its two income values, and the terrain coloring), cross-checked against the online research draft. Only a handful of hard-to-read values will need confirmation from the user. The engine and UI are built to read this file, so the map can be filled in and corrected without changing code.
+
+**Note on the board's border numbers:** the 0–100 numbers around the edge of the board are the **income track** (each company's income marker travels along it), not a hex coordinate grid. Hex positions and adjacency are derived from the map geometry.
 
 ---
 
