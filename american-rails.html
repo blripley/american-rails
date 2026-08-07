@@ -522,7 +522,7 @@ function cityArt(cx,cy){ const rng=hexRng(cx*3+7,cy*23+1); let s=''; const baseY
   return s; }
 function tileArt(def,cx,cy){ if (def.terrain==='plains') return plainsArt(cx,cy); if (def.terrain==='forest') return forestArt(cx,cy); if (def.terrain==='mountain') return mountainArt(cx,cy); if (def.terrain==='city') return cityArt(cx,cy); return ''; }
 
-let BOARD_VB=null, BASE_SVG=null;
+let BOARD_VB=null, BASE_SVG=null, CLICK_LAYER=null;
 function buildBaseBoard(){
   const ids=Object.keys(BOARD); const pts=ids.map(id=>{const d=BOARD[id];return hexPixel(d.col,d.row);});
   const pad=HEX*2.2, minX=Math.min(...pts.map(p=>p.x))-pad, minY=Math.min(...pts.map(p=>p.y))-pad;
@@ -545,6 +545,9 @@ function buildBaseBoard(){
   g+=`<rect x="${minX}" y="${minY}" width="${w}" height="${h}" filter="url(#paper)" opacity="0.42" style="mix-blend-mode:multiply" pointer-events="none"/>`;
   g+=`<rect x="${minX}" y="${minY}" width="${w}" height="${h}" fill="url(#vig)" pointer-events="none"/>`;
   BASE_SVG=g;
+  // transparent top layer that captures hex clicks (so labels/overlay never block them)
+  let cl=''; for (const id in BOARD){ const {x,y}=hexPixel(BOARD[id].col,BOARD[id].row); cl+=`<polygon data-hex="${id}" points="${hexPoints(x,y)}" fill="transparent" pointer-events="all"/>`; }
+  CLICK_LAYER=cl;
 }
 function renderBoard(s){
   const wrap=$('#board-wrap');
@@ -561,7 +564,7 @@ function renderBoard(s){
       ov+=`<rect x="${(bx+0.6).toFixed(1)}" y="${(y+HEX*0.32+0.8).toFixed(1)}" width="${cs.toFixed(1)}" height="${cs.toFixed(1)}" rx="1" fill="#000" opacity="0.35"/>`;
       ov+=`<rect x="${bx.toFixed(1)}" y="${(y+HEX*0.32).toFixed(1)}" width="${cs.toFixed(1)}" height="${cs.toFixed(1)}" rx="1" fill="${COMPANIES[cid].color}" stroke="#141414" stroke-width="0.8"/>`; });
   }
-  wrap.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX} ${minY} ${w} ${h}">${BASE_SVG}<g id="overlay">${ov}</g></svg>`;
+  wrap.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX} ${minY} ${w} ${h}">${BASE_SVG}<g id="overlay" pointer-events="none">${ov}</g><g id="clicks">${CLICK_LAYER}</g></svg>`;
 }
 function renderPanels(s){
   $('#year-label').textContent = s.year;
