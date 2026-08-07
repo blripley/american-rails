@@ -45,36 +45,38 @@ function classify(c){
   return {t:'C', name, raw:joined};
 }
 
-// assign col,row using flat-top geometry, auto-fitting the exact lattice spacing.
-function fitStep(vals, lo, hi){ // find step minimizing rounding residual
+// assign col,row using POINTY-TOP geometry (flat vertical sides): rows are horizontal
+// bands (rowStep = 1.5*size), columns within a row are colStep = sqrt3*size apart,
+// alternate rows offset by colStep/2. Auto-fit spacing.
+function fitStep(vals, lo, hi){
   const v0=Math.min(...vals); let best=lo, bestErr=1e9;
   for (let s=lo; s<=hi; s+=0.05){ let e=0; for(const v of vals){ const k=(v-v0)/s; e+=Math.abs(k-Math.round(k)); } if(e<bestErr){bestErr=e;best=s;} }
   return best;
 }
-function assign(clusters, forceColStep){
+function assign(clusters, forceRowStep){
   const xs=clusters.map(c=>c.x), ys=clusters.map(c=>c.y);
-  const x0=Math.min(...xs), y0raw=Math.min(...ys);
-  const COLSTEP = forceColStep || fitStep(xs, 35, 40);
-  const ROWSTEP = COLSTEP * Math.sqrt(3)/1.5;
-  const hexes = clusters.map(c=>({ col:Math.round((c.x-x0)/COLSTEP), x:c.x, y:c.y, ...classify(c) }));
-  // choose parity (odd-down vs even-down) + y0 by minimum residual
+  const y0=Math.min(...ys);
+  const ROWSTEP = forceRowStep || fitStep(ys, 30, 42);
+  const COLSTEP = ROWSTEP * Math.sqrt(3)/1.5;              // pointy-top: wider than rowStep
+  const hexes = clusters.map(c=>({ row:Math.round((c.y-y0)/ROWSTEP), x:c.x, y:c.y, ...classify(c) }));
+  // choose which row-parity is shifted right by colStep/2
   let best=null;
   for (const parity of [0,1]){
-    const y0 = Math.min(...hexes.map(h=>h.y - (h.col%2===parity?0.5:0)*ROWSTEP));
-    let err=0; const rows=hexes.map(h=>{ const off=(h.col%2===parity?0.5:0); const rf=(h.y-y0)/ROWSTEP-off; err+=Math.abs(rf-Math.round(rf)); return Math.round(rf); });
-    if (!best||err<best.err) best={parity,y0,rows,err,COLSTEP,ROWSTEP};
+    const x0 = Math.min(...hexes.map(h=> h.x - (h.row%2===parity?0.5:0)*COLSTEP));
+    let err=0; const cols=hexes.map(h=>{ const off=(h.row%2===parity?0.5:0); const cf=(h.x-x0)/COLSTEP-off; err+=Math.abs(cf-Math.round(cf)); return Math.round(cf); });
+    if (!best||err<best.err) best={parity,x0,cols,err};
   }
-  hexes.forEach((h,i)=>h.row=best.rows[i]);
-  return { hexes, x0, y0:best.y0, COLSTEP, ROWSTEP, parity:best.parity };
+  hexes.forEach((h,i)=>h.col=best.cols[i]);
+  return { hexes, y0, x0:best.x0, COLSTEP, ROWSTEP, parity:best.parity };
 }
 
 const p1 = assign(clusterPage(1));
-const p2 = assign(clusterPage(2), p1.COLSTEP);
+const p2 = assign(clusterPage(2), p1.ROWSTEP);
 // stitch page2 (gulf strip) beneath page1: both leftmost columns are col 0; stack rows below.
 const p1maxRow = Math.max(...p1.hexes.map(h=>h.row));
 const p2minRow = Math.min(...p2.hexes.map(h=>h.row));
 for (const h of p2.hexes){ h.row = h.row - p2minRow + p1maxRow + 1; }
-console.log('geometry: colStep', p1.COLSTEP.toFixed(2), 'parity', p1.parity, '| p1 hexes', p1.hexes.length, 'p2', p2.hexes.length);
+console.log('geometry: rowStep', p1.ROWSTEP.toFixed(2), 'colStep', p1.COLSTEP.toFixed(2), 'parity', p1.parity, '| p1 hexes', p1.hexes.length, 'p2', p2.hexes.length);
 
 const all = [...p1.hexes, ...p2.hexes];
 // collision check
