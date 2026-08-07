@@ -208,36 +208,57 @@ const ACTION_ROWS = ['pass','develop','fund5','take2','expand3','auction','expan
 const ACTION_LABELS = { pass:'Pass', develop:'Develop', fund5:'Fund $5', take2:'Take $2 / Expand 2', expand3:'Expand 3', auction:'Auction a share', expand4:'Expand 4' };
 const EXPAND_COUNT = { take2:2, expand3:3, expand4:4 };
 
+// Transcribed from the top-down photo IMG_0741 via an aligned hex grid.
+// Coordinates are flat-top with EVEN columns shifted down (matches the board).
 const CITY_AT = {
-  '2,0':{name:'Milwaukee',full:3,shared:2}, '3,0':{name:'Chicago',full:7,shared:5},
-  '1,2':{name:'Rock Island',full:2,shared:1}, '0,4':{name:'St. Louis',full:5,shared:3},
-  '7,0':{name:'Detroit',full:4,shared:2}, '9,1':{name:'Cleveland',full:4,shared:2},
-  '5,2':{name:'Fort Wayne',full:2,shared:1}, '5,3':{name:'Indianapolis',full:4,shared:2},
-  '7,4':{name:'Cincinnati',full:4,shared:2}, '7,3':{name:'Columbus',full:1,shared:1},
-  '5,5':{name:'Louisville',full:1,shared:1}, '10,0':{name:'Buffalo',full:4,shared:3},
-  '12,0':{name:'Syracuse',full:2,shared:1}, '14,0':{name:'Albany',full:3,shared:2},
-  '16,0':{name:'Boston',full:5,shared:3}, '11,2':{name:'Pittsburg',full:5,shared:3},
-  '13,2':{name:'Harrisburg',full:1,shared:1}, '14,3':{name:'New York',full:8,shared:5},
-  '13,4':{name:'Philadelphia',full:6,shared:4}, '13,5':{name:'Baltimore',full:5,shared:3},
-  '14,6':{name:'Norfolk',full:2,shared:2}, '9,5':{name:'Charlestown',full:2,shared:1},
-  '11,5':{name:'Roanoke',full:2,shared:1}, '12,6':{name:'Richmond',full:3,shared:2},
-  '2,7':{name:'Memphis',full:3,shared:2}, '5,6':{name:'Nashville',full:3,shared:2},
-  '8,7':{name:'Knoxville',full:2,shared:1}, '6,8':{name:'Chattanooga',full:4,shared:2},
-  '10,7':{name:'Charlotte',full:3,shared:2}, '12,7':{name:'Raleigh',full:2,shared:1},
-  '13,8':{name:'Wilmington',full:2,shared:1}, '5,9':{name:'Birmingham',full:2,shared:1},
-  '7,9':{name:'Atlanta',full:5,shared:3}, '11,9':{name:'Charleston',full:3,shared:2},
-  '3,10':{name:'Jackson',full:3,shared:2}, '6,10':{name:'Montgomery',full:2,shared:1},
-  '9,10':{name:'Savannah',full:3,shared:2}, '5,11':{name:'Mobile',full:2,shared:1},
-  '8,11':{name:'Tallahassee',full:2,shared:1}, '2,11':{name:'New Orleans',full:5,shared:3},
+  '3,1':{name:'Chicago',full:7,shared:5}, '2,1':{name:'Rock Island',full:2,shared:1},
+  '7,1':{name:'Detroit',full:4,shared:2}, '5,1':{name:'Fort Wayne',full:2,shared:1},
+  '9,1':{name:'Cleveland',full:4,shared:2}, '11,1':{name:'Buffalo',full:4,shared:3},
+  '14,0':{name:'Syracuse',full:2,shared:1}, '15,1':{name:'Albany',full:3,shared:2},
+  '18,1':{name:'Boston',full:5,shared:3}, '11,2':{name:'Pittsburg',full:5,shared:3},
+  '14,2':{name:'Harrisburg',full:1,shared:1}, '16,2':{name:'New York',full:8,shared:5},
+  '15,3':{name:'Philadelphia',full:6,shared:4}, '14,3':{name:'Baltimore',full:5,shared:3},
+  '6,2':{name:'Indianapolis',full:4,shared:2}, '8,2':{name:'Columbus',full:1,shared:1},
+  '7,3':{name:'Cincinnati',full:4,shared:2}, '2,3':{name:'St. Louis',full:5,shared:3},
+  '5,4':{name:'Louisville',full:1,shared:1}, '9,4':{name:'Charlestown',full:2,shared:1},
+  '11,5':{name:'Roanoke',full:2,shared:1}, '13,5':{name:'Richmond',full:3,shared:2},
+  '14,5':{name:'Norfolk',full:2,shared:2}, '4,5':{name:'Nashville',full:3,shared:2},
+  '7,6':{name:'Knoxville',full:2,shared:1}, '12,5':{name:'Raleigh',full:2,shared:1},
+  '2,6':{name:'Memphis',full:3,shared:2}, '6,6':{name:'Chattanooga',full:4,shared:2},
+  '9,6':{name:'Charlotte',full:3,shared:2}, '13,7':{name:'Wilmington',full:2,shared:1},
+  '5,7':{name:'Birmingham',full:2,shared:1}, '6,7':{name:'Atlanta',full:5,shared:3},
+  '11,8':{name:'Charleston',full:3,shared:2}, '2,8':{name:'Jackson',full:3,shared:2},
+  '5,8':{name:'Montgomery',full:2,shared:1}, '9,9':{name:'Savannah',full:3,shared:2},
+  '4,9':{name:'Mobile',full:2,shared:1}, '7,10':{name:'Tallahassee',full:2,shared:1},
+  '1,10':{name:'New Orleans',full:5,shared:3},
 };
-const COLS = 18, ROWS = 12;
-const COAST_COL = [16,16,15,15,15,14,14,14,14,13,13,12];
+const COLS = 19, ROWS = 13;
+// easternmost land column per row (Atlantic lies to the right)
+const COAST_COL = [18,18,16,15,15,14,13,13,12,10,8,6,5];
 function coordId(c,r){ return c+','+r; }
-function isOcean(c,r){ if (c > (COAST_COL[r] ?? 12)) return true; if (c <= 0 && r >= 10) return true; if (r >= 11 && c >= 3 && c <= 10) return true; return false; }
-function isMountain(c,r){ if (r>=2&&r<=9){ const ctr=11-(r-2)*0.72; if (Math.abs(c-ctr)<=0.75) return true; } if (r===1&&c>=12&&c<=13) return true; return false; }
-function isPlains(c,r){ if (c<=8&&r<=6) return true; if (c>=12&&r>=3&&r<=7) return true; if (r>=10) return true; return false; }
+function isOcean(c,r){
+  if (c < 1) return true;                       // Mississippi / west edge
+  if (c > (COAST_COL[r] ?? 6)) return true;      // Atlantic
+  if (r >= 11) return true;                      // deep gulf
+  if (r >= 10 && (c < 1 || c > 8)) return true;  // gulf coast
+  return false;
+}
+// Appalachian mountain band (grey), diagonal NE->SW, + a patch near Albany.
+function isMountain(c,r){
+  if (r>=2 && r<=7){ const ctr = 11 - (r-2)*0.85; if (Math.abs(c-ctr) <= 1) return true; }
+  if (r===1 && c>=15 && c<=16) return true;
+  return false;
+}
+// Golden plains: the midwest block, the NY/Philadelphia coastal plain, the gulf coast.
+function isPlains(c,r){
+  if (c<=8 && r<=4) return true;      // midwest / Ohio valley
+  if (c>=14 && r>=2 && r<=4) return true; // seaboard plain
+  if (r>=9) return true;              // gulf coast
+  return false;
+}
+// flat-top even-q (even columns shifted down) neighbours
 function neighborCoords(c,r){ const even=(c%2)===0;
-  const dirs = even ? [[1,0],[1,-1],[0,-1],[-1,-1],[-1,0],[0,1]] : [[1,1],[1,0],[0,-1],[-1,0],[-1,1],[0,1]];
+  const dirs = even ? [[0,-1],[0,1],[1,0],[1,1],[-1,0],[-1,1]] : [[0,-1],[0,1],[1,-1],[1,0],[-1,-1],[-1,0]];
   return dirs.map(([dc,dr]) => coordId(c+dc,r+dr)); }
 function buildBoard(){ const hexes={};
   for (let c=0;c<COLS;c++) for (let r=0;r<ROWS;r++){ if (isOcean(c,r)) continue; const id=coordId(c,r); const city=CITY_AT[id];
@@ -249,7 +270,7 @@ const BOARD = buildBoard();
 
 /* ============================ 2. HEX GEOMETRY ============================ */
 const HEX = 38;
-function hexPixel(c,r){ return { x: HEX*1.5*c, y: HEX*Math.sqrt(3)*(r+0.5*(c&1)) }; }
+function hexPixel(c,r){ return { x: HEX*1.5*c, y: HEX*Math.sqrt(3)*(r+0.5*(1-(c&1))) }; }
 function hexPoints(cx,cy){ let p=''; for (let i=0;i<6;i++){ const a=Math.PI/180*(60*i); p+=(cx+HEX*Math.cos(a))+','+(cy+HEX*Math.sin(a))+' '; } return p.trim(); }
 // deterministic per-hex RNG so each tile is unique but stable
 function hexRng(c,r){ let a=((c*73856093)^(r*19349663))>>>0; return ()=>{ a=(a+0x6D2B79F5)|0; let t=Math.imul(a^(a>>>15),1|a); t=(t+Math.imul(t^(t>>>7),61|t))^t; return ((t^(t>>>14))>>>0)/4294967296; }; }
@@ -757,7 +778,7 @@ window.performMove = function(cmd){ if (!gameState) return {ok:false}; applyUi(g
 // Built-in self-test: drives full games headlessly and checks invariants.
 window.__selfTest = function(){
   const results=[]; const assert=(name,cond)=>results.push({name,pass:!!cond});
-  const cityIds=['3,0','14,3','7,9','0,4','16,0','11,2','13,4','10,0','7,4','2,11','9,10','5,6','6,10','12,7'];
+  const cityIds=['3,1','16,2','6,7','2,3','18,1','11,2','15,3','11,1','7,3','1,10','9,9','4,5','5,8','12,5'];
   function st(){ return JSON.parse(window.render_game_to_text()); }
   function driveSetup(s){ let g=0; while(s.phase==='setup'&&g++<120){ if(s.turnPhase==='bidding'){ (s.auction.bid===0 && s.players[s.currentPlayer].money>=10)?applyUi(gameState,'bid:10'):applyUi(gameState,'pass'); } else { const occ=Object.keys(st().cubesOnBoard||{}); applyUi(gameState,'hex:'+cityIds.find(c=>!occ.includes(c))); } s=st(); } return s; }
   function playToEnd(s){ let g=0; while(s.phase!=='gameOver'&&g++<4000){ const tp=s.turnPhase;
