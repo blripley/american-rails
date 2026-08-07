@@ -612,7 +612,10 @@ function renderBoard(s){
       ov+=`<ellipse cx="${bx.toFixed(1)}" cy="${(by+sz*0.95).toFixed(1)}" rx="${(sz*0.95).toFixed(1)}" ry="${(sz*0.36).toFixed(1)}" fill="#000" opacity="0.28"/>`;
       ov+=cube3d(bx,by,sz,COMPANIES[cid].color); });
   }
-  wrap.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX} ${minY} ${w} ${h}">${BASE_SVG}<g id="overlay" pointer-events="none">${ov}</g><g id="clicks">${CLICK_LAYER}</g></svg>`;
+  // build the heavy base SVG once; on later renders update only the (small) overlay group
+  let ovEl = wrap.querySelector('#overlay');
+  if (!ovEl){ wrap.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX} ${minY} ${w} ${h}">${BASE_SVG}<g id="overlay" pointer-events="none">${ov}</g><g id="clicks">${CLICK_LAYER}</g></svg>`; }
+  else { ovEl.innerHTML = ov; }
 }
 function shade(hex,amt){ const h=hex.replace('#',''); let r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
   if(amt>=0){ r+=(255-r)*amt; g+=(255-g)*amt; b+=(255-b)*amt; } else { r*=(1+amt); g*=(1+amt); b*=(1+amt); }
