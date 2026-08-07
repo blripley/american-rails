@@ -1,42 +1,35 @@
 # American Rails — build progress
 
-**Deliverable:** `american-rails.html` — a single-file, no-build browser game built with the
-`develop-board-game` skill. Open it in a browser (or serve the folder and visit it). Also runnable
-via the small dev server: `node scripts/serve.mjs` → http://localhost:5177/american-rails.html
+**Deliverable:** `american-rails.html` — a single-file, no-build browser game. Double-click to play
+locally; online play connects friends peer-to-peer with a room code. Dev server for testing:
+`node scripts/serve.mjs` → http://localhost:5177/american-rails.html
 
-## Status: PLAYABLE (local hot-seat). Online P2P built, needs a real 2-device test. Board layout art-complete; exact tile placement still approximate.
+## Status: FUNCTIONALLY COMPLETE ✅ (design polish still to come)
 
-| Area | State | Grade | Notes |
-|---|---|---|---|
-| Rules engine | Done | A | Setup auctions, action-track turn order + blocking, all 7 actions, expansion (cost/adjacency/terrain limits), city income (full/shared + dev + special connections), dividends, all end-game conditions. |
-| Local hot-seat | Done | A | Full game playable by clicking. Verified in-browser. |
-| Board tile art | Done | A- | Engraved antique-map style (frontend-design): wheat plains, forest canopy, mountain peaks, parchment city tiles w/ rooftops, ocean ground, paper grain, vignette. |
-| Board tile *layout* | Approximate | C | City names/values are correct (from photo IMG_0728). Exact per-hex terrain/positions are a best-effort reconstruction, not pixel-matched. Data-only (`CITY_AT` + terrain fns) so refinable without touching logic. |
-| Online P2P | Built | B- | PeerJS host/join with room code, host-authoritative broadcast. Not yet tested across two real devices. |
-| AI opponents | Not built | — | Out of scope for now (American Rails AI is hard; group is 4 humans). |
+| Area | State | Notes |
+|---|---|---|
+| Rules engine | Done | Setup auctions, action-track turn order + blocking, all 7 actions, expansion (terrain cost/adjacency/limits), city income (full/shared + dev + special connections), dividends, all end-game conditions. |
+| Board | Done | **Exact import from Ben's Canva PDF** (`Pictures of the Game/meadow.pdf`): pointy-top hexes, 19×18 grid, all 39 cities + every terrain tile read from the PDF's label positions. Ben approved. |
+| Local hot-seat | Done | Full game playable by clicking; verified with real clicks (lobby, action buttons, board hexes). |
+| Online P2P | Done | PeerJS host/join by room code. Verified across 3 browser tabs: host starts → board syncs to all → moves sync both directions → each player only gets controls on their turn. |
+| Tile art | Done | Detailed per-hex art (meadow grass, forest canopy, mountains, town skylines). (Further design polish deferred per Ben.) |
 
-## Verification (via Playwright MCP browser)
-`window.__selfTest()` → **7/7 pass**:
-- 4-player: setup reaches action phase; all companies placed; game ends at 1857; winner declared.
-- 3-player: exactly one company removed.
-- Auctions: $5 bid rejected (min $10); $10 accepted.
-Plus manual scripted checks: expansion places cubes with correct cost/adjacency/terrain limits;
-income adjusts on shared cities; dividends pay out; a full game runs setup → 1857 → winner.
+## Verification (this session, via Playwright)
+- **`window.__selfTest()` → 7/7** (3p & 4p full games to 1857, company removal, bid validation).
+- **Comprehensive playthrough (3, 4, 5 players): 0 errors.** Every action type exercised many times
+  (expand3/expand4, fund5, develop, take2 both modes, auction, pass); all games completed to 1857
+  with a winner; 3-player game correctly produced a tie.
+- **UI clicks:** lobby buttons, action-bar buttons (inline onclick), and board hex clicks all work.
+  Fixed a bug where the highlight overlay blocked hex clicks (added a transparent click layer).
+- **Online:** host + 2 guests connected over PeerJS; game start and moves synced correctly in both
+  directions across tabs.
 
-## Golden-rules self-review
-- **State is truth / render(state):** yes. `render_game_to_text()` and UI read from `gameState`.
-- **Rules validated at boundaries:** yes (`chooseAction` blocking, `canPlaceCube`, bid validation, turn gating).
-- **Hidden info:** American Rails has none (money/shares public); `makeView` sends full state by design.
-- **Boring tech:** vanilla JS + PeerJS from CDN; no build step.
-- **Deviation (conscious):** engine functions mutate `gameState` in place rather than returning a new
-  state. Safe here because play is host-authoritative and there is no undo; the host broadcasts full
-  state after each move. Revisit if we add undo/replay.
+## How to play (for Ben)
+1. Double-click `american-rails.html` → opens in your browser.
+2. **Local:** "Local Game", pick players, Start, pass the laptop between turns.
+3. **Online:** one person clicks "Host Online Game" and shares the 4-letter code; others click
+   "Join Online Game", enter the code + a name; host clicks Start when everyone's in.
 
-## Next steps (priority order)
-1. **Exact tile-by-tile layout** — finish matching the physical board (needs Ben's eye or the
-   colour-sampler on a clean top-down photo). Highest remaining fidelity gap.
-2. **Online 2-device test** — host on one machine, join from another; confirm PeerJS signalling works
-   on the group's networks; add reconnect polish.
-3. **Turn log/UX polish** — surface illegal-move reasons, animate cube placement, highlight the active
-   action-track row, optional in-app text chat.
-4. **Deploy** — it's a static file; can be hosted free (e.g. GitHub Pages) so friends just open a link.
+## Next (after Ben returns)
+- Design polish pass (tile art refinements, UI styling).
+- Optional: reconnection handling for online drops; deploy to a shareable link (GitHub Pages).
