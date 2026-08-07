@@ -208,62 +208,19 @@ const ACTION_ROWS = ['pass','develop','fund5','take2','expand3','auction','expan
 const ACTION_LABELS = { pass:'Pass', develop:'Develop', fund5:'Fund $5', take2:'Take $2 / Expand 2', expand3:'Expand 3', auction:'Auction a share', expand4:'Expand 4' };
 const EXPAND_COUNT = { take2:2, expand3:3, expand4:4 };
 
-// Transcribed cell-by-cell from Ben's board schematic (pictures 1-4) via an
-// aligned 18-column grid. Flat-top, EVEN columns shifted DOWN (odd columns higher).
-const CITY_AT = {
-  '1,0':{name:'Chicago',full:7,shared:5}, '0,1':{name:'Rock Island',full:2,shared:1},
-  '5,0':{name:'Detroit',full:4,shared:2}, '4,1':{name:'Fort Wayne',full:2,shared:1},
-  '8,1':{name:'Cleveland',full:4,shared:2}, '9,0':{name:'Buffalo',full:4,shared:3},
-  '12,0':{name:'Syracuse',full:2,shared:1}, '14,0':{name:'Albany',full:3,shared:2},
-  '17,0':{name:'Boston',full:5,shared:3}, '10,2':{name:'Pittsburg',full:5,shared:3},
-  '13,2':{name:'Harrisburg',full:1,shared:1}, '16,2':{name:'New York',full:8,shared:5},
-  '15,3':{name:'Philadelphia',full:6,shared:4}, '14,4':{name:'Baltimore',full:5,shared:3},
-  '4,3':{name:'Indianapolis',full:4,shared:2}, '7,3':{name:'Columbus',full:1,shared:1},
-  '5,4':{name:'Cincinnati',full:4,shared:2}, '0,3':{name:'St. Louis',full:5,shared:3},
-  '4,5':{name:'Louisville',full:1,shared:1}, '8,5':{name:'Charlestown',full:2,shared:1},
-  '11,6':{name:'Roanoke',full:2,shared:1}, '13,6':{name:'Richmond',full:3,shared:2},
-  '15,7':{name:'Norfolk',full:2,shared:2}, '3,7':{name:'Nashville',full:3,shared:2},
-  '6,7':{name:'Knoxville',full:2,shared:1}, '12,7':{name:'Raleigh',full:2,shared:1},
-  '0,6':{name:'Memphis',full:3,shared:2}, '4,8':{name:'Chattanooga',full:4,shared:2},
-  '9,8':{name:'Charlotte',full:3,shared:2}, '14,9':{name:'Wilmington',full:2,shared:1},
-  '3,9':{name:'Birmingham',full:2,shared:1}, '5,9':{name:'Atlanta',full:5,shared:3},
-  '11,10':{name:'Charleston',full:3,shared:2}, '0,9':{name:'Jackson',full:3,shared:2},
-  '3,11':{name:'Montgomery',full:2,shared:1}, '9,11':{name:'Savannah',full:3,shared:2},
-  '3,12':{name:'Mobile',full:2,shared:1}, '6,12':{name:'Tallahassee',full:2,shared:1},
-  '0,12':{name:'New Orleans',full:5,shared:3},
-};
-const COLS = 18, ROWS = 13;
-// easternmost land column per row (Atlantic to the right); index = row
-const COAST_COL = [17,17,16,15,15,14,13,15,14,14,12,10,7];
+// EXACT board, imported from Ben's Canva design (Pictures of the Game/meadow.pdf):
+// every hex's terrain/city read from the PDF's text-label positions and snapped to a
+// flat-top grid (even columns shifted down). '.'=meadow(plains) 'f'=forest 'M'=mountain 'C'=city.
+const PDF_CELLS = {"16,11":{"t":"C","name":"Wilmington","full":2,"shared":1},"18,8":{"t":"C","name":"Norfolk","full":2,"shared":2},"17,5":{"t":"C","name":"Baltimore","full":5,"shared":3},"19,4":{"t":"C","name":"Philadelphia","full":6,"shared":4},"13,3":{"t":"C","name":"Pittsburg","full":5,"shared":3},"17,3":{"t":"C","name":"Harrisburg","full":1,"shared":1},"11,3":{"t":"C","name":"Cleveland","full":4,"shared":2},"14,0":{"t":"C","name":"Buffalo","full":4,"shared":3},"18,0":{"t":"C","name":"Syracuse","full":2,"shared":1},"20,0":{"t":"C","name":"Albany","full":3,"shared":2},"24,1":{"t":"C","name":"Boston","full":5,"shared":3},"21,3":{"t":"C","name":"New York","full":8,"shared":5},"6,2":{"t":"C","name":"Fort Wayne","full":2,"shared":1},"0,2":{"t":"C","name":"Rock Island","full":2,"shared":1},"3,2":{"t":"C","name":"Chicago","full":7,"shared":5},"8,1":{"t":"C","name":"Detroit","full":4,"shared":2},"0,10":{"t":"C","name":"Memphis","full":3,"shared":2},"1,6":{"t":"C","name":"St. Louis","full":5,"shared":3},"13,13":{"t":"C","name":"Charleston","full":3,"shared":2},"4,9":{"t":"C","name":"Nashville","full":3,"shared":2},"8,5":{"t":"C","name":"Cincinnati","full":4,"shared":2},"6,4":{"t":"C","name":"Indianapolis","full":4,"shared":2},"10,4":{"t":"C","name":"Columbus","full":1,"shared":1},"1,14":{"t":"C","name":"Jackson","full":3,"shared":2},"8,9":{"t":"C","name":"Knoxville","full":2,"shared":1},"15,9":{"t":"C","name":"Raleigh","full":2,"shared":1},"13,7":{"t":"C","name":"Roanoke","full":2,"shared":1},"16,7":{"t":"C","name":"Richmond","full":3,"shared":2},"6,6":{"t":"C","name":"Louisville","full":1,"shared":1},"11,6":{"t":"C","name":"Charlestown","full":2,"shared":1},"5,14":{"t":"C","name":"Montgomery","full":2,"shared":1},"4,12":{"t":"C","name":"Birmingham","full":2,"shared":1},"7,12":{"t":"C","name":"Atlanta","full":5,"shared":3},"6,10":{"t":"C","name":"Chattanooga","full":4,"shared":2},"11,10":{"t":"C","name":"Charlotte","full":3,"shared":2},"10,15":{"t":"C","name":"Savannah","full":3,"shared":2},"7,17":{"t":"C","name":"Tallahassee","full":2,"shared":1},"3,17":{"t":"C","name":"Mobile","full":2,"shared":1},"0,17":{"t":"C","name":"New Orleans","full":5,"shared":3},"15,2":{"t":"f"},"19,2":{"t":"f"},"20,2":{"t":"f"},"21,2":{"t":"f"},"23,2":{"t":"f"},"12,2":{"t":"f"},"13,1":{"t":"f"},"15,1":{"t":"f"},"16,0":{"t":"f"},"19,1":{"t":"f"},"22,0":{"t":"f"},"23,1":{"t":"f"},"14,1":{"t":"f"},"16,1":{"t":"f"},"17,1":{"t":"f"},"18,1":{"t":"f"},"21,1":{"t":"f"},"22,1":{"t":"f"},"9,9":{"t":"M"},"11,9":{"t":"M"},"13,5":{"t":"M"},"14,5":{"t":"M"},"14,4":{"t":"M"},"15,4":{"t":"M"},"16,3":{"t":"M"},"16,2":{"t":"M"},"18,2":{"t":"M"},"20,1":{"t":"M"},"9,3":{"t":"."},"10,3":{"t":"."},"18,3":{"t":"."},"20,3":{"t":"."},"2,2":{"t":"."},"7,2":{"t":"."},"0,3":{"t":"."},"1,1":{"t":"."},"4,2":{"t":"."},"5,1":{"t":"."},"6,1":{"t":"."},"8,2":{"t":"."},"10,2":{"t":"."},"0,12":{"t":"f"},"11,14":{"t":"f"},"12,13":{"t":"f"},"14,12":{"t":"f"},"14,11":{"t":"f"},"16,10":{"t":"f"},"12,3":{"t":"f"},"14,3":{"t":"f"},"14,2":{"t":"f"},"0,4":{"t":"."},"17,9":{"t":"."},"17,7":{"t":"."},"16,6":{"t":"."},"18,5":{"t":"."},"1,3":{"t":"."},"2,3":{"t":"."},"4,3":{"t":"."},"5,3":{"t":"."},"6,3":{"t":"."},"8,3":{"t":"."},"3,4":{"t":"."},"4,4":{"t":"."},"0,11":{"t":"."},"0,9":{"t":"."},"0,8":{"t":"."},"0,7":{"t":"."},"0,5":{"t":"."},"5,5":{"t":"f"},"9,5":{"t":"f"},"11,5":{"t":"f"},"12,5":{"t":"f"},"16,5":{"t":"f"},"11,4":{"t":"f"},"12,4":{"t":"f"},"16,4":{"t":"f"},"7,4":{"t":"."},"8,4":{"t":"."},"18,4":{"t":"."},"0,13":{"t":"."},"4,7":{"t":"."},"2,7":{"t":"."},"1,7":{"t":"."},"2,6":{"t":"."},"3,6":{"t":"."},"1,5":{"t":"."},"6,5":{"t":"."},"2,4":{"t":"."},"5,7":{"t":"f"},"9,7":{"t":"f"},"10,7":{"t":"f"},"14,7":{"t":"f"},"4,6":{"t":"f"},"7,6":{"t":"f"},"8,6":{"t":"f"},"10,6":{"t":"f"},"15,6":{"t":"f"},"8,8":{"t":"M"},"10,8":{"t":"M"},"11,8":{"t":"M"},"12,7":{"t":"M"},"12,6":{"t":"M"},"14,6":{"t":"M"},"2,5":{"t":"."},"4,5":{"t":"."},"4,8":{"t":"f"},"6,8":{"t":"f"},"7,8":{"t":"f"},"12,8":{"t":"f"},"14,8":{"t":"f"},"15,8":{"t":"f"},"16,8":{"t":"f"},"8,7":{"t":"f"},"6,7":{"t":"f"},"11,12":{"t":"."},"12,12":{"t":"."},"1,9":{"t":"."},"16,9":{"t":"."},"2,8":{"t":"."},"6,11":{"t":"f"},"9,11":{"t":"f"},"11,11":{"t":"f"},"2,9":{"t":"f"},"5,9":{"t":"f"},"6,9":{"t":"f"},"12,9":{"t":"f"},"13,9":{"t":"f"},"3,8":{"t":"f"},"8,11":{"t":"M"},"7,10":{"t":"M"},"8,10":{"t":"M"},"10,10":{"t":"M"},"12,11":{"t":"f"},"2,10":{"t":"f"},"3,10":{"t":"f"},"4,10":{"t":"f"},"13,10":{"t":"f"},"13,11":{"t":"."},"14,10":{"t":"."},"15,10":{"t":"."},"2,12":{"t":"f"},"3,12":{"t":"f"},"6,12":{"t":"f"},"9,12":{"t":"f"},"10,12":{"t":"f"},"1,11":{"t":"f"},"2,11":{"t":"f"},"4,11":{"t":"f"},"5,11":{"t":"f"},"1,13":{"t":"f"},"3,13":{"t":"f"},"5,13":{"t":"f"},"6,13":{"t":"f"},"8,13":{"t":"f"},"9,13":{"t":"f"},"9,14":{"t":"."},"10,14":{"t":"."},"10,13":{"t":"."},"2,14":{"t":"f"},"3,14":{"t":"f"},"7,14":{"t":"f"},"9,16":{"t":"f"},"8,15":{"t":"."},"6,16":{"t":"."},"4,16":{"t":"f"},"2,16":{"t":"f"},"1,17":{"t":"."},"0,15":{"t":"."},"6,15":{"t":"."},"5,16":{"t":"f"},"4,15":{"t":"f"},"3,16":{"t":"f"},"1,16":{"t":"f"}};
 function coordId(c,r){ return c+','+r; }
-function isOcean(c,r){
-  if (c < 0) return true;
-  if (c > (COAST_COL[r] ?? 7)) return true;   // Atlantic
-  if (r >= 12 && c >= 8) return true;          // Gulf / south Atlantic
-  return false;
-}
-// Appalachian mountain band (grey), diagonal NE->SW, + a patch near Syracuse.
-function isMountain(c,r){
-  if (r>=2 && r<=8){ const ctr = 13 - r*1.0; if (Math.abs(c-ctr) <= 1.3) return true; }
-  if (r<=1 && c>=11 && c<=12) return true;
-  return false;
-}
-// Meadow (plains): the midwest, the Mississippi valley, the NY coastal plain, the gulf.
-function isPlains(c,r){
-  if (c<=8 && r<=4) return true;             // NW / Ohio valley
-  if (c<=2) return true;                     // Mississippi valley
-  if (c>=13 && r>=2 && r<=4) return true;    // NY / Philadelphia coastal plain
-  if (r>=10) return true;                    // gulf coast / south
-  return false;
-}
 // flat-top even-q (even columns shifted down) neighbours
 function neighborCoords(c,r){ const even=(c%2)===0;
   const dirs = even ? [[0,-1],[0,1],[1,0],[1,1],[-1,0],[-1,1]] : [[0,-1],[0,1],[1,-1],[1,0],[-1,-1],[-1,0]];
   return dirs.map(([dc,dr]) => coordId(c+dc,r+dr)); }
-function buildBoard(){ const hexes={};
-  for (let c=0;c<COLS;c++) for (let r=0;r<ROWS;r++){ if (isOcean(c,r)) continue; const id=coordId(c,r); const city=CITY_AT[id];
-    let terrain = city?'city':(isMountain(c,r)?'mountain':(isPlains(c,r)?'plains':'forest'));
-    hexes[id]={col:c,row:r,terrain, city: city?{name:city.name,full:city.full,shared:city.shared,developable:!HUBS.has(city.name)}:null }; }
+function buildBoard(){ const hexes={}; const TER={'.':'plains','f':'forest','M':'mountain','C':'city'};
+  for (const id in PDF_CELLS){ const cell=PDF_CELLS[id]; const p=id.split(',').map(Number);
+    hexes[id]={ col:p[0], row:p[1], terrain:TER[cell.t],
+      city: cell.t==='C' ? {name:cell.name,full:cell.full,shared:cell.shared,developable:!HUBS.has(cell.name)} : null }; }
   for (const id in hexes){ hexes[id].adj = neighborCoords(hexes[id].col,hexes[id].row).filter(n=>hexes[n]); }
   return hexes; }
 const BOARD = buildBoard();
@@ -778,7 +735,7 @@ window.performMove = function(cmd){ if (!gameState) return {ok:false}; applyUi(g
 // Built-in self-test: drives full games headlessly and checks invariants.
 window.__selfTest = function(){
   const results=[]; const assert=(name,cond)=>results.push({name,pass:!!cond});
-  const cityIds=['1,0','16,2','5,9','0,3','17,0','10,2','15,3','9,0','5,4','0,12','9,11','3,7','3,11','12,7'];
+  const cityIds=['3,2','21,3','7,12','1,6','24,1','13,3','19,4','14,0','8,5','0,17','10,15','4,9','5,14','15,9'];
   function st(){ return JSON.parse(window.render_game_to_text()); }
   function driveSetup(s){ let g=0; while(s.phase==='setup'&&g++<120){ if(s.turnPhase==='bidding'){ (s.auction.bid===0 && s.players[s.currentPlayer].money>=10)?applyUi(gameState,'bid:10'):applyUi(gameState,'pass'); } else { const occ=Object.keys(st().cubesOnBoard||{}); applyUi(gameState,'hex:'+cityIds.find(c=>!occ.includes(c))); } s=st(); } return s; }
   function playToEnd(s){ let g=0; while(s.phase!=='gameOver'&&g++<4000){ const tp=s.turnPhase;
