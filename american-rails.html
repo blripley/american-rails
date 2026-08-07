@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>American Rails</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%F0%9F%9A%82%3C/text%3E%3C/svg%3E">
 <!--
 ================================================================================
 AMERICAN RAILS — rules reference (Tim Harrison / Quined Games, 2013)
@@ -122,6 +123,26 @@ input, select { font-family: var(--font-main); font-size: var(--font-size-md); p
 .sidebar { flex: 0 0 340px; display: flex; flex-direction: column; gap: var(--space-sm); padding: var(--space-sm); overflow-y: auto; background: var(--color-surface); border-left: 1px solid var(--color-border); }
 .card { background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius); padding: var(--space-sm) var(--space-md); box-shadow: var(--shadow-sm); }
 .card h3 { font-size: var(--font-size-sm); text-transform: uppercase; letter-spacing: .06em; color: var(--color-text-muted); margin-bottom: var(--space-sm); }
+.furniture-card { padding: var(--space-sm); }
+.furn-label { font-size: var(--font-size-xs); text-transform: uppercase; letter-spacing: .07em; color: var(--color-text-muted); margin: 2px 0; }
+.co-row2 { display: flex; align-items: center; gap: var(--space-sm); padding: 5px 4px; border-bottom: 1px solid rgba(255,255,255,.05); }
+.co-row2:last-child { border-bottom: none; }
+.co-train { flex: 0 0 auto; filter: drop-shadow(0 1px 1px rgba(0,0,0,.4)); }
+.co-info { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.15; }
+.co-name2 { font-family: var(--font-display); font-weight: 700; font-size: .92rem; }
+.co-sub { font-size: var(--font-size-xs); color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+.co-supply { flex: 0 0 auto; display: flex; flex-direction: column; align-items: flex-end; font-size: var(--font-size-xs); color: var(--color-text-muted); line-height: 1.25; }
+.co-supply b { color: var(--color-text); font-variant-numeric: tabular-nums; }
+.pl-row2 { display: flex; gap: var(--space-sm); padding: 6px 4px; border-radius: 6px; }
+.pl-row2.active { background: rgba(201,162,75,.14); box-shadow: inset 2px 0 0 var(--color-accent); }
+.pl-dot { flex: 0 0 auto; width: 12px; height: 12px; border-radius: 50%; margin-top: 3px; border: 1px solid rgba(0,0,0,.4); }
+.pl-main { flex: 1 1 auto; min-width: 0; }
+.pl-head { display: flex; align-items: baseline; justify-content: space-between; }
+.pl-name { font-weight: 600; }
+.share-cards { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+.share-card { width: 30px; height: 22px; border-radius: 2px; background: var(--cc); border: 1px solid rgba(0,0,0,.45); box-shadow: 0 1px 2px rgba(0,0,0,.35), inset 0 4px 0 rgba(255,255,255,.18); position: relative; overflow: hidden; }
+.share-card i { position: absolute; left: 0; right: 0; bottom: 1px; text-align: center; font-size: 5.5px; font-style: normal; letter-spacing: -.2px; color: rgba(0,0,0,.72); text-transform: uppercase; font-weight: 700; }
+.no-shares { font-size: var(--font-size-xs); color: var(--color-text-muted); font-style: italic; }
 .co-row, .pl-row { display: flex; align-items: center; gap: var(--space-sm); padding: 3px 0; font-size: var(--font-size-sm); }
 .swatch { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,.4); flex-shrink: 0; }
 .co-name { flex: 1 1 auto; }
@@ -174,7 +195,7 @@ input, select { font-family: var(--font-main); font-size: var(--font-size-md); p
 </div>
 
 <div id="game" data-screen="game">
-  <div class="board-area">
+  <main class="board-area">
     <div class="topbar">
       <h2>AMERICAN RAILS</h2>
       <div>Year <span class="mono" id="year-label" data-year>1851</span></div>
@@ -183,10 +204,11 @@ input, select { font-family: var(--font-main); font-size: var(--font-size-md); p
     </div>
     <div class="board-wrap" id="board-wrap" data-board></div>
     <div class="card" style="margin-top:var(--space-sm);"><div class="actions-bar" id="actions-bar" data-actions></div></div>
-  </div>
+  </main>
   <div class="sidebar">
-    <div class="card"><h3>Companies</h3><div id="companies" data-companies></div></div>
-    <div class="card"><h3>Players</h3><div id="players" data-players></div></div>
+    <div class="card furniture-card"><div id="furniture" data-furniture></div></div>
+    <div class="card"><h3>Railroad Companies</h3><div id="companies" data-companies></div></div>
+    <div class="card"><h3>Players &amp; Shares</h3><div id="players" data-players></div></div>
     <div class="card"><h3>Log</h3><div id="log" data-log></div></div>
   </div>
 </div>
@@ -201,7 +223,10 @@ const COMPANIES = {
   liberty:{name:'Liberty',color:'#c0392b',cubes:19,shares:2}, republic:{name:'Republic',color:'#2f6fb0',cubes:17,shares:3},
 };
 const COMPANY_IDS = Object.keys(COMPANIES);
+const PLAYER_COLORS = ['#d94f3d','#3f7fc4','#e8b64a','#5fae5a','#9b5fc0']; // per-seat train colours
 const TOTAL_DEV_MARKERS = 12;
+const ACTION_ICON = { pass:'→', develop:'⌂', fund5:'$5', take2:'$2', expand3:'▪▪▪', auction:'⚖', expand4:'▪▪▪▪' };
+const ACTION_SHORT = { pass:'Pass', develop:'Develop', fund5:'Fund $5', take2:'Take $2 / Exp 2', expand3:'Expand 3', auction:'Auction', expand4:'Expand 4' };
 const HUBS = new Set(['New York','Baltimore','Philadelphia','Boston','Chicago']);
 const SPECIALS = new Set(['Chicago','New York','Atlanta']);
 const ACTION_ROWS = ['pass','develop','fund5','take2','expand3','auction','expand4'];
@@ -383,13 +408,16 @@ function ownedExpandableCompanies(s, playerId){
 }
 
 /* ============================ 7. ACTION PHASES ============================ */
-function beginPlayRounds(s){ s.round=1; s.year=1851; startActionPhase(s, s.turnOrder.slice()); pushLog(s,'Round 1 (1851) begins.'); }
+// player train markers on the action track: {phase:-1 turn-order (row=turn-order slot), 0/1/2 action column (row=ACTION_ROWS index)}
+function initMarkers(s){ s.markers={}; s.turnOrder.forEach((seat,i)=>{ s.markers[seat]={phase:-1,row:i}; }); }
+function beginPlayRounds(s){ s.round=1; s.year=1851; startActionPhase(s, s.turnOrder.slice()); initMarkers(s); pushLog(s,'Round 1 (1851) begins.'); }
 function startActionPhase(s, order){ s.phase='action'; s.phaseOrder=order.slice(); s.phaseQueue=order.slice(); s.takenRows={}; s.picks={}; s.turnPhase='chooseAction'; s.currentPlayer=s.phaseQueue[0]; s.pending=null; }
 function availableActionRows(s){ return ACTION_ROWS.filter(r=>!s.takenRows[r]); }
 
 function chooseAction(s, row){
   if (s.turnPhase!=='chooseAction' || s.takenRows[row]) return false;
   s.takenRows[row]=true; s.picks[s.currentPlayer]=row; s.pendingAction=row;
+  if (s.markers) s.markers[s.currentPlayer]={phase:s.actionPhase,row:ACTION_ROWS.indexOf(row)};
   switch (row){
     case 'pass': pushLog(s, `${s.players[s.currentPlayer].name}: Pass.`); advanceAfterAction(s); break;
     case 'develop': s.turnPhase='developing'; break;
@@ -464,7 +492,7 @@ function endRound(s){
   const n=s.players.length, threshold = n===3?3:(n===4?4:5);
   const sharesLeft = COMPANY_IDS.reduce((t,id)=> t + s.companies[id].sharesInSupply, 0);
   if (s.year>=1857 || sharesLeft===0 || suppliesLow(s)>=threshold){ endGame(s); return; }
-  s.round++; s.year++; s.actionPhase=0; startActionPhase(s, s.turnOrder.slice()); pushLog(s, `Round ${s.round} (${s.year}).`);
+  s.round++; s.year++; s.actionPhase=0; startActionPhase(s, s.turnOrder.slice()); initMarkers(s); pushLog(s, `Round ${s.round} (${s.year}).`);
 }
 function endGame(s){ s.phase='gameOver'; const max=Math.max(...s.players.map(p=>p.money));
   s.winner = s.players.filter(p=>p.money===max).map(p=>p.id);
@@ -560,11 +588,62 @@ function renderBoard(s){
   // cubes + development markers
   for (const id in s.hexes){ const hs=s.hexes[id]; const d=BOARD[id]; if (!d) continue; const {x,y}=hexPixel(d.col,d.row);
     if (hs.developed) ov+=`<g><rect x="${(x-HEX*0.17).toFixed(1)}" y="${(y-HEX*0.62).toFixed(1)}" width="${(HEX*0.34).toFixed(1)}" height="${(HEX*0.26).toFixed(1)}" fill="#1a1712"/><path d="M${(x-HEX*0.22).toFixed(1)} ${(y-HEX*0.62).toFixed(1)} L${x} ${(y-HEX*0.8).toFixed(1)} L${(x+HEX*0.22).toFixed(1)} ${(y-HEX*0.62).toFixed(1)} Z" fill="#1a1712"/></g>`;
-    hs.cubes.forEach((cid,i)=>{ const cs=HEX*0.3, bx=x - hs.cubes.length*cs*0.62 + i*cs*1.24;
-      ov+=`<rect x="${(bx+0.6).toFixed(1)}" y="${(y+HEX*0.32+0.8).toFixed(1)}" width="${cs.toFixed(1)}" height="${cs.toFixed(1)}" rx="1" fill="#000" opacity="0.35"/>`;
-      ov+=`<rect x="${bx.toFixed(1)}" y="${(y+HEX*0.32).toFixed(1)}" width="${cs.toFixed(1)}" height="${cs.toFixed(1)}" rx="1" fill="${COMPANIES[cid].color}" stroke="#141414" stroke-width="0.8"/>`; });
+    hs.cubes.forEach((cid,i)=>{ const sz=HEX*0.15, gap=sz*1.95, bx=x - (hs.cubes.length-1)*gap*0.5 + i*gap, by=y+HEX*0.36;
+      ov+=`<ellipse cx="${bx.toFixed(1)}" cy="${(by+sz*0.95).toFixed(1)}" rx="${(sz*0.95).toFixed(1)}" ry="${(sz*0.36).toFixed(1)}" fill="#000" opacity="0.28"/>`;
+      ov+=cube3d(bx,by,sz,COMPANIES[cid].color); });
   }
   wrap.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX} ${minY} ${w} ${h}">${BASE_SVG}<g id="overlay" pointer-events="none">${ov}</g><g id="clicks">${CLICK_LAYER}</g></svg>`;
+}
+function shade(hex,amt){ const h=hex.replace('#',''); let r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
+  if(amt>=0){ r+=(255-r)*amt; g+=(255-g)*amt; b+=(255-b)*amt; } else { r*=(1+amt); g*=(1+amt); b*=(1+amt); }
+  return `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`; }
+function cube3d(cx,cy,sz,color){ const hw=sz, vq=sz*0.5, vh=sz*0.82;
+  const top=shade(color,0.30), left=color, right=shade(color,-0.24), st='#141414', sw=0.55;
+  const P=(a,b)=>a.toFixed(1)+','+b.toFixed(1);
+  return `<g><polygon points="${P(cx,cy-vq)} ${P(cx+hw,cy)} ${P(cx,cy+vq)} ${P(cx-hw,cy)}" fill="${top}" stroke="${st}" stroke-width="${sw}"/>`
+    +`<polygon points="${P(cx-hw,cy)} ${P(cx,cy+vq)} ${P(cx,cy+vq+vh)} ${P(cx-hw,cy+vh)}" fill="${left}" stroke="${st}" stroke-width="${sw}"/>`
+    +`<polygon points="${P(cx,cy+vq)} ${P(cx+hw,cy)} ${P(cx+hw,cy+vh)} ${P(cx,cy+vq+vh)}" fill="${right}" stroke="${st}" stroke-width="${sw}"/></g>`; }
+function trainGlyph(cx,cy,color,sc){ sc=sc||1; const s=6*sc;
+  return `<g transform="translate(${cx.toFixed(1)},${cy.toFixed(1)})">`
+    +`<rect x="${(-s*1.1).toFixed(1)}" y="${(-s*0.55).toFixed(1)}" width="${(s*1.9).toFixed(1)}" height="${(s*0.85).toFixed(1)}" rx="1.5" fill="${color}" stroke="#141414" stroke-width="0.8"/>`
+    +`<rect x="${(-s*1.1).toFixed(1)}" y="${(-s*1.0).toFixed(1)}" width="${(s*0.75).toFixed(1)}" height="${(s*0.5).toFixed(1)}" rx="1" fill="${color}" stroke="#141414" stroke-width="0.8"/>`
+    +`<rect x="${(s*0.35).toFixed(1)}" y="${(-s*1.35).toFixed(1)}" width="${(s*0.3).toFixed(1)}" height="${(s*0.5).toFixed(1)}" fill="#141414"/>`
+    +`<circle cx="${(-s*0.55).toFixed(1)}" cy="${(s*0.42).toFixed(1)}" r="${(s*0.3).toFixed(1)}" fill="#141414"/>`
+    +`<circle cx="${(s*0.55).toFixed(1)}" cy="${(s*0.42).toFixed(1)}" r="${(s*0.3).toFixed(1)}" fill="#141414"/></g>`; }
+function cubeRow(x,y,n){ let s=''; const cs=3.4; const start=x-(n*cs*0.6); for(let i=0;i<n;i++){ s+=`<rect x="${(start+i*cs*1.2).toFixed(1)}" y="${(y-1.7).toFixed(1)}" width="${cs}" height="${cs}" fill="#8a5a24" stroke="#3a2c18" stroke-width="0.4"/>`; } return s; }
+function actionIconSvg(row,x,y){ const c='#3a2c18';
+  if (row==='pass') return `<path d="M${x-6} ${y} h10 M${x+1} ${y-3.5} l3.5 3.5 l-3.5 3.5" stroke="${c}" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+  if (row==='develop') return `<path d="M${x-4.5} ${y+3.5} v-4 l4.5 -3.5 l4.5 3.5 v4 z" fill="#161310"/>`;
+  if (row==='fund5') return `<text x="${x}" y="${y+3}" text-anchor="middle" font-size="10" font-weight="700" fill="#2e7d52">$5</text>`;
+  if (row==='take2') return `<text x="${x}" y="${y+3}" text-anchor="middle" font-size="10" font-weight="700" fill="#b8862f">$2</text>`;
+  if (row==='auction') return `<g><rect x="${x-5}" y="${y-4.5}" width="7" height="3" rx="1" fill="${c}" transform="rotate(-28 ${x} ${y})"/><line x1="${x+0.5}" y1="${y-1.5}" x2="${x+4.5}" y2="${y+4.5}" stroke="${c}" stroke-width="1.6"/></g>`;
+  if (row==='expand3') return cubeRow(x,y,3);
+  if (row==='expand4') return cubeRow(x,y,4);
+  return ''; }
+function renderFurniture(s){
+  const el=$('#furniture'); if(!el) return;
+  const W=316, years=[1851,1852,1853,1854,1855,1856,1857], yCellW=(W-8)/7;
+  let yr='';
+  years.forEach((yy,i)=>{ const x=4+i*yCellW, on=(yy===s.year);
+    yr+=`<rect x="${x.toFixed(1)}" y="4" width="${(yCellW-2).toFixed(1)}" height="30" rx="3" fill="${on?'#c9a24b':'#efe6d0'}" stroke="#3a2c18" stroke-width="0.9"/>`;
+    yr+=`<text x="${(x+yCellW/2-1).toFixed(1)}" y="17" text-anchor="middle" font-size="8" font-weight="700" fill="#2a2118">${yy}</text>`;
+    if(on) yr+=trainGlyph(x+yCellW/2-1, 27, '#141414', 0.72); });
+  const topY=58, rowH=23, turnX=22, phaseX=[68,148,228], phaseW=74;
+  let at=`<text x="${turnX}" y="52" text-anchor="middle" font-size="7.5" fill="#a8987a">TURN</text>`;
+  [0,1,2].forEach(i=> at+=`<text x="${(phaseX[i]+phaseW/2-8).toFixed(1)}" y="52" text-anchor="middle" font-size="7.5" fill="${(i===s.actionPhase&&s.phase==='action')?'#c9a24b':'#a8987a'}">PHASE ${i+1}</text>`);
+  for(let i=0;i<s.players.length;i++){ const y=topY+i*rowH+rowH/2; at+=`<circle cx="${turnX}" cy="${y.toFixed(1)}" r="9" fill="#efe6d0" stroke="#3a2c18" stroke-width="0.9"/><text x="${turnX}" y="${(y+3).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="700" fill="#2a2118">${i+1}</text>`; }
+  for(let p=0;p<3;p++){ const cur=(p===s.actionPhase && s.phase==='action');
+    at+=`<rect x="${(phaseX[p]-4).toFixed(1)}" y="${(topY-3).toFixed(1)}" width="${(phaseW+2).toFixed(1)}" height="${(7*rowH+2).toFixed(1)}" rx="4" fill="${cur?'rgba(201,162,75,0.12)':'none'}" stroke="${cur?'#c9a24b':'#4a3c25'}" stroke-width="${cur?1.4:0.7}"/>`;
+    ACTION_ROWS.forEach((row,r)=>{ const y=topY+r*rowH+rowH/2, cx=phaseX[p]+11;
+      if(p===0) at+=`<text x="${(phaseX[0]+30).toFixed(1)}" y="${(y+3).toFixed(1)}" font-size="7" fill="#8a7a5a" opacity="0.001">.</text>`;
+      at+=actionIconSvg(row,cx,y); });
+  }
+  s.players.forEach((pl,seat)=>{ const m=s.markers&&s.markers[seat]; if(!m) return;
+    const mx = m.phase<0 ? turnX : phaseX[m.phase]+11;
+    const my = topY + m.row*rowH + rowH/2;
+    at+=trainGlyph(mx, my, PLAYER_COLORS[seat], 0.8); });
+  const H=topY+7*rowH+8;
+  el.innerHTML=`<div class="furn-label">Year</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto"><rect x="0" y="0" width="${W}" height="${H}" fill="#f2ead4" rx="4"/>${yr}${at}</svg><div class="furn-label" style="margin-top:2px">Action track — trains show turn order</div>`;
 }
 function renderPanels(s){
   $('#year-label').textContent = s.year;
@@ -576,12 +655,17 @@ function renderPanels(s){
   $('#turn-status').innerHTML = status;
   let ch='';
   for (const id of COMPANY_IDS){ const c=s.companies[id]; if (isRemoved(c)) continue;
-    ch+=`<div class="co-row"><span class="swatch" style="background:${COMPANIES[id].color}"></span><span class="co-name">${COMPANIES[id].name}</span>`
-      +`<span class="co-stat">$<b>${c.treasury}</b> · inc <b>${c.income}</b> · <b>${c.cubesInSupply}</b>▪ · <b>${c.sharesInSupply}</b>◆</span></div>`; }
+    const dark = ['national'].includes(id);
+    ch+=`<div class="co-row2"><svg class="co-train" width="30" height="18" viewBox="-13 -13 26 26">${trainGlyph(0,3,COMPANIES[id].color,1.05)}</svg>`
+      +`<div class="co-info"><span class="co-name2">${COMPANIES[id].name}</span><span class="co-sub">$${c.treasury} · income ${c.income}</span></div>`
+      +`<div class="co-supply"><span><b>${c.cubesInSupply}</b> cubes</span><span><b>${c.sharesInSupply}</b> shares</span></div></div>`; }
   $('#companies').innerHTML=ch;
   let ph='';
-  s.players.forEach((p,i)=>{ const sh=p.shares.map(x=>`<span class="swatch" style="width:11px;height:11px;background:${COMPANIES[x].color}"></span>`).join('');
-    ph+=`<div class="pl-row ${i===s.currentPlayer?'active':''}"><span>${p.name}</span> ${sh} <span class="pl-money">$${p.money}</span></div>`; });
+  s.players.forEach((p,i)=>{
+    const cards = p.shares.map(x=>`<span class="share-card" style="--cc:${COMPANIES[x].color}" title="${COMPANIES[x].name} share"><i>${COMPANIES[x].name}</i></span>`).join('');
+    ph+=`<div class="pl-row2 ${i===s.currentPlayer?'active':''}"><span class="pl-dot" style="background:${PLAYER_COLORS[i]||'#888'}"></span>`
+      +`<div class="pl-main"><div class="pl-head"><span class="pl-name">${p.name}</span><span class="pl-money">$${p.money}</span></div>`
+      +`<div class="share-cards">${cards||'<span class="no-shares">— no shares —</span>'}</div></div></div>`; });
   $('#players').innerHTML=ph;
   $('#log').innerHTML = s.log.slice(-14).map(l=>`<div class="log-line">${l}</div>`).join('');
   const lg=$('#log'); lg.scrollTop=lg.scrollHeight;
@@ -632,7 +716,7 @@ function renderActions(s){
   }
   bar.innerHTML=h;
 }
-function render(s){ if (!s || s.phase==='lobby') return; renderBoard(s); renderPanels(s); renderActions(s); }
+function render(s){ if (!s || s.phase==='lobby') return; renderBoard(s); renderFurniture(s); renderPanels(s); renderActions(s); }
 
 /* ============================ 10. UI DISPATCH & MOVES ============================ */
 let gameState=null;
