@@ -125,6 +125,9 @@ input, select { font-family: var(--font-main); font-size: var(--font-size-md); p
 .card h3 { font-size: var(--font-size-sm); text-transform: uppercase; letter-spacing: .06em; color: var(--color-text-muted); margin-bottom: var(--space-sm); }
 .furniture-card { padding: var(--space-sm); }
 .furn-label { font-size: var(--font-size-xs); text-transform: uppercase; letter-spacing: .07em; color: var(--color-text-muted); margin: 2px 0; }
+.dev-supply { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.dev-supply b { color: var(--color-text); }
+.dev-houses { display: inline-flex; gap: 1px; align-items: center; }
 .co-row2 { display: flex; align-items: center; gap: var(--space-sm); padding: 5px 4px; border-bottom: 1px solid rgba(255,255,255,.05); }
 .co-row2:last-child { border-bottom: none; }
 .co-train { flex: 0 0 auto; filter: drop-shadow(0 1px 1px rgba(0,0,0,.4)); }
@@ -572,6 +575,23 @@ function buildBaseBoard(){
   }
   g+=`<rect x="${minX}" y="${minY}" width="${w}" height="${h}" filter="url(#paper)" opacity="0.42" style="mix-blend-mode:multiply" pointer-events="none"/>`;
   g+=`<rect x="${minX}" y="${minY}" width="${w}" height="${h}" fill="url(#vig)" pointer-events="none"/>`;
+  // ---- world decorations in the ocean (right/lower-right) ----
+  const hexR=(cx,cy,r)=>{ let p=''; for(let i=0;i<6;i++){ const a=Math.PI/180*(60*i-30); p+=(cx+r*Math.cos(a)).toFixed(1)+','+(cy+r*Math.sin(a)).toFixed(1)+' '; } return p.trim(); };
+  const OT='fill="#cfe0e8" font-family="Georgia,serif"';
+  // title cartouche
+  const tx=minX+w*0.82, ty=minY+h*0.30;
+  g+=`<g pointer-events="none"><line x1="${tx-HEX*2.4}" y1="${(ty+HEX*0.28).toFixed(0)}" x2="${tx+HEX*2.4}" y2="${(ty+HEX*0.28).toFixed(0)}" stroke="#cfe0e8" stroke-opacity="0.35" stroke-width="1"/>`
+    +`<text x="${tx}" y="${ty}" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="${(HEX*0.72).toFixed(0)}" fill="#e6eef2" opacity="0.72" letter-spacing="2">AMERICAN RAILS</text>`
+    +`<text x="${tx}" y="${(ty+HEX*0.66).toFixed(0)}" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="${(HEX*0.34).toFixed(0)}" fill="#cfe0e8" opacity="0.55">a railroad game · Tim Harrison</text></g>`;
+  // ocean labels
+  g+=`<text x="${(minX+w*0.80).toFixed(0)}" y="${(minY+h*0.56).toFixed(0)}" text-anchor="middle" font-style="italic" font-size="${(HEX*0.62).toFixed(0)}" ${OT} opacity="0.5" letter-spacing="4">THE ATLANTIC OCEAN</text>`;
+  g+=`<text x="${(minX+w*0.30).toFixed(0)}" y="${(minY+h*0.995).toFixed(0)}" text-anchor="middle" font-style="italic" font-size="${(HEX*0.44).toFixed(0)}" ${OT} opacity="0.45" letter-spacing="3">GULF OF MEXICO</text>`;
+  // terrain cost legend
+  const lx=minX+w*0.70, ly=minY+h*0.80, terrs=[['plains','$2'],['city','$2'],['forest','$3'],['mountain','$5']];
+  g+=`<text x="${lx.toFixed(0)}" y="${(ly-HEX*0.75).toFixed(0)}" font-size="${(HEX*0.32).toFixed(0)}" ${OT} opacity="0.6" letter-spacing="1">Track cost per tile</text>`;
+  terrs.forEach(([t,cost],i)=>{ const hx=lx+HEX*0.5+i*HEX*1.35;
+    g+=`<polygon points="${hexR(hx,ly,HEX*0.5)}" fill="${TERR_BASE[t]}" stroke="#2c2519" stroke-width="1"/>`
+      +`<text x="${hx.toFixed(1)}" y="${(ly+HEX*1.0).toFixed(1)}" text-anchor="middle" font-size="${(HEX*0.34).toFixed(0)}" font-weight="700" fill="#e6eef2" opacity="0.75">${cost}</text>`; });
   BASE_SVG=g;
   // transparent top layer that captures hex clicks (so labels/overlay never block them)
   let cl=''; for (const id in BOARD){ const {x,y}=hexPixel(BOARD[id].col,BOARD[id].row); cl+=`<polygon data-hex="${id}" points="${hexPoints(x,y)}" fill="transparent" pointer-events="all"/>`; }
@@ -643,7 +663,10 @@ function renderFurniture(s){
     const my = topY + m.row*rowH + rowH/2;
     at+=trainGlyph(mx, my, PLAYER_COLORS[seat], 0.8); });
   const H=topY+7*rowH+8;
-  el.innerHTML=`<div class="furn-label">Year</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto"><rect x="0" y="0" width="${W}" height="${H}" fill="#f2ead4" rx="4"/>${yr}${at}</svg><div class="furn-label" style="margin-top:2px">Action track — trains show turn order</div>`;
+  const devHouses = Array.from({length:Math.min(s.developmentSupply,12)}, ()=>'<svg width="11" height="11" viewBox="-6 -6 12 12"><path d="M-4 4 v-4 l4 -3.5 l4 3.5 v4 z" fill="#161310" stroke="#000" stroke-width="0.5"/></svg>').join('');
+  el.innerHTML=`<div class="furn-label">Year</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto"><rect x="0" y="0" width="${W}" height="${H}" fill="#f2ead4" rx="4"/>${yr}${at}</svg>`
+    +`<div class="furn-label" style="margin-top:3px">Action track — trains show turn order</div>`
+    +`<div class="dev-supply"><span class="furn-label" style="margin:0">Development houses: <b>${s.developmentSupply}</b></span> <span class="dev-houses">${devHouses}</span></div>`;
 }
 function renderPanels(s){
   $('#year-label').textContent = s.year;
