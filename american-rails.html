@@ -103,6 +103,9 @@ input, select { font-family: var(--font-main); font-size: var(--font-size-md); p
 .panel-box { background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius); padding: var(--space-lg); margin-top: var(--space-md); text-align: left; }
 .player-names-list { display: flex; flex-direction: column; gap: var(--space-sm); margin: var(--space-md) 0; }
 .player-names-list input { width: 100%; }
+.player-row { display: flex; gap: 8px; align-items: center; }
+.player-row input { flex: 1 1 auto; }
+.kind-select { flex: 0 0 auto; }
 .room-code { font-family: var(--font-mono); font-size: var(--font-size-2xl); letter-spacing: .3em; color: var(--color-accent); }
 .field-row { display: flex; align-items: center; gap: var(--space-sm); margin: var(--space-sm) 0; flex-wrap: wrap; }
 #game { display: none; height: 100vh; }
@@ -5116,7 +5119,7 @@ function createInitialState(config){
   for (const id of COMPANY_IDS) companies[id] = { treasury:0, income:0, sharesInSupply:COMPANIES[id].shares, sharesRemoved:0, cubesInSupply:COMPANIES[id].cubes, onMap:false, bonuses:[], removed:false };
   const state = {
     phase:'setup', mode: config.mode||'local',
-    players: names.map((nm,i)=>({ id:i, name:nm, money:startingMoney(n), shares:[], connected:true })),
+    players: names.map((nm,i)=>({ id:i, name:nm, money:startingMoney(n), shares:[], connected:true, bot:(config.bots&&config.bots[i])||null })),
     companies, hexes:{}, developmentSupply:TOTAL_DEV_MARKERS,
     year:1851, round:0, actionPhase:0,
     turnOrder: names.map((_,i)=>i), currentPlayer:0,
@@ -5382,6 +5385,91 @@ function endRound(s){
 function endGame(s){ s.phase='gameOver'; const max=Math.max(...s.players.map(p=>p.money));
   s.winner = s.players.filter(p=>p.money===max).map(p=>p.id);
   pushLog(s, 'Game over. Winner: ' + s.winner.map(i=>s.players[i].name).join(', ') + ` ($${max}).`); }
+
+/* ============================ 8b. BOTS (Easy / Medium / Hard) ============================ */
+const COMPANY_START = { american:30, national:28, continental:25, majestic:21, liberty:18, republic:16 };
+let botSpeed = 550, botTimer = null;                 // ms between bot steps (0 in tests)
+function isBotSeat(s, seat){ return !!(s && s.players[seat] && s.players[seat].bot); }
+function botDrivesNow(s){ if (!s || s.phase==='payout' || s.phase==='gameOver' || s.phase==='lobby') return false;
+  if (!isBotSeat(s, s.currentPlayer)) return false; return s.mode==='local' || (typeof net!=='undefined' && net.isHost); }
+function botDelay(s){ const k = s.turnPhase==='bidding'?0.7 : s.turnPhase==='turnDone'?0.8 : 1; return Math.round(botSpeed*k); }
+function maybeRunBot(){ if (botTimer) return; if (!botDrivesNow(gameState)) return;
+  botTimer=setTimeout(()=>{ botTimer=null; const s=gameState; if (!botDrivesNow(s)) return;
+    let cmd; try { cmd=botDecide(s); } catch(e){ cmd=null; } if (!cmd) cmd=botFallback(s);
+    if (cmd){ applyUi(s, cmd); afterMutate(); } }, botDelay(gameState)); }
+function botFallback(s){ switch(s.turnPhase){
+  case 'bidding': return 'pass';
+  case 'chooseAction': return 'choose:'+(availableActionRows(s)[0]||'pass');
+  case 'funding': return 'fund:'+activeCompanyIds(s)[0];
+  case 'take2choice': return 'take2:take';
+  case 'auctionSelect': { const a=activeCompanyIds(s).find(id=>s.companies[id].sharesInSupply>0); return a?'auc:'+a:'back'; }
+  case 'developing': { const L=legalDevelopHexes(s); return L.length?'hex:'+L[0]:'back'; }
+  case 'expanding': return 'endexpand';
+  case 'turnDone': return 'done';
+  case 'placeStartCube': { const e=Object.keys(BOARD).find(id=>BOARD[id].city && !(s.hexes[id]&&s.hexes[id].cubes.length)); return 'hex:'+e; }
+  default: return null; } }
+function roundsLeft(s){ return Math.max(1, 1858 - (s.year||1851)); }
+function cityScore(s, id, diff){ const c=BOARD[id]&&BOARD[id].city; if(!c) return 0; let v=c.full;
+  if (diff==='hard'){ if (SPECIALS.has(c.name)) v+=1.5; if (HUBS.has(c.name)) v+=1; } return v; }
+function estShareValue(s, cid){ const c=s.companies[cid];
+  const income = c.income>0 ? c.income : COMPANY_START[cid]*0.25;   // setup: ~starting city income
+  const held = s.players.reduce((n,p)=>n+p.shares.filter(x=>x===cid).length,0);
+  return Math.ceil(income/(held+1)) * Math.min(6, roundsLeft(s)); }
+function botDecide(s){ const me=s.currentPlayer, diff=s.players[me].bot||'easy';
+  switch(s.turnPhase){
+    case 'bidding': return botBid(s, me, diff);
+    case 'placeStartCube': return 'hex:'+botStartCity(s, me, diff);
+    case 'chooseAction': return 'choose:'+botAction(s, me, diff);
+    case 'funding': return 'fund:'+botFundCo(s, me);
+    case 'take2choice': return botTake2(s, me, diff);
+    case 'auctionSelect': { const avail=activeCompanyIds(s).filter(id=>s.companies[id].sharesInSupply>0);
+      if(!avail.length) return 'back'; avail.sort((a,b)=>estShareValue(s,b)-estShareValue(s,a)); return 'auc:'+avail[0]; }
+    case 'developing': { const L=legalDevelopHexes(s); if(!L.length) return 'back';
+      const best = diff==='easy'? L[Math.floor(Math.random()*L.length)] : L.slice().sort((a,b)=>cityScore(s,b,diff)-cityScore(s,a,diff))[0]; return 'hex:'+best; }
+    case 'expanding': return botExpandStep(s, me, diff);
+    case 'turnDone': return 'done';
+    default: return botFallback(s); } }
+function botBid(s, me, diff){ const a=s.auction, cid=a.companyId, minNext=auctionMinNext(s), money=s.players[me].money;
+  if (money < minNext) return 'pass';
+  const val = estShareValue(s, cid) * (diff==='easy'?0.6 : diff==='medium'?0.85 : 1.0);
+  const frac = diff==='easy'?0.25 : diff==='medium'?0.35 : 0.45;   // never sink more than this share of cash into one share
+  let cap = Math.min(val, money*frac);
+  const own = s.players[me].shares.filter(x=>x===cid).length;
+  if (own>0) cap *= 0.5;                                            // diminishing returns on duplicates
+  if (diff==='easy' && Math.random()<0.3) return 'pass';
+  return (minNext<=cap) ? 'bid:'+minNext : 'pass'; }
+function botStartCity(s, me, diff){ const empties=Object.keys(BOARD).filter(id=>BOARD[id].city && !(s.hexes[id]&&s.hexes[id].cubes.length));
+  if (diff==='easy') return empties[Math.floor(Math.random()*empties.length)];
+  return empties.sort((a,b)=>cityScore(s,b,diff)-cityScore(s,a,diff))[0]; }
+function botFundCo(s, me){ const owned=[...new Set(s.players[me].shares)].filter(cid=>s.companies[cid].onMap && !isRemoved(s.companies[cid]));
+  return (owned.sort((a,b)=>s.companies[a].treasury-s.companies[b].treasury)[0]) || activeCompanyIds(s)[0]; }
+function botTake2(s, me, diff){ if (s.players.length>=4 && diff!=='easy' && ownedExpandableCompanies(s,me).length) return 'take2expand';
+  return diff==='easy' ? 'take2:take' : 'take2:fromEach'; }
+function botExpandStep(s, me, diff){ const p=s.pending;
+  if (!p.companyId){ const cos=ownedExpandableCompanies(s, me); if(!cos.length) return 'endexpand';
+    let bestCo=cos[0], best=-1; for(const cid of cos){ const hs=legalExpandHexes(s,me,cid); const sc=hs.length?Math.max(...hs.map(h=>cityScore(s,h,diff))):0; if(sc>best){best=sc;bestCo=cid;} }
+    return 'exco:'+bestCo; }
+  const hexes=legalExpandHexes(s, me, p.companyId); if(!hexes.length) return 'endexpand';
+  const best = diff==='easy'? hexes[Math.floor(Math.random()*hexes.length)] : hexes.slice().sort((a,b)=>cityScore(s,b,diff)-cityScore(s,a,diff))[0];
+  return 'hex:'+best; }
+function botAction(s, me, diff){ const rows=availableActionRows(s), money=s.players[me].money, rl=roundsLeft(s);
+  const expCos=ownedExpandableCompanies(s, me), devHexes=legalDevelopHexes(s);
+  const shareAvail = activeCompanyIds(s).some(id=>s.companies[id].sharesInSupply>0);
+  // best expansion value: extending track has a base worth plus a city bonus
+  let eg=0; for(const cid of expCos){ for(const h of legalExpandHexes(s,me,cid)){ const g=(1.2+cityScore(s,h,diff))*rl*0.3; if(g>eg) eg=g; } }
+  // only ADD actions the bot can actually complete (never a dead-end develop/auction)
+  const cand=[]; const add=(r,v)=>{ if (rows.includes(r)) cand.push([r,v]); };
+  add('expand4', eg*1.25);
+  add('expand3', eg);
+  if (devHexes.length) add('develop', (Math.max(...devHexes.map(h=>cityScore(s,h,diff)))+1)*rl*0.28);
+  if (shareAvail && money>=12) add('auction', money*0.05 + rl*0.4);
+  add('fund5', s.players[me].shares.some(cid=>s.companies[cid].onMap && s.companies[cid].treasury<3) ? 4 : 1.2);
+  add('take2', (s.players.length>=4 && eg>0) ? eg*0.6 : 2.2);
+  add('pass', 0.6);
+  if (!cand.length){ return rows.find(r=>r!=='develop'&&r!=='auction') || rows[0]; } // safety
+  let bestRow=cand[0][0], bestVal=-Infinity;
+  for (const [r,base] of cand){ const v=base + (diff==='easy'?Math.random()*3 : diff==='medium'?Math.random()*0.6 : 0); if (v>bestVal){ bestVal=v; bestRow=r; } }
+  return bestRow; }
 
 /* ============================ 9. RENDER ============================ */
 const $ = (sel)=>document.querySelector(sel);
@@ -5781,6 +5869,7 @@ function renderActions(s){
     return; }
   if (s.phase==='gameOver'){ const max=Math.max(...s.players.map(p=>p.money));
     bar.innerHTML = `<div class="banner win-banner" style="width:100%">🏆 ${s.winner.map(i=>s.players[i].name).join(' & ')} win with $${max}! <button class="ghost" style="margin-left:14px" data-action="quit">New game</button></div>`; return; }
+  if (isBotSeat(s, s.currentPlayer)){ bar.innerHTML = `<span class="prompt bot-msg">🤖 <b>${cur.name}</b> is thinking…</span>`; return; }
   if (!mine){ bar.innerHTML = `<span class="label">Waiting for ${cur?cur.name:'other player'}…</span>`; return; }
   let h='';
   const tp=s.turnPhase;
@@ -5848,11 +5937,13 @@ function render(s){ if (!s || s.phase==='lobby') return; renderBoard(s); renderP
 let gameState=null;
 function afterMutate(){ window.gameState=gameState; render(gameState); net.maybeBroadcast();
   if (gameState && gameState.phase==='payout' && !payoutTimer && (gameState.mode!=='online' || net.isHost)) runPayout();
+  maybeRunBot();
 }
 // Route a UI action string. In online guest mode, forward to host instead of applying.
 function uiAction(cmd){
   if (!gameState) return;
   if (gameState.phase==='payout') return; // input locked while dividends are being paid out
+  if (isBotSeat(gameState, gameState.currentPlayer)) return; // it's a bot's turn — humans can't act for it
   if (gameState.mode==='online' && !net.isHost){ net.requestMove(cmd); return; }
   applyUi(gameState, cmd); afterMutate();
 }
@@ -5904,8 +5995,16 @@ document.addEventListener('click', (e)=>{
 });
 
 /* ============================ 11. LOBBY ============================ */
-function buildNameInputs(count){ const wrap=$('#player-names'); const defs=['Ben','Wife','Friend 1','Friend 2','Player 5']; wrap.innerHTML='';
-  for (let i=0;i<count;i++){ const inp=document.createElement('input'); inp.value=defs[i]||('Player '+(i+1)); inp.maxLength=16; inp.dataset.playerName=i; wrap.appendChild(inp); } }
+function buildNameInputs(count){ const wrap=$('#player-names'); const defs=['Ben','Wife','Friend 1','Friend 2','Player 5']; const botNames=['Ada','Boris','Cleo','Dex','Echo']; wrap.innerHTML='';
+  for (let i=0;i<count;i++){
+    const row=document.createElement('div'); row.className='player-row';
+    const inp=document.createElement('input'); inp.value=defs[i]||('Player '+(i+1)); inp.maxLength=16; inp.dataset.playerName=i;
+    inp.addEventListener('input', ()=>{ inp.dataset.touched='1'; });
+    const sel=document.createElement('select'); sel.className='kind-select'; sel.dataset.playerKind=i;
+    sel.innerHTML='<option value="human">Human</option><option value="easy">Bot · Easy</option><option value="medium">Bot · Medium</option><option value="hard">Bot · Hard</option>';
+    sel.addEventListener('change', ()=>{ if (sel.value!=='human' && !inp.dataset.touched) inp.value = (botNames[i]||('Bot '+(i+1)))+' 🤖'; });
+    row.appendChild(inp); row.appendChild(sel); wrap.appendChild(row);
+  } }
 document.addEventListener('click', (e)=>{
   // close the floating dropdowns when clicking anywhere outside them
   const zo=$('#zoom-opts'); if (zo && !zo.hidden && !e.target.closest('#zoom-ctl')) zo.hidden=true;
@@ -5913,7 +6012,8 @@ document.addEventListener('click', (e)=>{
   const btnEl=e.target.closest('[data-action]'); if (!btnEl) return; const action=btnEl.dataset.action;
   if (action==='mode-local'){ $('#player-config').classList.remove('hidden'); $('#host-view').classList.add('hidden'); $('#join-view').classList.add('hidden'); buildNameInputs(parseInt($('#player-count').value,10)); }
   else if (action==='start-game'){ const names=[...document.querySelectorAll('[data-player-name]')].map(i=>i.value.trim()||'Player');
-    gameState=createInitialState({mode:'local',names}); window.gameState=gameState; show('game'); render(gameState); }
+    const bots=[...document.querySelectorAll('[data-player-kind]')].map(sel=> sel.value==='human'?null:sel.value);
+    gameState=createInitialState({mode:'local',names,bots}); window.gameState=gameState; show('game'); render(gameState); maybeRunBot(); }
   else if (action==='quit'){ net.leave(); show('lobby'); gameState=null; }
   else if (action==='mode-host'){ net.startHost(); }
   else if (action==='mode-join'){ $('#join-view').classList.remove('hidden'); $('#player-config').classList.add('hidden'); $('#host-view').classList.add('hidden'); }
@@ -5978,7 +6078,7 @@ const net = {
 function makeView(s, seat){ const v=JSON.parse(JSON.stringify(s)); v.localPlayerId=seat; return v; }
 
 /* ============================ 13. TEST API ============================ */
-window.startGame = function(config){ gameState=createInitialState(config); window.gameState=gameState; show('game'); render(gameState); return true; };
+window.startGame = function(config){ gameState=createInitialState(config); window.gameState=gameState; show('game'); render(gameState); maybeRunBot(); return true; };
 window.performMove = function(cmd){ if (!gameState) return {ok:false}; applyUi(gameState, cmd); afterMutate(); return {ok:true, state: JSON.parse(window.render_game_to_text())}; };
 // Built-in self-test: drives full games headlessly and checks invariants.
 window.__selfTest = function(){
