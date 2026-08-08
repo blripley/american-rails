@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
 <title>American Rails</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%F0%9F%9A%82%3C/text%3E%3C/svg%3E">
 <!--
@@ -305,7 +306,11 @@ button.act-redo { border: 1px solid var(--color-accent); }
       </div>
       <div class="opts-ctl" id="opts-ctl">
         <div class="opts-menu" id="opts-menu" hidden>
-          <div class="opts-title">Cube layout</div>
+          <div class="opts-title">Bot speed</div>
+          <button data-action="botspeed" data-bs="slow">Slow</button>
+          <button data-action="botspeed" data-bs="normal" class="active">Normal</button>
+          <button data-action="botspeed" data-bs="fast">Fast</button>
+          <div class="opts-title" style="margin-top:6px">Cube layout</div>
           <button data-action="cubes-scattered" data-style="scattered" class="active">Scattered</button>
           <button data-action="cubes-tidy" data-style="tidy">Tidy</button>
         </div>
@@ -5438,11 +5443,11 @@ function botDecide(s){ const me=s.currentPlayer, diff=s.players[me].bot||'easy';
     default: return botFallback(s); } }
 function botBid(s, me, diff){ const a=s.auction, cid=a.companyId, minNext=auctionMinNext(s), money=s.players[me].money;
   if (money < minNext) return 'pass';
-  const val = estShareValue(s, cid) * (diff==='easy'?0.6 : diff==='medium'?0.85 : 1.0);
-  const frac = diff==='easy'?0.25 : diff==='medium'?0.35 : 0.45;   // never sink more than this share of cash into one share
+  const val = estShareValue(s, cid) * (diff==='easy'?0.6 : diff==='medium'?0.9 : 1.35);
+  const frac = diff==='easy'?0.25 : diff==='medium'?0.38 : 0.62;   // hard is willing to commit more cash to a good share
   let cap = Math.min(val, money*frac);
   const own = s.players[me].shares.filter(x=>x===cid).length;
-  if (own>0) cap *= 0.5;                                            // diminishing returns on duplicates
+  if (own>0) cap *= (diff==='hard'?0.85:0.5);                       // hard keeps stacking shares of a company it likes
   if (diff==='easy' && Math.random()<0.3) return 'pass';
   return (minNext<=cap) ? 'bid:'+minNext : 'pass'; }
 function botStartCity(s, me, diff){ const empties=Object.keys(BOARD).filter(id=>BOARD[id].city && !(s.hexes[id]&&s.hexes[id].cubes.length));
@@ -5465,13 +5470,15 @@ function botAction(s, me, diff){ const rows=availableActionRows(s), money=s.play
   // best expansion value: extending track has a base worth plus a city bonus
   let eg=0; for(const cid of expCos){ for(const h of legalExpandHexes(s,me,cid)){ const g=(1.2+cityScore(s,h,diff))*rl*0.3; if(g>eg) eg=g; } }
   // only ADD actions the bot can actually complete (never a dead-end develop/auction)
+  const gm = diff==='hard'?1.55 : diff==='medium'?1.0 : 0.8;   // hard is keener to grow income
   const cand=[]; const add=(r,v)=>{ if (rows.includes(r)) cand.push([r,v]); };
-  add('expand4', eg*1.25);
-  add('expand3', eg);
-  if (devHexes.length) add('develop', (Math.max(...devHexes.map(h=>cityScore(s,h,diff)))+1)*rl*0.28);
-  if (shareAvail && money>=12) add('auction', money*0.05 + rl*0.4);
-  add('fund5', s.players[me].shares.some(cid=>s.companies[cid].onMap && s.companies[cid].treasury<3) ? 4 : 1.2);
-  add('take2', (s.players.length>=4 && eg>0) ? eg*0.6 : 2.2);
+  add('expand4', eg*1.25*gm);
+  add('expand3', eg*gm);
+  if (devHexes.length) add('develop', (Math.max(...devHexes.map(h=>cityScore(s,h,diff)))+1)*rl*0.28*gm);
+  if (shareAvail && money>=12) add('auction', (money*0.05 + rl*0.4) * (diff==='hard'?1.5:1));  // hard buys more shares
+  add('fund5', s.players[me].shares.some(cid=>s.companies[cid].onMap && s.companies[cid].treasury<3) ? (diff==='hard'?5:4) : 1.2);
+  const drain = 2*(s.players.length-1);                       // take2:fromEach nets this and denies opponents
+  add('take2', (s.players.length>=4) ? (diff==='hard' ? Math.max(drain, eg>0?eg*0.6:0) : (eg>0?eg*0.6:2.2)) : 2.2);
   add('pass', 0.6);
   if (!cand.length){ return rows.find(r=>r!=='develop'&&r!=='auction') || rows[0]; } // safety
   let bestRow=cand[0][0], bestVal=-Infinity;
@@ -6049,8 +6056,11 @@ document.addEventListener('click', (e)=>{
   else if (action==='opts-toggle'){ const o=$('#opts-menu'); if(o) o.hidden=!o.hidden; }
   else if (action==='cubes-scattered' || action==='cubes-tidy'){
     cubeStyle = btnEl.dataset.style;
-    document.querySelectorAll('#opts-menu button').forEach(b=> b.classList.toggle('active', b.dataset.style===cubeStyle));
+    document.querySelectorAll('#opts-menu button[data-style]').forEach(b=> b.classList.toggle('active', b.dataset.style===cubeStyle));
     if (gameState) render(gameState); }
+  else if (action==='botspeed'){ const bs=btnEl.dataset.bs;
+    botSpeed = bs==='fast'?300 : bs==='slow'?1500 : 850;
+    document.querySelectorAll('#opts-menu button[data-bs]').forEach(b=> b.classList.toggle('active', b.dataset.bs===bs)); }
 });
 $('#player-count').addEventListener('change',(e)=>buildNameInputs(parseInt(e.target.value,10)));
 
