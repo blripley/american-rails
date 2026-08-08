@@ -5216,7 +5216,7 @@ function placeStartingCube(s, hexId){
 function finishAuction(s, winnerSeat){
   s.auction=null;
   if (s.phase==='setup'){ if (winnerSeat!=null) s.auctionStarter=winnerSeat; nextPreparationAuction(s); }
-  else { completeAction(s); }
+  else { advanceAfterAction(s); } // auction already resolved publicly — nothing to confirm/redo, just advance
 }
 
 /* ============================ 5. INCOME ============================ */
@@ -5247,7 +5247,7 @@ function applySpecialConnections(s, companyId){
 /* ============================ 6. EXPAND ============================ */
 function expandCost(s, hexId){ const def=BOARD[hexId], hs=s.hexes[hexId]||{cubes:[],developed:false};
   if (def.terrain==='forest') return 3; if (def.terrain==='mountain') return 5;
-  let cost = 2 + 2*hs.cubes.length; if (def.terrain==='city' && hs.developed) cost += 2; return cost; }
+  let cost = 2 + 2*hs.cubes.length; return cost; } // $2 base + $2 per cube already there; a house (developed) adds no surcharge
 function canPlaceCube(s, playerId, companyId, hexId){
   const p=s.players[playerId]; if (!p.shares.includes(companyId)) return {ok:false,reason:'You own no share of that company.'};
   const def=BOARD[hexId]; if (!def) return {ok:false,reason:'Not a hex.'};
@@ -5287,7 +5287,7 @@ function chooseAction(s, row){
   s.takenRows[row]=true; s.picks[s.currentPlayer]=row; s.pendingAction=row;
   if (s.markers) s.markers[s.currentPlayer]={phase:s.actionPhase,row:ACTION_ROWS.indexOf(row)};
   switch (row){
-    case 'pass': pushLog(s, `${s.players[s.currentPlayer].name}: Pass.`); completeAction(s); break;
+    case 'pass': pushLog(s, `${s.players[s.currentPlayer].name}: Pass.`); advanceAfterAction(s); break; // nothing to confirm — just advance
     case 'develop': s.turnPhase='developing'; break;
     case 'fund5': s.turnPhase='funding'; break;
     case 'take2': s.turnPhase='take2choice'; break;
@@ -5457,13 +5457,45 @@ function botFundCo(s, me){ const owned=[...new Set(s.players[me].shares)].filter
   return (owned.sort((a,b)=>s.companies[a].treasury-s.companies[b].treasury)[0]) || activeCompanyIds(s)[0]; }
 function botTake2(s, me, diff){ if (s.players.length>=4 && diff!=='easy' && ownedExpandableCompanies(s,me).length) return 'take2expand';
   return diff==='easy' ? 'take2:take' : 'take2:fromEach'; }
+// BFS hop-distance from a set of start hexes over the land adjacency graph
+function bfsHex(starts){ const dist={}, q=[]; (Array.isArray(starts)?starts:[starts]).forEach(id=>{ if(BOARD[id]){dist[id]=0;q.push(id);} });
+  for(let i=0;i<q.length;i++){ const id=q[i], d=dist[id]; for(const nb of BOARD[id].adj){ if(dist[nb]===undefined){ dist[nb]=d+1; q.push(nb); } } }
+  return dist; }
+function companyTrack(s, cid){ return Object.keys(s.hexes).filter(id=>s.hexes[id].cubes.includes(cid)); }
+function cityHexByName(name){ return Object.keys(BOARD).find(id=>BOARD[id].city && BOARD[id].city.name===name); }
+// pick a city to head for: chase the +$10 special connection when it's one link away, else the best-value city (minus cube cost)
+function botExpandTarget(s, cid, diff){
+  const track=companyTrack(s, cid); if(!track.length) return null;
+  const fromTrack=bfsHex(track), connected=connectedCities(s, cid), trackSet=new Set(track), rl=Math.min(6, roundsLeft(s));
+  let bonusTarget=null, bonusScore=-1;
+  for(const [a,b] of [['Chicago','New York'],['Chicago','Atlanta'],['New York','Atlanta']]){
+    const hasA=connected.has(a), hasB=connected.has(b); if(hasA===hasB) continue;      // need exactly one already connected
+    const need=hasA?b:a, nhex=cityHexByName(need); if(!nhex) continue; const d=fromTrack[nhex]; if(d===undefined) continue;
+    const w=(diff==='hard'?1.0:0.85);
+    const sc = 10*rl*0.16*w - d*(diff==='hard'?0.5:0.7);                                // +$10 income over rounds, minus cube cost
+    if(sc>bonusScore){ bonusScore=sc; bonusTarget=nhex; }
+  }
+  let cityTarget=null, cityV=-1;
+  for(const id in BOARD){ const c=BOARD[id].city; if(!c||trackSet.has(id)) continue; const d=fromTrack[id]; if(d===undefined) continue;
+    const v = cityScore(s,id,diff) - d*(diff==='hard'?0.5:0.7); if(v>cityV){ cityV=v; cityTarget=id; } }
+  if(bonusTarget && bonusScore >= cityV*(diff==='hard'?0.7:0.8)) return bonusTarget;
+  return cityTarget || bonusTarget;
+}
 function botExpandStep(s, me, diff){ const p=s.pending;
   if (!p.companyId){ const cos=ownedExpandableCompanies(s, me); if(!cos.length) return 'endexpand';
-    let bestCo=cos[0], best=-1; for(const cid of cos){ const hs=legalExpandHexes(s,me,cid); const sc=hs.length?Math.max(...hs.map(h=>cityScore(s,h,diff))):0; if(sc>best){best=sc;bestCo=cid;} }
+    let bestCo=cos[0], best=-1; for(const cid of cos){ const t=botExpandTarget(s, cid, diff); const hs=legalExpandHexes(s,me,cid);
+      const sc = (diff!=='easy' && t) ? cityScore(s,t,diff)+(SPECIALS.has(BOARD[t].city.name)?4:0) : (hs.length?Math.max(...hs.map(h=>cityScore(s,h,diff))):0);
+      if(sc>best){best=sc;bestCo=cid;} }
     return 'exco:'+bestCo; }
-  const hexes=legalExpandHexes(s, me, p.companyId); if(!hexes.length) return 'endexpand';
-  const best = diff==='easy'? hexes[Math.floor(Math.random()*hexes.length)] : hexes.slice().sort((a,b)=>cityScore(s,b,diff)-cityScore(s,a,diff))[0];
-  return 'hex:'+best; }
+  const cid=p.companyId, hexes=legalExpandHexes(s, me, cid); if(!hexes.length) return 'endexpand';
+  if (diff==='easy') return 'hex:'+hexes[Math.floor(Math.random()*hexes.length)];   // easy stays greedy/wasteful
+  const target=botExpandTarget(s, cid, diff);
+  if(target){ const toTarget=bfsHex([target]); let best=hexes[0], bestKey=Infinity;
+    for(const h of hexes){ const d = toTarget[h]!==undefined?toTarget[h]:999;
+      const key = d - (BOARD[h].city?1.5:0) - cityScore(s,h,diff)*0.05;               // step toward target; grab a city if you'd land on one
+      if(key<bestKey){ bestKey=key; best=h; } }
+    return 'hex:'+best; }
+  return 'hex:'+hexes.slice().sort((a,b)=>cityScore(s,b,diff)-cityScore(s,a,diff))[0]; }
 function botAction(s, me, diff){ const rows=availableActionRows(s), money=s.players[me].money, rl=roundsLeft(s);
   const expCos=ownedExpandableCompanies(s, me), devHexes=legalDevelopHexes(s);
   const shareAvail = activeCompanyIds(s).some(id=>s.companies[id].sharesInSupply>0);
