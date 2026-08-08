@@ -1,0 +1,2928 @@
+{
+  "board": {
+    "width": 1700,
+    "height": 1400,
+    "note": "SVG user units; 1 unit = 1px at 100%"
+  },
+  "scoringFrame": {
+    "bandWidth": 44,
+    "frameHeight": 1240,
+    "topCells": 31,
+    "sideCells": 19,
+    "topCellWidth": 54.8387,
+    "sideCellHeight": 60.6316,
+    "colours": {
+      "band": "#1e3c60",
+      "decadeHighlight": "#28527f",
+      "divider": "#16293f",
+      "hairline": "#82a0bd @ .5",
+      "number": "#f2e6c8"
+    },
+    "sequence": "0 sits bottom-left; numbers run 20..50 across the top (L->R), 51..69 down the right, 70..99 along the bottom (R->L), 1..19 up the left",
+    "decadeHighlight": "every cell whose number is a multiple of 10 gets the #28527f fill",
+    "cells": [
+      {
+        "edge": "top",
+        "index": 0,
+        "number": 20,
+        "cx": 27.42,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 0,
+        "number": 0,
+        "cx": 27.42,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 1,
+        "number": 21,
+        "cx": 82.26,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 1,
+        "number": 99,
+        "cx": 82.26,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 2,
+        "number": 22,
+        "cx": 137.1,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 2,
+        "number": 98,
+        "cx": 137.1,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 3,
+        "number": 23,
+        "cx": 191.94,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 3,
+        "number": 97,
+        "cx": 191.94,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 4,
+        "number": 24,
+        "cx": 246.77,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 4,
+        "number": 96,
+        "cx": 246.77,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 5,
+        "number": 25,
+        "cx": 301.61,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 5,
+        "number": 95,
+        "cx": 301.61,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 6,
+        "number": 26,
+        "cx": 356.45,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 6,
+        "number": 94,
+        "cx": 356.45,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 7,
+        "number": 27,
+        "cx": 411.29,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 7,
+        "number": 93,
+        "cx": 411.29,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 8,
+        "number": 28,
+        "cx": 466.13,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 8,
+        "number": 92,
+        "cx": 466.13,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 9,
+        "number": 29,
+        "cx": 520.97,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 9,
+        "number": 91,
+        "cx": 520.97,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 10,
+        "number": 30,
+        "cx": 575.81,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 10,
+        "number": 90,
+        "cx": 575.81,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 11,
+        "number": 31,
+        "cx": 630.65,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 11,
+        "number": 89,
+        "cx": 630.65,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 12,
+        "number": 32,
+        "cx": 685.48,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 12,
+        "number": 88,
+        "cx": 685.48,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 13,
+        "number": 33,
+        "cx": 740.32,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 13,
+        "number": 87,
+        "cx": 740.32,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 14,
+        "number": 34,
+        "cx": 795.16,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 14,
+        "number": 86,
+        "cx": 795.16,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 15,
+        "number": 35,
+        "cx": 850,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 15,
+        "number": 85,
+        "cx": 850,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 16,
+        "number": 36,
+        "cx": 904.84,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 16,
+        "number": 84,
+        "cx": 904.84,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 17,
+        "number": 37,
+        "cx": 959.68,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 17,
+        "number": 83,
+        "cx": 959.68,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 18,
+        "number": 38,
+        "cx": 1014.52,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 18,
+        "number": 82,
+        "cx": 1014.52,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 19,
+        "number": 39,
+        "cx": 1069.35,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 19,
+        "number": 81,
+        "cx": 1069.35,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 20,
+        "number": 40,
+        "cx": 1124.19,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 20,
+        "number": 80,
+        "cx": 1124.19,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 21,
+        "number": 41,
+        "cx": 1179.03,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 21,
+        "number": 79,
+        "cx": 1179.03,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 22,
+        "number": 42,
+        "cx": 1233.87,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 22,
+        "number": 78,
+        "cx": 1233.87,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 23,
+        "number": 43,
+        "cx": 1288.71,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 23,
+        "number": 77,
+        "cx": 1288.71,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 24,
+        "number": 44,
+        "cx": 1343.55,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 24,
+        "number": 76,
+        "cx": 1343.55,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 25,
+        "number": 45,
+        "cx": 1398.39,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 25,
+        "number": 75,
+        "cx": 1398.39,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 26,
+        "number": 46,
+        "cx": 1453.23,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 26,
+        "number": 74,
+        "cx": 1453.23,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 27,
+        "number": 47,
+        "cx": 1508.06,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 27,
+        "number": 73,
+        "cx": 1508.06,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 28,
+        "number": 48,
+        "cx": 1562.9,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 28,
+        "number": 72,
+        "cx": 1562.9,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 29,
+        "number": 49,
+        "cx": 1617.74,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 29,
+        "number": 71,
+        "cx": 1617.74,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "top",
+        "index": 30,
+        "number": 50,
+        "cx": 1672.58,
+        "cy": 22,
+        "rotate": 0
+      },
+      {
+        "edge": "bottom",
+        "index": 30,
+        "number": 70,
+        "cx": 1672.58,
+        "cy": 1218,
+        "rotate": 0
+      },
+      {
+        "edge": "left",
+        "index": 0,
+        "number": 19,
+        "cx": 22,
+        "cy": 74.32,
+        "rotate": -90
+      },
+      {
+        "edge": "right",
+        "index": 0,
+        "number": 51,
+        "cx": 1678,
+        "cy": 74.32,
+        "rotate": 90
+      },
+      {
+        "edge": "left",
+        "index": 1,
+        "number": 18,
+        "cx": 22,
+        "cy": 134.95,
+        "rotate": -90
+      },
+      {
+        "edge": "right",
+        "index": 1,
+        "number": 52,
+        "cx": 1678,
+        "cy": 134.95,
+        "rotate": 90
+      },
+      {
+        "edge": "left",
+        "index": 2,
+        "number": 17,
+        "cx": 22,
+        "cy": 195.58,
+        "rotate": -90
+      },
+      {
+        "edge": "right",
+        "index": 2,
+        "number": 53,
+        "cx": 1678,
+        "cy": 195.58,
+        "rotate": 90
+      },
+      {
+        "edge": "left",
+        "index": 3,
+        "number": 16,
+        "cx": 22,
+        "cy": 256.21,
+        "rotate": -90
+      },
+      {
+        "edge": "right",
+        "index": 3,
+        "number": 54,
+        "cx": 1678,
+        "cy": 256.21,
+        "rotate": 90
+      },
+      {
+        "edge": "left",
+        "index": 4,
+        "number": 15,
+        "cx": 22,
+        "cy": 316.84,
+        "rotate": -90
+      },
+      {
+        "edge": "right",
+        "index": 4,
+        "number": 55,
+        "cx": 1678,
+        "cy": 316.84,
+        "rotate": 90
+      },
+      {
+        "edge": "left",
+        "index": 5,
+        "number": 14,
+        "cx": 22,
+        "cy": 377.47,
+        "rotate": -90
+      },
+      {
+        "edge": "right",
+        "index": 5,
+        "number": 56,
+        "cx": 1678,
+        "cy": 377.47,
+        "rotate": 90
+      },
+      {
+        "edge": "left",
+        "index": 6,
+        "number": 13,
+        "cx": 22,
+        "cy": 438.11,
+        "rotate": -90
+      },
+      {
+        "edge": "right",
+        "index": 6,
+        "number": 57,
+        "cx": 1678,
+        "cy": 438.11,
+        "rotate": 90
+      },
+      {
+        "edge": "left",
+        "index": 7,
+        "number": 12,
+        "cx": 22,
+        "cy": 498.74,
+        "rotate": -90
+      },
+      {
+        "edge": "right",
+        "index": 7,
+        "number": 58,
+        "cx": 1678,
+        "cy": 498.74,
+        "rotate": 90
+      },
+      {
+        "edge": "left",
+        "index": 8,
+        "number": 11,
+        "cx": 22,
+        "cy": 559.37,
+        "rotate": -90
+      },
+      {
+        "edge": "right",
+        "index": 8,
+        "number": 59,
+        "cx": 1678,
+        "cy": 559.37,
+        "rotate": 90
+      },
+      {
+        "edge": "left",
+        "index": 9,
+        "number": 10,
+        "cx": 22,
+        "cy": 620,
+        "rotate": -90
+      },
+      {
+        "edge": "right",
+        "index": 9,
+        "number": 60,
+        "cx": 1678,
+        "cy": 620,
+        "rotate": 90
+      },
+      {
+        "edge": "left",
+        "index": 10,
+        "number": 9,
+        "cx": 22,
+        "cy": 680.63,
+        "rotate": -90
+      },
+      {
+        "edge": "right",
+        "index": 10,
+        "number": 61,
+        "cx": 1678,
+        "cy": 680.63,
+        "rotate": 90
+      },
+      {
+        "edge": "left",
+        "index": 11,
+        "number": 8,
+        "cx": 22,
+        "cy": 741.26,
+        "rotate": -90
+      },
+      {
+        "edge": "right",
+        "index": 11,
+        "number": 62,
+        "cx": 1678,
+        "cy": 741.26,
+        "rotate": 90
+      },
+      {
+        "edge": "left",
+        "index": 12,
+        "number": 7,
+        "cx": 22,
+        "cy": 801.89,
+        "rotate": -90
+      },
+      {
+        "edge": "right",
+        "index": 12,
+        "number": 63,
+        "cx": 1678,
+        "cy": 801.89,
+        "rotate": 90
+      },
+      {
+        "edge": "left",
+        "index": 13,
+        "number": 6,
+        "cx": 22,
+        "cy": 862.53,
+        "rotate": -90
+      },
+      {
+        "edge": "right",
+        "index": 13,
+        "number": 64,
+        "cx": 1678,
+        "cy": 862.53,
+        "rotate": 90
+      },
+      {
+        "edge": "left",
+        "index": 14,
+        "number": 5,
+        "cx": 22,
+        "cy": 923.16,
+        "rotate": -90
+      },
+      {
+        "edge": "right",
+        "index": 14,
+        "number": 65,
+        "cx": 1678,
+        "cy": 923.16,
+        "rotate": 90
+      },
+      {
+        "edge": "left",
+        "index": 15,
+        "number": 4,
+        "cx": 22,
+        "cy": 983.79,
+        "rotate": -90
+      },
+      {
+        "edge": "right",
+        "index": 15,
+        "number": 66,
+        "cx": 1678,
+        "cy": 983.79,
+        "rotate": 90
+      },
+      {
+        "edge": "left",
+        "index": 16,
+        "number": 3,
+        "cx": 22,
+        "cy": 1044.42,
+        "rotate": -90
+      },
+      {
+        "edge": "right",
+        "index": 16,
+        "number": 67,
+        "cx": 1678,
+        "cy": 1044.42,
+        "rotate": 90
+      },
+      {
+        "edge": "left",
+        "index": 17,
+        "number": 2,
+        "cx": 22,
+        "cy": 1105.05,
+        "rotate": -90
+      },
+      {
+        "edge": "right",
+        "index": 17,
+        "number": 68,
+        "cx": 1678,
+        "cy": 1105.05,
+        "rotate": 90
+      },
+      {
+        "edge": "left",
+        "index": 18,
+        "number": 1,
+        "cx": 22,
+        "cy": 1165.68,
+        "rotate": -90
+      },
+      {
+        "edge": "right",
+        "index": 18,
+        "number": 69,
+        "cx": 1678,
+        "cy": 1165.68,
+        "rotate": 90
+      }
+    ]
+  },
+  "mapField": {
+    "x": 44,
+    "y": 44,
+    "width": 1612,
+    "height": 1152
+  },
+  "hexGrid": {
+    "orientation": "pointy-top",
+    "radius": 41,
+    "horizontalSpacing": 71.0141,
+    "rowSpacing": 61.5,
+    "origin": {
+      "x": 120,
+      "y": 97
+    },
+    "formula": "cx = OX + col*HW + (row%2)*HW/2 ; cy = OY + row*RP",
+    "cols": 20,
+    "rows": 18
+  },
+  "terrainCost": {
+    "plains": 2,
+    "city": 2,
+    "forest": 3,
+    "mountain": 5,
+    "cityBonus": "+$2 per cube"
+  },
+  "grid": [
+    "OOOOOOOOOOOCFFCFCFFO",
+    "OPCOPPCOOOFFFFFMFFCO",
+    "OCPPPCPPPCFFFMMFFFFO",
+    "PPPPPPPPPFCFMCPPCOOO",
+    "OPPPPCPPCFFMMFPCOOOO",
+    "PPPPFPCFFFMMFCPOOOOO",
+    "OCPPFCFFFCMMFPOOOOOO",
+    "PPPPFFFFFMCFCPOOOOOO",
+    "OPPFFFFMMMFFFFCOOOOO",
+    "PPFCFFCMMFFCPPOOOOOO",
+    "OCFFFCMMMCFPPFOOOOOO",
+    "PFFFFFMFFFPFCOOOOOOO",
+    "OFFFCFCFFPPFOOOOOOOO",
+    "PFFFFFFFPFCOOOOOOOOO",
+    "OCFFCFFPPFOOOOOOOOOO",
+    "PFFFFPPFCOOOOOOOOOOO",
+    "PFCFPCOOOOOOOOOOOOOO",
+    "COOOOOOOOOOOOOOOOOOO"
+  ],
+  "gridLegend": {
+    "O": "ocean / empty",
+    "P": "plains",
+    "F": "forest",
+    "M": "mountain",
+    "C": "city"
+  },
+  "cells": [
+    {
+      "col": 11,
+      "row": 0,
+      "terrain": "city",
+      "x": 901.2,
+      "y": 97,
+      "city": "Buffalo",
+      "value": "4/3"
+    },
+    {
+      "col": 12,
+      "row": 0,
+      "terrain": "forest",
+      "x": 972.2,
+      "y": 97
+    },
+    {
+      "col": 13,
+      "row": 0,
+      "terrain": "forest",
+      "x": 1043.2,
+      "y": 97
+    },
+    {
+      "col": 14,
+      "row": 0,
+      "terrain": "city",
+      "x": 1114.2,
+      "y": 97,
+      "city": "Syracuse",
+      "value": "2/1"
+    },
+    {
+      "col": 15,
+      "row": 0,
+      "terrain": "forest",
+      "x": 1185.2,
+      "y": 97
+    },
+    {
+      "col": 16,
+      "row": 0,
+      "terrain": "city",
+      "x": 1256.2,
+      "y": 97,
+      "city": "Albany",
+      "value": "3/2"
+    },
+    {
+      "col": 17,
+      "row": 0,
+      "terrain": "forest",
+      "x": 1327.2,
+      "y": 97
+    },
+    {
+      "col": 18,
+      "row": 0,
+      "terrain": "forest",
+      "x": 1398.3,
+      "y": 97
+    },
+    {
+      "col": 1,
+      "row": 1,
+      "terrain": "plains",
+      "x": 226.5,
+      "y": 158.5
+    },
+    {
+      "col": 2,
+      "row": 1,
+      "terrain": "city",
+      "x": 297.5,
+      "y": 158.5,
+      "city": "Chicago",
+      "value": "7/5",
+      "startCity": true,
+      "port": true
+    },
+    {
+      "col": 4,
+      "row": 1,
+      "terrain": "plains",
+      "x": 439.6,
+      "y": 158.5
+    },
+    {
+      "col": 5,
+      "row": 1,
+      "terrain": "plains",
+      "x": 510.6,
+      "y": 158.5
+    },
+    {
+      "col": 6,
+      "row": 1,
+      "terrain": "city",
+      "x": 581.6,
+      "y": 158.5,
+      "city": "Detroit",
+      "value": "4/2"
+    },
+    {
+      "col": 10,
+      "row": 1,
+      "terrain": "forest",
+      "x": 865.6,
+      "y": 158.5
+    },
+    {
+      "col": 11,
+      "row": 1,
+      "terrain": "forest",
+      "x": 936.7,
+      "y": 158.5
+    },
+    {
+      "col": 12,
+      "row": 1,
+      "terrain": "forest",
+      "x": 1007.7,
+      "y": 158.5
+    },
+    {
+      "col": 13,
+      "row": 1,
+      "terrain": "forest",
+      "x": 1078.7,
+      "y": 158.5
+    },
+    {
+      "col": 14,
+      "row": 1,
+      "terrain": "forest",
+      "x": 1149.7,
+      "y": 158.5
+    },
+    {
+      "col": 15,
+      "row": 1,
+      "terrain": "mountain",
+      "x": 1220.7,
+      "y": 158.5
+    },
+    {
+      "col": 16,
+      "row": 1,
+      "terrain": "forest",
+      "x": 1291.7,
+      "y": 158.5
+    },
+    {
+      "col": 17,
+      "row": 1,
+      "terrain": "forest",
+      "x": 1362.7,
+      "y": 158.5
+    },
+    {
+      "col": 18,
+      "row": 1,
+      "terrain": "city",
+      "x": 1433.8,
+      "y": 158.5,
+      "city": "Boston",
+      "value": "5/3",
+      "port": true
+    },
+    {
+      "col": 1,
+      "row": 2,
+      "terrain": "city",
+      "x": 191,
+      "y": 220,
+      "city": "Rock Island",
+      "value": "2/1"
+    },
+    {
+      "col": 2,
+      "row": 2,
+      "terrain": "plains",
+      "x": 262,
+      "y": 220
+    },
+    {
+      "col": 3,
+      "row": 2,
+      "terrain": "plains",
+      "x": 333,
+      "y": 220
+    },
+    {
+      "col": 4,
+      "row": 2,
+      "terrain": "plains",
+      "x": 404.1,
+      "y": 220
+    },
+    {
+      "col": 5,
+      "row": 2,
+      "terrain": "city",
+      "x": 475.1,
+      "y": 220,
+      "city": "Fort Wayne",
+      "value": "2/1"
+    },
+    {
+      "col": 6,
+      "row": 2,
+      "terrain": "plains",
+      "x": 546.1,
+      "y": 220
+    },
+    {
+      "col": 7,
+      "row": 2,
+      "terrain": "plains",
+      "x": 617.1,
+      "y": 220
+    },
+    {
+      "col": 8,
+      "row": 2,
+      "terrain": "plains",
+      "x": 688.1,
+      "y": 220
+    },
+    {
+      "col": 9,
+      "row": 2,
+      "terrain": "city",
+      "x": 759.1,
+      "y": 220,
+      "city": "Cleveland",
+      "value": "4/2"
+    },
+    {
+      "col": 10,
+      "row": 2,
+      "terrain": "forest",
+      "x": 830.1,
+      "y": 220
+    },
+    {
+      "col": 11,
+      "row": 2,
+      "terrain": "forest",
+      "x": 901.2,
+      "y": 220
+    },
+    {
+      "col": 12,
+      "row": 2,
+      "terrain": "forest",
+      "x": 972.2,
+      "y": 220
+    },
+    {
+      "col": 13,
+      "row": 2,
+      "terrain": "mountain",
+      "x": 1043.2,
+      "y": 220
+    },
+    {
+      "col": 14,
+      "row": 2,
+      "terrain": "mountain",
+      "x": 1114.2,
+      "y": 220
+    },
+    {
+      "col": 15,
+      "row": 2,
+      "terrain": "forest",
+      "x": 1185.2,
+      "y": 220
+    },
+    {
+      "col": 16,
+      "row": 2,
+      "terrain": "forest",
+      "x": 1256.2,
+      "y": 220
+    },
+    {
+      "col": 17,
+      "row": 2,
+      "terrain": "forest",
+      "x": 1327.2,
+      "y": 220
+    },
+    {
+      "col": 18,
+      "row": 2,
+      "terrain": "forest",
+      "x": 1398.3,
+      "y": 220
+    },
+    {
+      "col": 0,
+      "row": 3,
+      "terrain": "plains",
+      "x": 155.5,
+      "y": 281.5
+    },
+    {
+      "col": 1,
+      "row": 3,
+      "terrain": "plains",
+      "x": 226.5,
+      "y": 281.5
+    },
+    {
+      "col": 2,
+      "row": 3,
+      "terrain": "plains",
+      "x": 297.5,
+      "y": 281.5
+    },
+    {
+      "col": 3,
+      "row": 3,
+      "terrain": "plains",
+      "x": 368.5,
+      "y": 281.5
+    },
+    {
+      "col": 4,
+      "row": 3,
+      "terrain": "plains",
+      "x": 439.6,
+      "y": 281.5
+    },
+    {
+      "col": 5,
+      "row": 3,
+      "terrain": "plains",
+      "x": 510.6,
+      "y": 281.5
+    },
+    {
+      "col": 6,
+      "row": 3,
+      "terrain": "plains",
+      "x": 581.6,
+      "y": 281.5
+    },
+    {
+      "col": 7,
+      "row": 3,
+      "terrain": "plains",
+      "x": 652.6,
+      "y": 281.5
+    },
+    {
+      "col": 8,
+      "row": 3,
+      "terrain": "plains",
+      "x": 723.6,
+      "y": 281.5
+    },
+    {
+      "col": 9,
+      "row": 3,
+      "terrain": "forest",
+      "x": 794.6,
+      "y": 281.5
+    },
+    {
+      "col": 10,
+      "row": 3,
+      "terrain": "city",
+      "x": 865.6,
+      "y": 281.5,
+      "city": "Pittsburg",
+      "value": "5/3"
+    },
+    {
+      "col": 11,
+      "row": 3,
+      "terrain": "forest",
+      "x": 936.7,
+      "y": 281.5
+    },
+    {
+      "col": 12,
+      "row": 3,
+      "terrain": "mountain",
+      "x": 1007.7,
+      "y": 281.5
+    },
+    {
+      "col": 13,
+      "row": 3,
+      "terrain": "city",
+      "x": 1078.7,
+      "y": 281.5,
+      "city": "Harrisburg",
+      "value": "1/1"
+    },
+    {
+      "col": 14,
+      "row": 3,
+      "terrain": "plains",
+      "x": 1149.7,
+      "y": 281.5
+    },
+    {
+      "col": 15,
+      "row": 3,
+      "terrain": "plains",
+      "x": 1220.7,
+      "y": 281.5
+    },
+    {
+      "col": 16,
+      "row": 3,
+      "terrain": "city",
+      "x": 1291.7,
+      "y": 281.5,
+      "city": "New York",
+      "value": "8/5",
+      "startCity": true,
+      "port": true
+    },
+    {
+      "col": 1,
+      "row": 4,
+      "terrain": "plains",
+      "x": 191,
+      "y": 343
+    },
+    {
+      "col": 2,
+      "row": 4,
+      "terrain": "plains",
+      "x": 262,
+      "y": 343
+    },
+    {
+      "col": 3,
+      "row": 4,
+      "terrain": "plains",
+      "x": 333,
+      "y": 343
+    },
+    {
+      "col": 4,
+      "row": 4,
+      "terrain": "plains",
+      "x": 404.1,
+      "y": 343
+    },
+    {
+      "col": 5,
+      "row": 4,
+      "terrain": "city",
+      "x": 475.1,
+      "y": 343,
+      "city": "Indianapolis",
+      "value": "4/2"
+    },
+    {
+      "col": 6,
+      "row": 4,
+      "terrain": "plains",
+      "x": 546.1,
+      "y": 343
+    },
+    {
+      "col": 7,
+      "row": 4,
+      "terrain": "plains",
+      "x": 617.1,
+      "y": 343
+    },
+    {
+      "col": 8,
+      "row": 4,
+      "terrain": "city",
+      "x": 688.1,
+      "y": 343,
+      "city": "Columbus",
+      "value": "1/1"
+    },
+    {
+      "col": 9,
+      "row": 4,
+      "terrain": "forest",
+      "x": 759.1,
+      "y": 343
+    },
+    {
+      "col": 10,
+      "row": 4,
+      "terrain": "forest",
+      "x": 830.1,
+      "y": 343
+    },
+    {
+      "col": 11,
+      "row": 4,
+      "terrain": "mountain",
+      "x": 901.2,
+      "y": 343
+    },
+    {
+      "col": 12,
+      "row": 4,
+      "terrain": "mountain",
+      "x": 972.2,
+      "y": 343
+    },
+    {
+      "col": 13,
+      "row": 4,
+      "terrain": "forest",
+      "x": 1043.2,
+      "y": 343
+    },
+    {
+      "col": 14,
+      "row": 4,
+      "terrain": "plains",
+      "x": 1114.2,
+      "y": 343
+    },
+    {
+      "col": 15,
+      "row": 4,
+      "terrain": "city",
+      "x": 1185.2,
+      "y": 343,
+      "city": "Philadelphia",
+      "value": "6/4",
+      "port": true
+    },
+    {
+      "col": 0,
+      "row": 5,
+      "terrain": "plains",
+      "x": 155.5,
+      "y": 404.5
+    },
+    {
+      "col": 1,
+      "row": 5,
+      "terrain": "plains",
+      "x": 226.5,
+      "y": 404.5
+    },
+    {
+      "col": 2,
+      "row": 5,
+      "terrain": "plains",
+      "x": 297.5,
+      "y": 404.5
+    },
+    {
+      "col": 3,
+      "row": 5,
+      "terrain": "plains",
+      "x": 368.5,
+      "y": 404.5
+    },
+    {
+      "col": 4,
+      "row": 5,
+      "terrain": "forest",
+      "x": 439.6,
+      "y": 404.5
+    },
+    {
+      "col": 5,
+      "row": 5,
+      "terrain": "plains",
+      "x": 510.6,
+      "y": 404.5
+    },
+    {
+      "col": 6,
+      "row": 5,
+      "terrain": "city",
+      "x": 581.6,
+      "y": 404.5,
+      "city": "Cincinnati",
+      "value": "4/2"
+    },
+    {
+      "col": 7,
+      "row": 5,
+      "terrain": "forest",
+      "x": 652.6,
+      "y": 404.5
+    },
+    {
+      "col": 8,
+      "row": 5,
+      "terrain": "forest",
+      "x": 723.6,
+      "y": 404.5
+    },
+    {
+      "col": 9,
+      "row": 5,
+      "terrain": "forest",
+      "x": 794.6,
+      "y": 404.5
+    },
+    {
+      "col": 10,
+      "row": 5,
+      "terrain": "mountain",
+      "x": 865.6,
+      "y": 404.5
+    },
+    {
+      "col": 11,
+      "row": 5,
+      "terrain": "mountain",
+      "x": 936.7,
+      "y": 404.5
+    },
+    {
+      "col": 12,
+      "row": 5,
+      "terrain": "forest",
+      "x": 1007.7,
+      "y": 404.5
+    },
+    {
+      "col": 13,
+      "row": 5,
+      "terrain": "city",
+      "x": 1078.7,
+      "y": 404.5,
+      "city": "Baltimore",
+      "value": "5/3",
+      "port": true
+    },
+    {
+      "col": 14,
+      "row": 5,
+      "terrain": "plains",
+      "x": 1149.7,
+      "y": 404.5
+    },
+    {
+      "col": 1,
+      "row": 6,
+      "terrain": "city",
+      "x": 191,
+      "y": 466,
+      "city": "St. Louis",
+      "value": "5/3"
+    },
+    {
+      "col": 2,
+      "row": 6,
+      "terrain": "plains",
+      "x": 262,
+      "y": 466
+    },
+    {
+      "col": 3,
+      "row": 6,
+      "terrain": "plains",
+      "x": 333,
+      "y": 466
+    },
+    {
+      "col": 4,
+      "row": 6,
+      "terrain": "forest",
+      "x": 404.1,
+      "y": 466
+    },
+    {
+      "col": 5,
+      "row": 6,
+      "terrain": "city",
+      "x": 475.1,
+      "y": 466,
+      "city": "Louisville",
+      "value": "1/1"
+    },
+    {
+      "col": 6,
+      "row": 6,
+      "terrain": "forest",
+      "x": 546.1,
+      "y": 466
+    },
+    {
+      "col": 7,
+      "row": 6,
+      "terrain": "forest",
+      "x": 617.1,
+      "y": 466
+    },
+    {
+      "col": 8,
+      "row": 6,
+      "terrain": "forest",
+      "x": 688.1,
+      "y": 466
+    },
+    {
+      "col": 9,
+      "row": 6,
+      "terrain": "city",
+      "x": 759.1,
+      "y": 466,
+      "city": "Charlestown",
+      "value": "2/1"
+    },
+    {
+      "col": 10,
+      "row": 6,
+      "terrain": "mountain",
+      "x": 830.1,
+      "y": 466
+    },
+    {
+      "col": 11,
+      "row": 6,
+      "terrain": "mountain",
+      "x": 901.2,
+      "y": 466
+    },
+    {
+      "col": 12,
+      "row": 6,
+      "terrain": "forest",
+      "x": 972.2,
+      "y": 466
+    },
+    {
+      "col": 13,
+      "row": 6,
+      "terrain": "plains",
+      "x": 1043.2,
+      "y": 466
+    },
+    {
+      "col": 0,
+      "row": 7,
+      "terrain": "plains",
+      "x": 155.5,
+      "y": 527.5
+    },
+    {
+      "col": 1,
+      "row": 7,
+      "terrain": "plains",
+      "x": 226.5,
+      "y": 527.5
+    },
+    {
+      "col": 2,
+      "row": 7,
+      "terrain": "plains",
+      "x": 297.5,
+      "y": 527.5
+    },
+    {
+      "col": 3,
+      "row": 7,
+      "terrain": "plains",
+      "x": 368.5,
+      "y": 527.5
+    },
+    {
+      "col": 4,
+      "row": 7,
+      "terrain": "forest",
+      "x": 439.6,
+      "y": 527.5
+    },
+    {
+      "col": 5,
+      "row": 7,
+      "terrain": "forest",
+      "x": 510.6,
+      "y": 527.5
+    },
+    {
+      "col": 6,
+      "row": 7,
+      "terrain": "forest",
+      "x": 581.6,
+      "y": 527.5
+    },
+    {
+      "col": 7,
+      "row": 7,
+      "terrain": "forest",
+      "x": 652.6,
+      "y": 527.5
+    },
+    {
+      "col": 8,
+      "row": 7,
+      "terrain": "forest",
+      "x": 723.6,
+      "y": 527.5
+    },
+    {
+      "col": 9,
+      "row": 7,
+      "terrain": "mountain",
+      "x": 794.6,
+      "y": 527.5
+    },
+    {
+      "col": 10,
+      "row": 7,
+      "terrain": "city",
+      "x": 865.6,
+      "y": 527.5,
+      "city": "Roanoke",
+      "value": "2/1"
+    },
+    {
+      "col": 11,
+      "row": 7,
+      "terrain": "forest",
+      "x": 936.7,
+      "y": 527.5
+    },
+    {
+      "col": 12,
+      "row": 7,
+      "terrain": "city",
+      "x": 1007.7,
+      "y": 527.5,
+      "city": "Richmond",
+      "value": "3/2"
+    },
+    {
+      "col": 13,
+      "row": 7,
+      "terrain": "plains",
+      "x": 1078.7,
+      "y": 527.5
+    },
+    {
+      "col": 1,
+      "row": 8,
+      "terrain": "plains",
+      "x": 191,
+      "y": 589
+    },
+    {
+      "col": 2,
+      "row": 8,
+      "terrain": "plains",
+      "x": 262,
+      "y": 589
+    },
+    {
+      "col": 3,
+      "row": 8,
+      "terrain": "forest",
+      "x": 333,
+      "y": 589
+    },
+    {
+      "col": 4,
+      "row": 8,
+      "terrain": "forest",
+      "x": 404.1,
+      "y": 589
+    },
+    {
+      "col": 5,
+      "row": 8,
+      "terrain": "forest",
+      "x": 475.1,
+      "y": 589
+    },
+    {
+      "col": 6,
+      "row": 8,
+      "terrain": "forest",
+      "x": 546.1,
+      "y": 589
+    },
+    {
+      "col": 7,
+      "row": 8,
+      "terrain": "mountain",
+      "x": 617.1,
+      "y": 589
+    },
+    {
+      "col": 8,
+      "row": 8,
+      "terrain": "mountain",
+      "x": 688.1,
+      "y": 589
+    },
+    {
+      "col": 9,
+      "row": 8,
+      "terrain": "mountain",
+      "x": 759.1,
+      "y": 589
+    },
+    {
+      "col": 10,
+      "row": 8,
+      "terrain": "forest",
+      "x": 830.1,
+      "y": 589
+    },
+    {
+      "col": 11,
+      "row": 8,
+      "terrain": "forest",
+      "x": 901.2,
+      "y": 589
+    },
+    {
+      "col": 12,
+      "row": 8,
+      "terrain": "forest",
+      "x": 972.2,
+      "y": 589
+    },
+    {
+      "col": 13,
+      "row": 8,
+      "terrain": "forest",
+      "x": 1043.2,
+      "y": 589
+    },
+    {
+      "col": 14,
+      "row": 8,
+      "terrain": "city",
+      "x": 1114.2,
+      "y": 589,
+      "city": "Norfolk",
+      "value": "2/2"
+    },
+    {
+      "col": 0,
+      "row": 9,
+      "terrain": "plains",
+      "x": 155.5,
+      "y": 650.5
+    },
+    {
+      "col": 1,
+      "row": 9,
+      "terrain": "plains",
+      "x": 226.5,
+      "y": 650.5
+    },
+    {
+      "col": 2,
+      "row": 9,
+      "terrain": "forest",
+      "x": 297.5,
+      "y": 650.5
+    },
+    {
+      "col": 3,
+      "row": 9,
+      "terrain": "city",
+      "x": 368.5,
+      "y": 650.5,
+      "city": "Nashville",
+      "value": "3/2"
+    },
+    {
+      "col": 4,
+      "row": 9,
+      "terrain": "forest",
+      "x": 439.6,
+      "y": 650.5
+    },
+    {
+      "col": 5,
+      "row": 9,
+      "terrain": "forest",
+      "x": 510.6,
+      "y": 650.5
+    },
+    {
+      "col": 6,
+      "row": 9,
+      "terrain": "city",
+      "x": 581.6,
+      "y": 650.5,
+      "city": "Knoxville",
+      "value": "2/1"
+    },
+    {
+      "col": 7,
+      "row": 9,
+      "terrain": "mountain",
+      "x": 652.6,
+      "y": 650.5
+    },
+    {
+      "col": 8,
+      "row": 9,
+      "terrain": "mountain",
+      "x": 723.6,
+      "y": 650.5
+    },
+    {
+      "col": 9,
+      "row": 9,
+      "terrain": "forest",
+      "x": 794.6,
+      "y": 650.5
+    },
+    {
+      "col": 10,
+      "row": 9,
+      "terrain": "forest",
+      "x": 865.6,
+      "y": 650.5
+    },
+    {
+      "col": 11,
+      "row": 9,
+      "terrain": "city",
+      "x": 936.7,
+      "y": 650.5,
+      "city": "Raleigh",
+      "value": "2/1"
+    },
+    {
+      "col": 12,
+      "row": 9,
+      "terrain": "plains",
+      "x": 1007.7,
+      "y": 650.5
+    },
+    {
+      "col": 13,
+      "row": 9,
+      "terrain": "plains",
+      "x": 1078.7,
+      "y": 650.5
+    },
+    {
+      "col": 1,
+      "row": 10,
+      "terrain": "city",
+      "x": 191,
+      "y": 712,
+      "city": "Memphis",
+      "value": "3/2"
+    },
+    {
+      "col": 2,
+      "row": 10,
+      "terrain": "forest",
+      "x": 262,
+      "y": 712
+    },
+    {
+      "col": 3,
+      "row": 10,
+      "terrain": "forest",
+      "x": 333,
+      "y": 712
+    },
+    {
+      "col": 4,
+      "row": 10,
+      "terrain": "forest",
+      "x": 404.1,
+      "y": 712
+    },
+    {
+      "col": 5,
+      "row": 10,
+      "terrain": "city",
+      "x": 475.1,
+      "y": 712,
+      "city": "Chattanooga",
+      "value": "4/2"
+    },
+    {
+      "col": 6,
+      "row": 10,
+      "terrain": "mountain",
+      "x": 546.1,
+      "y": 712
+    },
+    {
+      "col": 7,
+      "row": 10,
+      "terrain": "mountain",
+      "x": 617.1,
+      "y": 712
+    },
+    {
+      "col": 8,
+      "row": 10,
+      "terrain": "mountain",
+      "x": 688.1,
+      "y": 712
+    },
+    {
+      "col": 9,
+      "row": 10,
+      "terrain": "city",
+      "x": 759.1,
+      "y": 712,
+      "city": "Charlotte",
+      "value": "3/2"
+    },
+    {
+      "col": 10,
+      "row": 10,
+      "terrain": "forest",
+      "x": 830.1,
+      "y": 712
+    },
+    {
+      "col": 11,
+      "row": 10,
+      "terrain": "plains",
+      "x": 901.2,
+      "y": 712
+    },
+    {
+      "col": 12,
+      "row": 10,
+      "terrain": "plains",
+      "x": 972.2,
+      "y": 712
+    },
+    {
+      "col": 13,
+      "row": 10,
+      "terrain": "forest",
+      "x": 1043.2,
+      "y": 712
+    },
+    {
+      "col": 0,
+      "row": 11,
+      "terrain": "plains",
+      "x": 155.5,
+      "y": 773.5
+    },
+    {
+      "col": 1,
+      "row": 11,
+      "terrain": "forest",
+      "x": 226.5,
+      "y": 773.5
+    },
+    {
+      "col": 2,
+      "row": 11,
+      "terrain": "forest",
+      "x": 297.5,
+      "y": 773.5
+    },
+    {
+      "col": 3,
+      "row": 11,
+      "terrain": "forest",
+      "x": 368.5,
+      "y": 773.5
+    },
+    {
+      "col": 4,
+      "row": 11,
+      "terrain": "forest",
+      "x": 439.6,
+      "y": 773.5
+    },
+    {
+      "col": 5,
+      "row": 11,
+      "terrain": "forest",
+      "x": 510.6,
+      "y": 773.5
+    },
+    {
+      "col": 6,
+      "row": 11,
+      "terrain": "mountain",
+      "x": 581.6,
+      "y": 773.5
+    },
+    {
+      "col": 7,
+      "row": 11,
+      "terrain": "forest",
+      "x": 652.6,
+      "y": 773.5
+    },
+    {
+      "col": 8,
+      "row": 11,
+      "terrain": "forest",
+      "x": 723.6,
+      "y": 773.5
+    },
+    {
+      "col": 9,
+      "row": 11,
+      "terrain": "forest",
+      "x": 794.6,
+      "y": 773.5
+    },
+    {
+      "col": 10,
+      "row": 11,
+      "terrain": "plains",
+      "x": 865.6,
+      "y": 773.5
+    },
+    {
+      "col": 11,
+      "row": 11,
+      "terrain": "forest",
+      "x": 936.7,
+      "y": 773.5
+    },
+    {
+      "col": 12,
+      "row": 11,
+      "terrain": "city",
+      "x": 1007.7,
+      "y": 773.5,
+      "city": "Wilmington",
+      "value": "2/1"
+    },
+    {
+      "col": 1,
+      "row": 12,
+      "terrain": "forest",
+      "x": 191,
+      "y": 835
+    },
+    {
+      "col": 2,
+      "row": 12,
+      "terrain": "forest",
+      "x": 262,
+      "y": 835
+    },
+    {
+      "col": 3,
+      "row": 12,
+      "terrain": "forest",
+      "x": 333,
+      "y": 835
+    },
+    {
+      "col": 4,
+      "row": 12,
+      "terrain": "city",
+      "x": 404.1,
+      "y": 835,
+      "city": "Birmingham",
+      "value": "2/1"
+    },
+    {
+      "col": 5,
+      "row": 12,
+      "terrain": "forest",
+      "x": 475.1,
+      "y": 835
+    },
+    {
+      "col": 6,
+      "row": 12,
+      "terrain": "city",
+      "x": 546.1,
+      "y": 835,
+      "city": "Atlanta",
+      "value": "5/3",
+      "startCity": true
+    },
+    {
+      "col": 7,
+      "row": 12,
+      "terrain": "forest",
+      "x": 617.1,
+      "y": 835
+    },
+    {
+      "col": 8,
+      "row": 12,
+      "terrain": "forest",
+      "x": 688.1,
+      "y": 835
+    },
+    {
+      "col": 9,
+      "row": 12,
+      "terrain": "plains",
+      "x": 759.1,
+      "y": 835
+    },
+    {
+      "col": 10,
+      "row": 12,
+      "terrain": "plains",
+      "x": 830.1,
+      "y": 835
+    },
+    {
+      "col": 11,
+      "row": 12,
+      "terrain": "forest",
+      "x": 901.2,
+      "y": 835
+    },
+    {
+      "col": 0,
+      "row": 13,
+      "terrain": "plains",
+      "x": 155.5,
+      "y": 896.5
+    },
+    {
+      "col": 1,
+      "row": 13,
+      "terrain": "forest",
+      "x": 226.5,
+      "y": 896.5
+    },
+    {
+      "col": 2,
+      "row": 13,
+      "terrain": "forest",
+      "x": 297.5,
+      "y": 896.5
+    },
+    {
+      "col": 3,
+      "row": 13,
+      "terrain": "forest",
+      "x": 368.5,
+      "y": 896.5
+    },
+    {
+      "col": 4,
+      "row": 13,
+      "terrain": "forest",
+      "x": 439.6,
+      "y": 896.5
+    },
+    {
+      "col": 5,
+      "row": 13,
+      "terrain": "forest",
+      "x": 510.6,
+      "y": 896.5
+    },
+    {
+      "col": 6,
+      "row": 13,
+      "terrain": "forest",
+      "x": 581.6,
+      "y": 896.5
+    },
+    {
+      "col": 7,
+      "row": 13,
+      "terrain": "forest",
+      "x": 652.6,
+      "y": 896.5
+    },
+    {
+      "col": 8,
+      "row": 13,
+      "terrain": "plains",
+      "x": 723.6,
+      "y": 896.5
+    },
+    {
+      "col": 9,
+      "row": 13,
+      "terrain": "forest",
+      "x": 794.6,
+      "y": 896.5
+    },
+    {
+      "col": 10,
+      "row": 13,
+      "terrain": "city",
+      "x": 865.6,
+      "y": 896.5,
+      "city": "Charleston",
+      "value": "3/2"
+    },
+    {
+      "col": 1,
+      "row": 14,
+      "terrain": "city",
+      "x": 191,
+      "y": 958,
+      "city": "Jackson",
+      "value": "3/2"
+    },
+    {
+      "col": 2,
+      "row": 14,
+      "terrain": "forest",
+      "x": 262,
+      "y": 958
+    },
+    {
+      "col": 3,
+      "row": 14,
+      "terrain": "forest",
+      "x": 333,
+      "y": 958
+    },
+    {
+      "col": 4,
+      "row": 14,
+      "terrain": "city",
+      "x": 404.1,
+      "y": 958,
+      "city": "Montgomery",
+      "value": "2/1"
+    },
+    {
+      "col": 5,
+      "row": 14,
+      "terrain": "forest",
+      "x": 475.1,
+      "y": 958
+    },
+    {
+      "col": 6,
+      "row": 14,
+      "terrain": "forest",
+      "x": 546.1,
+      "y": 958
+    },
+    {
+      "col": 7,
+      "row": 14,
+      "terrain": "plains",
+      "x": 617.1,
+      "y": 958
+    },
+    {
+      "col": 8,
+      "row": 14,
+      "terrain": "plains",
+      "x": 688.1,
+      "y": 958
+    },
+    {
+      "col": 9,
+      "row": 14,
+      "terrain": "forest",
+      "x": 759.1,
+      "y": 958
+    },
+    {
+      "col": 0,
+      "row": 15,
+      "terrain": "plains",
+      "x": 155.5,
+      "y": 1019.5
+    },
+    {
+      "col": 1,
+      "row": 15,
+      "terrain": "forest",
+      "x": 226.5,
+      "y": 1019.5
+    },
+    {
+      "col": 2,
+      "row": 15,
+      "terrain": "forest",
+      "x": 297.5,
+      "y": 1019.5
+    },
+    {
+      "col": 3,
+      "row": 15,
+      "terrain": "forest",
+      "x": 368.5,
+      "y": 1019.5
+    },
+    {
+      "col": 4,
+      "row": 15,
+      "terrain": "forest",
+      "x": 439.6,
+      "y": 1019.5
+    },
+    {
+      "col": 5,
+      "row": 15,
+      "terrain": "plains",
+      "x": 510.6,
+      "y": 1019.5
+    },
+    {
+      "col": 6,
+      "row": 15,
+      "terrain": "plains",
+      "x": 581.6,
+      "y": 1019.5
+    },
+    {
+      "col": 7,
+      "row": 15,
+      "terrain": "forest",
+      "x": 652.6,
+      "y": 1019.5
+    },
+    {
+      "col": 8,
+      "row": 15,
+      "terrain": "city",
+      "x": 723.6,
+      "y": 1019.5,
+      "city": "Savannah",
+      "value": "3/2"
+    },
+    {
+      "col": 0,
+      "row": 16,
+      "terrain": "plains",
+      "x": 120,
+      "y": 1081
+    },
+    {
+      "col": 1,
+      "row": 16,
+      "terrain": "forest",
+      "x": 191,
+      "y": 1081
+    },
+    {
+      "col": 2,
+      "row": 16,
+      "terrain": "city",
+      "x": 262,
+      "y": 1081,
+      "city": "Mobile",
+      "value": "2/1"
+    },
+    {
+      "col": 3,
+      "row": 16,
+      "terrain": "forest",
+      "x": 333,
+      "y": 1081
+    },
+    {
+      "col": 4,
+      "row": 16,
+      "terrain": "plains",
+      "x": 404.1,
+      "y": 1081
+    },
+    {
+      "col": 5,
+      "row": 16,
+      "terrain": "city",
+      "x": 475.1,
+      "y": 1081,
+      "city": "Tallahassee",
+      "value": "2/1"
+    },
+    {
+      "col": 0,
+      "row": 17,
+      "terrain": "city",
+      "x": 155.5,
+      "y": 1142.5,
+      "city": "New Orleans",
+      "value": "5/3"
+    }
+  ],
+  "companies": [
+    {
+      "name": "AMERICAN",
+      "color": "#efe9dc",
+      "startValue": 30,
+      "shares": 5
+    },
+    {
+      "name": "NATIONAL",
+      "color": "#b6b1a5",
+      "startValue": 28,
+      "shares": 4
+    },
+    {
+      "name": "CONTINENTAL",
+      "color": "#3d7a46",
+      "startValue": 25,
+      "shares": 3
+    },
+    {
+      "name": "MAJESTIC",
+      "color": "#dcb62c",
+      "startValue": 21,
+      "shares": 4
+    },
+    {
+      "name": "LIBERTY",
+      "color": "#b4382e",
+      "startValue": 18,
+      "shares": 2
+    },
+    {
+      "name": "REPUBLIC",
+      "color": "#2f6fae",
+      "startValue": 16,
+      "shares": 3
+    }
+  ],
+  "ports": [
+    "Chicago",
+    "Baltimore",
+    "Philadelphia",
+    "New York",
+    "Boston"
+  ],
+  "years": [
+    1851,
+    1852,
+    1853,
+    1854,
+    1855,
+    1856,
+    1857
+  ],
+  "panels": {
+    "title": {
+      "transform": "translate(1442,472)",
+      "lines": [
+        {
+          "text": "AMERICAN RAILS",
+          "font": "Cinzel 900",
+          "size": 42,
+          "letterSpacing": 1,
+          "baselineY": 0
+        },
+        {
+          "rule": "M-186 14 H186",
+          "width": 1.6
+        },
+        {
+          "text": "Tim Harrison",
+          "font": "EB Garamond italic",
+          "size": 22,
+          "baselineY": 40
+        },
+        {
+          "rule": "M-186 52 H186",
+          "width": 0.9
+        },
+        {
+          "text": "ARTWORK ALEXANDRE ROCHE",
+          "font": "Cinzel 500",
+          "size": 12,
+          "letterSpacing": 3,
+          "baselineY": 70
+        }
+      ]
+    },
+    "actionTable": {
+      "transform": "translate(1250,556)",
+      "width": 384,
+      "height": 478,
+      "outline": "M0 0 H384 V478 H80 V338 H0 Z  (notched: below y338 only the columns continue)",
+      "numberedStrip": {
+        "rect": "x8 y8 68x322",
+        "fill": "#dccca6",
+        "circles": [
+          {
+            "cy": 39
+          },
+          {
+            "cy": 101
+          },
+          {
+            "cy": 164
+          },
+          {
+            "cy": 230
+          },
+          {
+            "cy": 297
+          }
+        ],
+        "circleR": 29,
+        "cx": 42,
+        "digitFont": "Cinzel 600",
+        "digitSize": 42,
+        "digitBaselineOffset": 15
+      },
+      "columns": {
+        "count": 3,
+        "transform": "translate(84 + i*100, 0)",
+        "rect": "x8 y8 92x462",
+        "fill": "#faf5e6"
+      },
+      "rowDividers": [
+        70,
+        132,
+        196,
+        264,
+        330,
+        400
+      ],
+      "bands": [
+        {
+          "row": 1,
+          "y": [
+            8,
+            70
+          ],
+          "contents": "arrow"
+        },
+        {
+          "row": 2,
+          "y": [
+            70,
+            132
+          ],
+          "contents": "house token"
+        },
+        {
+          "row": 3,
+          "y": [
+            132,
+            196
+          ],
+          "contents": "$5 at y158, locomotive at y180"
+        },
+        {
+          "row": 4,
+          "y": [
+            196,
+            264
+          ],
+          "contents": "$2 + person at y212-217, rule at y229, ( cube cube ) at y248"
+        },
+        {
+          "row": 5,
+          "y": [
+            264,
+            330
+          ],
+          "contents": "three cubes: one at y285, two at y309"
+        },
+        {
+          "row": null,
+          "y": [
+            330,
+            400
+          ],
+          "contents": "gavel at y363"
+        },
+        {
+          "row": null,
+          "y": [
+            400,
+            470
+          ],
+          "contents": "four cubes 2x2 at y422 and y449"
+        }
+      ]
+    },
+    "yearTrack": {
+      "transform": "translate(1100,1046)",
+      "width": 536,
+      "height": 114,
+      "innerBand": "x8 y40 520x66 fill #faf5e6",
+      "cells": 7,
+      "cellWidth": 74.2857,
+      "cellCentreX": "8 + (i + 0.5) * 74.2857",
+      "circle": {
+        "cy": 73,
+        "r": 26,
+        "fill": "#f8f2e0"
+      },
+      "triangle": "right-pointing play mark in #a8814a; the seventh cell has none",
+      "yearLabelBaselineY": 24,
+      "years": [
+        1851,
+        1852,
+        1853,
+        1854,
+        1855,
+        1856,
+        1857
+      ]
+    },
+    "legend": {
+      "transform": "translate(660,1034)",
+      "hexR": 27,
+      "hexOffsetsX": [
+        47,
+        141,
+        235,
+        329
+      ],
+      "hexOffsetY": 78,
+      "costBaselineOffset": 52,
+      "costFont": "EB Garamond 700",
+      "costSize": 20,
+      "subBaselineOffset": 71,
+      "subSize": 13.5,
+      "subColour": "#6b5433",
+      "entries": [
+        {
+          "terrain": "plains",
+          "cost": "$2",
+          "sub": "+$2 per cube"
+        },
+        {
+          "terrain": "city",
+          "cost": "$2",
+          "sub": "+$2 per cube"
+        },
+        {
+          "terrain": "forest",
+          "cost": "$3",
+          "sub": null
+        },
+        {
+          "terrain": "mountain",
+          "cost": "$5",
+          "sub": null
+        }
+      ],
+      "note": "deliberately has no header label"
+    },
+    "houseSupply": {
+      "outline": "M1058 906 L1300 906 L1300 1026 L998 1026 L998 952 Z",
+      "stroke": {
+        "colour": "#3d2e1d",
+        "width": 2.2,
+        "dash": "11 7"
+      },
+      "houses": [
+        "M1136 962 L1136 945 L1149 930 L1162 945 L1162 962 Z",
+        "M1091 1006 L1091 989 L1104 974 L1117 989 L1117 1006 Z",
+        "M1181 1006 L1181 989 L1194 974 L1207 989 L1207 1006 Z"
+      ],
+      "houseStroke": {
+        "width": 2,
+        "dash": "4 4"
+      }
+    },
+    "companyStrip": {
+      "transform": "translate(28 + i*275, 1252)",
+      "plateWidth": 267,
+      "plateHeight": 138,
+      "body": "#15120f",
+      "bodyStroke": "#4d4029",
+      "headerBand": "x8 y8 251x34 fill #0c0a08",
+      "cube": {
+        "at": [
+          24,
+          24
+        ],
+        "note": "isometric cube in the company colour; left face darkened 22%, right face 42%"
+      },
+      "startValueX": 42,
+      "shareCountX": 222,
+      "shareRect": "x229 y18 25x15 in the company colour",
+      "colourRule": "x8 y46 251x3",
+      "artWell": "x8 y55 251x75 fill #241d16 stroke #3d3323",
+      "artWellStatus": "EMPTY - intended for a locomotive illustration",
+      "subLine": {
+        "text": "Railroad Company",
+        "font": "EB Garamond italic",
+        "size": 13,
+        "colour": "#8d7a58"
+      },
+      "plates": [
+        {
+          "company": "American",
+          "colour": "#efe9dc",
+          "startValue": 30,
+          "shares": 5
+        },
+        {
+          "company": "National",
+          "colour": "#b6b1a5",
+          "startValue": 28,
+          "shares": 4
+        },
+        {
+          "company": "Continental",
+          "colour": "#3d7a46",
+          "startValue": 25,
+          "shares": 3
+        },
+        {
+          "company": "Majestic",
+          "colour": "#dcb62c",
+          "startValue": 21,
+          "shares": 4
+        },
+        {
+          "company": "Liberty",
+          "colour": "#b4382e",
+          "startValue": 18,
+          "shares": 2
+        },
+        {
+          "company": "Republic",
+          "colour": "#2f6fae",
+          "startValue": 16,
+          "shares": 3
+        }
+      ]
+    }
+  },
+  "mapLabels": [
+    {
+      "text": "Lake Illinois",
+      "x": 300,
+      "y": 104,
+      "font": "EB Garamond italic",
+      "size": 18,
+      "letterSpacing": 2,
+      "colour": "#8d6e3e",
+      "opacity": 0.8
+    },
+    {
+      "text": "Lake Erie",
+      "x": 660,
+      "y": 104,
+      "font": "EB Garamond italic",
+      "size": 18,
+      "letterSpacing": 2,
+      "colour": "#8d6e3e",
+      "opacity": 0.8
+    },
+    {
+      "text": "THE ATLANTIC",
+      "x": 1150,
+      "y": 830,
+      "font": "Cinzel 600",
+      "size": 19,
+      "letterSpacing": 3.5,
+      "colour": "#8d6e3e",
+      "opacity": 0.55
+    },
+    {
+      "text": "OCEAN",
+      "x": 1150,
+      "y": 862,
+      "font": "Cinzel 600",
+      "size": 19,
+      "letterSpacing": 3.5,
+      "colour": "#8d6e3e",
+      "opacity": 0.55
+    },
+    {
+      "text": "GULF OF MEXICO",
+      "x": 400,
+      "y": 1172,
+      "font": "Cinzel 600",
+      "size": 20,
+      "letterSpacing": 8,
+      "colour": "#8d6e3e",
+      "opacity": 0.48
+    }
+  ],
+  "cityMarks": {
+    "value": {
+      "anchorX": "hex centre x, or x-7 when the city has a port marker",
+      "anchorY": "y - 10, bottom-aligned",
+      "size": 24,
+      "weight": 700,
+      "colour": "#241a10"
+    },
+    "name": {
+      "anchorY": "y + 15, top-aligned",
+      "size": "13.2 default, 12.2 for names over 8 chars, 11.4 over 10",
+      "weight": 600,
+      "colour": "#241a10"
+    },
+    "skyline": {
+      "offsetY": 4,
+      "scale": 1.17,
+      "colour": "#3d2e1d",
+      "opacity": 0.82
+    },
+    "railTies": {
+      "offsetY": 31,
+      "onlyOn": [
+        "Chicago",
+        "New York",
+        "Atlanta"
+      ],
+      "note": "start cities"
+    },
+    "portMarker": {
+      "offset": [
+        20,
+        -13
+      ],
+      "body": "#14110d",
+      "slash": "#b5342b",
+      "onlyOn": [
+        "Chicago",
+        "Baltimore",
+        "Philadelphia",
+        "New York",
+        "Boston"
+      ]
+    }
+  },
+  "fonts": {
+    "display": "Cinzel",
+    "weights": [
+      500,
+      600,
+      700,
+      900
+    ],
+    "text": "EB Garamond",
+    "textWeights": [
+      400,
+      500,
+      600,
+      700
+    ],
+    "italics": true,
+    "source": "Google Fonts",
+    "minTextSize": 11.4
+  }
+}

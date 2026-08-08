@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#221d18; }
+  a { color:#8a6b3c; } a:hover { color:#b98b3f; }
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:36px;background:#221d18;box-sizing:border-box">
+<div style="position:relative;width:100%;max-width:1700px;aspect-ratio:1700/1400;container-type:size;box-shadow:0 44px 100px rgba(0,0,0,.6)">
+
+<svg viewBox="0 0 1700 1400" style="position:absolute;inset:0;width:100%;height:100%;display:block" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="pPaper" width="160" height="160" patternUnits="userSpaceOnUse">
+      <rect width="160" height="160" fill="#e7d7b3"></rect>
+      <circle cx="20" cy="28" r="30" fill="#e0cca2" opacity=".45"></circle>
+      <circle cx="110" cy="98" r="38" fill="#ecdfbf" opacity=".5"></circle>
+      <circle cx="142" cy="18" r="20" fill="#dac697" opacity=".35"></circle>
+      <circle cx="58" cy="128" r="26" fill="#d8c294" opacity=".3"></circle>
+    </pattern>
+    <pattern id="pPlains" width="116" height="104" patternUnits="userSpaceOnUse">
+      <rect width="116" height="104" fill="#d9a938"></rect>
+      <ellipse cx="24" cy="76" rx="44" ry="20" fill="#d2a133" opacity=".55"></ellipse>
+      <ellipse cx="88" cy="26" rx="38" ry="18" fill="#e0b344" opacity=".45"></ellipse>
+      <ellipse cx="96" cy="84" rx="28" ry="14" fill="#d2a133" opacity=".4"></ellipse>
+      <g stroke="#a97b1d" stroke-width="1.05" stroke-linecap="round" fill="none" opacity=".85">
+        <sc-for list="{{ grBlades }}" as="g" hint-placeholder-count="16">
+          <path d="{{ g.d }}"></path>
+        </sc-for>
+      </g>
+      <g fill="#8f6614" opacity=".7">
+        <sc-for list="{{ grSeeds }}" as="g" hint-placeholder-count="6">
+          <circle cx="{{ g.cx }}" cy="{{ g.cy }}" r="1.1"></circle>
+        </sc-for>
+      </g>
+    </pattern>
+    <pattern id="pForest" width="112" height="100" patternUnits="userSpaceOnUse">
+      <rect width="112" height="100" fill="#8e9b40"></rect>
+      <ellipse cx="28" cy="70" rx="44" ry="20" fill="#88953b" opacity=".55"></ellipse>
+      <ellipse cx="86" cy="24" rx="36" ry="17" fill="#96a349" opacity=".45"></ellipse>
+      <g stroke="#4d5a1c" stroke-width="0.9" stroke-linecap="round" fill="none" opacity=".8">
+        <sc-for list="{{ trTrunks }}" as="t" hint-placeholder-count="12">
+          <path d="{{ t.d }}"></path>
+        </sc-for>
+      </g>
+      <g fill="#68762a" stroke="#46521a" stroke-width="0.75">
+        <sc-for list="{{ trCrowns }}" as="t" hint-placeholder-count="12">
+          <circle cx="{{ t.cx }}" cy="{{ t.cy }}" r="{{ t.r }}"></circle>
+        </sc-for>
+      </g>
+      <g stroke="#4a561d" stroke-width="1.6" stroke-linecap="round" fill="none" opacity=".45">
+        <sc-for list="{{ trShades }}" as="t" hint-placeholder-count="12">
+          <path d="{{ t.d }}"></path>
+        </sc-for>
+      </g>
+      <g stroke="#93a248" stroke-width="1.3" stroke-linecap="round" fill="none" opacity=".55">
+        <sc-for list="{{ trLights }}" as="t" hint-placeholder-count="12">
+          <path d="{{ t.d }}"></path>
+        </sc-for>
+      </g>
+    </pattern>
+    <pattern id="pMount" width="124" height="116" patternUnits="userSpaceOnUse">
+      <rect width="124" height="116" fill="#b3aea3"></rect>
+      <ellipse cx="26" cy="86" rx="46" ry="20" fill="#aba69b" opacity=".45"></ellipse>
+      <ellipse cx="94" cy="30" rx="38" ry="17" fill="#bbb6ab" opacity=".4"></ellipse>
+      <g fill="#8f8a80" stroke="none">
+        <sc-for list="{{ mtFills }}" as="m" hint-placeholder-count="6">
+          <path d="{{ m.d }}" transform="{{ m.tf }}"></path>
+        </sc-for>
+      </g>
+      <g fill="#736f66" stroke="none" opacity=".9">
+        <sc-for list="{{ mtShades }}" as="m" hint-placeholder-count="8">
+          <path d="{{ m.d }}" transform="{{ m.tf }}"></path>
+        </sc-for>
+      </g>
+      <g stroke="#45423b" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" fill="none">
+        <sc-for list="{{ mtRidges }}" as="m" hint-placeholder-count="6">
+          <path d="{{ m.d }}" transform="{{ m.tf }}"></path>
+        </sc-for>
+      </g>
+      <g stroke="#5f5c54" stroke-width="0.65" stroke-linecap="round" fill="none" opacity=".55">
+        <sc-for list="{{ mtHachs }}" as="m" hint-placeholder-count="10">
+          <path d="{{ m.d }}" transform="{{ m.tf }}"></path>
+        </sc-for>
+      </g>
+    </pattern>
+    <pattern id="pCity" width="66" height="58" patternUnits="userSpaceOnUse">
+      <rect width="66" height="58" fill="#f2e9cf"></rect>
+      <ellipse cx="16" cy="40" rx="26" ry="12" fill="#ebe0c0" opacity=".6"></ellipse>
+      <ellipse cx="52" cy="14" rx="20" ry="10" fill="#f6efdb" opacity=".6"></ellipse>
+      <g fill="#e0d3ab" opacity=".85">
+        <sc-for list="{{ blocks }}" as="b" hint-placeholder-count="10">
+          <rect x="{{ b.x }}" y="{{ b.y }}" width="{{ b.w }}" height="{{ b.h }}"></rect>
+        </sc-for>
+      </g>
+    </pattern>
+
+    <g id="hx-P"><polygon points="0,-41 35.51,-20.5 35.51,20.5 0,41 -35.51,20.5 -35.51,-20.5" fill="url(#pPlains)" stroke="#33271b" stroke-width="1.7"></polygon></g>
+    <g id="hx-F"><polygon points="0,-41 35.51,-20.5 35.51,20.5 0,41 -35.51,20.5 -35.51,-20.5" fill="url(#pForest)" stroke="#33271b" stroke-width="1.7"></polygon></g>
+    <g id="hx-M"><polygon points="0,-41 35.51,-20.5 35.51,20.5 0,41 -35.51,20.5 -35.51,-20.5" fill="url(#pMount)" stroke="#33271b" stroke-width="1.7"></polygon></g>
+    <g id="hx-C"><polygon points="0,-41 35.51,-20.5 35.51,20.5 0,41 -35.51,20.5 -35.51,-20.5" fill="url(#pCity)" stroke="#33271b" stroke-width="1.7"></polygon><polygon points="0,-34.6 29.96,-17.3 29.96,17.3 0,34.6 -29.96,17.3 -29.96,-17.3" fill="none" stroke="#8a7448" stroke-width="0.9" opacity=".6"></polygon></g>
+
+    <g id="skyline" opacity=".82" transform="scale(1.17)">
+      <g fill="#3d2e1d">
+        <rect x="-19" y="-1.5" width="4.6" height="5.5"></rect>
+        <rect x="-13.4" y="-5" width="5.6" height="9"></rect>
+        <rect x="-6.8" y="-8.5" width="6.4" height="12.5"></rect>
+        <path d="M-6.8 -8.5 L-3.6 -11.2 L-0.4 -8.5 Z"></path>
+        <rect x="0.6" y="-4" width="5" height="8"></rect>
+        <rect x="6.6" y="-6.5" width="5.6" height="10.5"></rect>
+        <rect x="13.2" y="-0.8" width="4.6" height="4.8"></rect>
+      </g>
+      <g fill="#f2e9cf" opacity=".75">
+        <rect x="-12.4" y="-3.4" width="1.2" height="1.4"></rect>
+        <rect x="-10.2" y="-3.4" width="1.2" height="1.4"></rect>
+        <rect x="-12.4" y="-0.8" width="1.2" height="1.4"></rect>
+        <rect x="-10.2" y="-0.8" width="1.2" height="1.4"></rect>
+        <rect x="-5.8" y="-6.6" width="1.3" height="1.5"></rect>
+        <rect x="-3.4" y="-6.6" width="1.3" height="1.5"></rect>
+        <rect x="-5.8" y="-3.8" width="1.3" height="1.5"></rect>
+        <rect x="-3.4" y="-3.8" width="1.3" height="1.5"></rect>
+        <rect x="-5.8" y="-1" width="1.3" height="1.5"></rect>
+        <rect x="-3.4" y="-1" width="1.3" height="1.5"></rect>
+        <rect x="7.6" y="-4.8" width="1.2" height="1.4"></rect>
+        <rect x="9.8" y="-4.8" width="1.2" height="1.4"></rect>
+        <rect x="7.6" y="-2" width="1.2" height="1.4"></rect>
+        <rect x="9.8" y="-2" width="1.2" height="1.4"></rect>
+      </g>
+    </g>
+    <g id="ties" stroke="#3d2e1d" stroke-width="1.4" fill="none" opacity=".85" transform="scale(1.17)">
+      <path d="M-12 -2.5 h24 M-12 2.5 h24"></path>
+      <path d="M-9.5 -4.5 v9 M-4.75 -4.5 v9 M0 -4.5 v9 M4.75 -4.5 v9 M9.5 -4.5 v9"></path>
+    </g>
+
+    <filter id="landShadow" x="-8%" y="-8%" width="118%" height="118%">
+      <feDropShadow dx="5" dy="7" stdDeviation="8" flood-color="#3d2a12" flood-opacity=".34"></feDropShadow>
+    </filter>
+
+    <g id="portMark" transform="scale(1.17)">
+      <path d="M-3.2 3.9 L-3.2 -1.8 L0 -4.5 L3.2 -1.8 L3.2 3.9 Z" fill="#14110d"></path>
+      <path d="M-4.2 3 L4.2 -4.2" stroke="#b5342b" stroke-width="1.25" stroke-linecap="round"></path>
+    </g>
+    <g id="icoArrow" fill="#c08c4c" stroke="#5e3f1a" stroke-width="1.4" stroke-linejoin="round"><path d="M-18 -5.5 L-2 -5.5 L-8 -14 L17 0 L-8 14 L-2 5.5 L-18 5.5 Z"></path></g>
+    <g id="icoHouse" stroke="#5e3f1a" stroke-width="1.4" stroke-linejoin="round">
+      <path d="M-12 12 L-12 0 L-6.5 -8 L-1 0 L-1 12 Z" fill="#c9a06a"></path>
+      <path d="M-1 0 L8 -4 L8 8 L-1 12 Z" fill="#9c7140"></path>
+      <path d="M-6.5 -8 L2.5 -12 L8 -4 L-1 0 Z" fill="#e0bb85"></path>
+    </g>
+    <g id="icoTrain" stroke="#5e3f1a" stroke-width="1.25" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M-21 6 L21 6" stroke-width="1.8"></path>
+      <rect x="3" y="-15" width="12" height="17" fill="#c9a06a"></rect>
+      <rect x="5.5" y="-12" width="6.5" height="6" fill="#8a6435" stroke-width="0.9"></rect>
+      <path d="M-19 2 L-19 -8 L3 -8 L3 2 Z" fill="#c9a06a"></path>
+      <ellipse cx="-19" cy="-3" rx="2.6" ry="5" fill="#ddbb87"></ellipse>
+      <path d="M-13 -8 L-13 -13 L-8 -13 L-8 -8 Z" fill="#ab7f48"></path>
+      <path d="M-21 2 L-21 6 L15 6 L15 2 Z" fill="#ab7f48"></path>
+      <circle cx="-14" cy="9" r="3.4" fill="#c9a06a"></circle>
+      <circle cx="-5" cy="9" r="3.4" fill="#c9a06a"></circle>
+      <circle cx="9" cy="10" r="4.6" fill="#c9a06a"></circle>
+    </g>
+    <g id="icoPerson" fill="#c9a06a" stroke="#5e3f1a" stroke-width="1.3" stroke-linejoin="round"><circle cx="0" cy="-7" r="5.8"></circle><path d="M-10 9 a10 10 0 0 1 20 0 z"></path></g>
+    <g id="cube" stroke="#5e3f1a" stroke-width="1.25" stroke-linejoin="round">
+      <path d="M-9 -3.6 L0 -9 L9 -3.6 L0 1.8 Z" fill="#ddbb87"></path>
+      <path d="M-9 -3.6 L-9 7.2 L0 12.6 L0 1.8 Z" fill="#c9a06a"></path>
+      <path d="M9 -3.6 L9 7.2 L0 12.6 L0 1.8 Z" fill="#ab7f48"></path>
+    </g>
+    <g id="icoGavel" stroke="#5e3f1a" stroke-width="1.3" stroke-linejoin="round">
+      <rect x="-19" y="-7" width="21" height="5.6" rx="2.6" fill="#c9a06a"></rect>
+      <rect x="1" y="-15" width="14" height="18" rx="2.8" fill="#c9a06a"></rect>
+      <ellipse cx="8" cy="-15" rx="7" ry="2.9" fill="#ddbb87"></ellipse>
+      <rect x="-4" y="8" width="24" height="4.2" fill="#ab7f48" stroke="none"></rect>
+      <ellipse cx="8" cy="12.2" rx="12" ry="4" fill="#ab7f48"></ellipse>
+      <ellipse cx="8" cy="8" rx="12" ry="4" fill="#ddbb87"></ellipse>
+    </g>
+    <g id="diamond" fill="#5d4726"><path d="M0 -5 L5 0 L0 5 L-5 0 Z"></path></g>
+    <pattern id="pGrat" width="132" height="132" patternUnits="userSpaceOnUse">
+      <path d="M0 0 H132 M0 0 V132" stroke="#8d6e3e" stroke-width="1" fill="none" opacity=".18"></path>
+    </pattern>
+    <radialGradient id="gVig" cx="50%" cy="50%" r="72%">
+      <stop offset="55%" stop-color="#7a5a2c" stop-opacity="0"></stop>
+      <stop offset="100%" stop-color="#6b4b1f" stop-opacity=".13"></stop>
+    </radialGradient>
+    <pattern id="pRail" width="14" height="26" patternUnits="userSpaceOnUse">
+      <rect width="14" height="26" fill="none"></rect>
+      <rect x="0" y="10" width="10" height="3" fill="#3a2f20"></rect>
+    </pattern>
+  </defs>
+
+  <rect x="0" y="0" width="1700" height="1400" fill="#171410"></rect>
+
+  <!-- scoring frame -->
+  <rect x="0" y="0" width="1700" height="1240" fill="#1e3c60"></rect>
+  <g fill="#28527f">
+    <sc-for list="{{ trackMarks }}" as="m" hint-placeholder-count="4">
+      <rect x="{{ m.x }}" y="{{ m.y }}" width="{{ m.w }}" height="{{ m.h }}"></rect>
+    </sc-for>
+  </g>
+  <g stroke="#16293f" stroke-width="1.1" opacity=".9">
+    <sc-for list="{{ trackDivs }}" as="d" hint-placeholder-count="10">
+      <line x1="{{ d.x1 }}" y1="{{ d.y1 }}" x2="{{ d.x2 }}" y2="{{ d.y2 }}"></line>
+    </sc-for>
+  </g>
+  <rect x="5" y="5" width="1690" height="1230" fill="none" stroke="#82a0bd" stroke-width="1" opacity=".5"></rect>
+  <rect x="40" y="40" width="1620" height="1160" fill="none" stroke="#82a0bd" stroke-width="1" opacity=".5"></rect>
+
+  <!-- map field -->
+  <rect x="44" y="44" width="1612" height="1152" fill="url(#pPaper)"></rect>
+  <rect x="44" y="44" width="1612" height="1152" fill="url(#pGrat)"></rect>
+  <rect x="44" y="44" width="1612" height="1152" fill="url(#gVig)"></rect>
+  <rect x="44" y="44" width="1612" height="1152" fill="none" stroke="#5d4726" stroke-width="2.5"></rect>
+  <rect x="51" y="51" width="1598" height="1138" fill="none" stroke="#5d4726" stroke-width="0.8" opacity=".5"></rect>
+
+  <text x="300" y="104" text-anchor="middle" font-family="'EB Garamond',serif" font-style="italic" font-size="18" letter-spacing="2" fill="#8d6e3e" opacity=".8">Lake Illinois</text>
+  <text x="660" y="104" text-anchor="middle" font-family="'EB Garamond',serif" font-style="italic" font-size="18" letter-spacing="2" fill="#8d6e3e" opacity=".8">Lake Erie</text>
+  <text x="1150" y="830" text-anchor="middle" font-family="'Cinzel',serif" font-weight="600" font-size="19" letter-spacing="3.5" fill="#8d6e3e" opacity=".55">THE ATLANTIC</text>
+  <text x="1150" y="862" text-anchor="middle" font-family="'Cinzel',serif" font-weight="600" font-size="19" letter-spacing="3.5" fill="#8d6e3e" opacity=".55">OCEAN</text>
+  <text x="400" y="1172" text-anchor="middle" font-family="'Cinzel',serif" font-weight="600" font-size="20" letter-spacing="8" fill="#8d6e3e" opacity=".48">GULF OF MEXICO</text>
+
+  <g filter="url(#landShadow)">
+    <sc-for list="{{ hexes }}" as="h" hint-placeholder-count="40">
+      <use href="{{ h.sym }}" x="{{ h.x }}" y="{{ h.y }}"></use>
+    </sc-for>
+  </g>
+  <g>
+    <sc-for list="{{ glyphs }}" as="g" hint-placeholder-count="12">
+      <use href="{{ g.sym }}" x="{{ g.x }}" y="{{ g.y }}"></use>
+    </sc-for>
+  </g>
+
+  <!-- house supply area -->
+  <g stroke="#3d2e1d" fill="none">
+    <path d="M1058 906 L1300 906 L1300 1026 L998 1026 L998 952 Z" stroke-width="2.2" stroke-dasharray="11 7"></path>
+    <g stroke-width="2" stroke-dasharray="4 4" stroke-linejoin="round">
+      <path d="M1136 962 L1136 945 L1149 930 L1162 945 L1162 962 Z"></path>
+      <path d="M1091 1006 L1091 989 L1104 974 L1117 989 L1117 1006 Z"></path>
+      <path d="M1181 1006 L1181 989 L1194 974 L1207 989 L1207 1006 Z"></path>
+    </g>
+  </g>
+
+  <!-- title -->
+  <g transform="translate(1442,472)">
+    <text y="0" text-anchor="middle" font-family="'Cinzel',serif" font-weight="900" font-size="42" letter-spacing="1" fill="#2b2013">AMERICAN RAILS</text>
+    <line x1="-186" y1="14" x2="186" y2="14" stroke="#5d4726" stroke-width="1.6"></line>
+    <text y="40" text-anchor="middle" font-family="'EB Garamond',serif" font-style="italic" font-size="22" letter-spacing="0.5" fill="#5d4726">Tim Harrison</text>
+    <line x1="-186" y1="52" x2="186" y2="52" stroke="#5d4726" stroke-width="0.9"></line>
+    <text y="70" text-anchor="middle" font-family="'Cinzel',serif" font-weight="500" font-size="12" letter-spacing="3" fill="#5d4726">ARTWORK ALEXANDRE ROCHE</text>
+  </g>
+
+  <!-- action table -->
+  <g transform="translate(1250,556)">
+    <path d="M0 0 H384 V478 H80 V338 H0 Z" fill="#f4ecd6" stroke="#5d4726" stroke-width="2"></path>
+    <rect x="8" y="8" width="68" height="322" fill="#dccca6" stroke="#5d4726" stroke-width="1.2"></rect>
+    <circle cx="42" cy="39" r="29" fill="#f8f2e0" stroke="#5d4726" stroke-width="1.5"></circle>
+    <circle cx="42" cy="101" r="29" fill="#f8f2e0" stroke="#5d4726" stroke-width="1.5"></circle>
+    <circle cx="42" cy="164" r="29" fill="#f8f2e0" stroke="#5d4726" stroke-width="1.5"></circle>
+    <circle cx="42" cy="230" r="29" fill="#f8f2e0" stroke="#5d4726" stroke-width="1.5"></circle>
+    <circle cx="42" cy="297" r="29" fill="#f8f2e0" stroke="#5d4726" stroke-width="1.5"></circle>
+    <text x="42" y="54" text-anchor="middle" font-family="'Cinzel',serif" font-weight="600" font-size="42" fill="#3d2e1d">1</text>
+    <text x="42" y="116" text-anchor="middle" font-family="'Cinzel',serif" font-weight="600" font-size="42" fill="#3d2e1d">2</text>
+    <text x="42" y="179" text-anchor="middle" font-family="'Cinzel',serif" font-weight="600" font-size="42" fill="#3d2e1d">3</text>
+    <text x="42" y="245" text-anchor="middle" font-family="'Cinzel',serif" font-weight="600" font-size="42" fill="#3d2e1d">4</text>
+    <text x="42" y="312" text-anchor="middle" font-family="'Cinzel',serif" font-weight="600" font-size="42" fill="#3d2e1d">5</text>
+    <sc-for list="{{ tableCols }}" as="c" hint-placeholder-count="3">
+      <g transform="{{ c.tf }}">
+        <rect x="0" y="8" width="92" height="462" fill="#faf5e6" stroke="#5d4726" stroke-width="1.2"></rect>
+        <g stroke="#5d4726" stroke-width="1" opacity=".65">
+          <line x1="0" y1="70" x2="92" y2="70"></line>
+          <line x1="0" y1="132" x2="92" y2="132"></line>
+          <line x1="0" y1="196" x2="92" y2="196"></line>
+          <line x1="0" y1="264" x2="92" y2="264"></line>
+          <line x1="0" y1="330" x2="92" y2="330"></line>
+          <line x1="0" y1="400" x2="92" y2="400"></line>
+        </g>
+        <use href="#icoArrow" x="46" y="39"></use>
+        <use href="#icoHouse" x="46" y="101"></use>
+        <text x="46" y="158" text-anchor="middle" font-family="'EB Garamond',serif" font-weight="700" font-size="20" fill="#2b2013">$5</text>
+        <use href="#icoTrain" x="46" y="180"></use>
+        <text x="26" y="217" text-anchor="middle" font-family="'EB Garamond',serif" font-weight="700" font-size="21" fill="#2b2013">$2</text>
+        <use href="#icoPerson" x="58" y="212"></use>
+        <line x1="14" y1="229" x2="78" y2="229" stroke="#3d2e1d" stroke-width="1.4"></line>
+        <text x="12" y="257" font-family="'EB Garamond',serif" font-size="25" fill="#2b2013">(</text>
+        <use href="#cube" x="37" y="248"></use>
+        <use href="#cube" x="57" y="248"></use>
+        <text x="73" y="257" font-family="'EB Garamond',serif" font-size="25" fill="#2b2013">)</text>
+        <use href="#cube" x="46" y="285"></use>
+        <use href="#cube" x="36" y="309"></use>
+        <use href="#cube" x="56" y="309"></use>
+        <use href="#icoGavel" x="44" y="363"></use>
+        <use href="#cube" x="36" y="422"></use>
+        <use href="#cube" x="57" y="422"></use>
+        <use href="#cube" x="36" y="449"></use>
+        <use href="#cube" x="57" y="449"></use>
+      </g>
+    </sc-for>
+  </g>
+
+  <!-- year track -->
+  <g transform="translate(1100,1046)">
+    <rect x="0" y="0" width="536" height="114" fill="#f4ecd6" stroke="#5d4726" stroke-width="2"></rect>
+    <rect x="8" y="40" width="520" height="66" fill="#faf5e6" stroke="#5d4726" stroke-width="1.2"></rect>
+    <sc-for list="{{ years }}" as="y" hint-placeholder-count="7">
+      <path d="{{ y.div }}" stroke="#5d4726" stroke-width="1.1" fill="none"></path>
+      <circle cx="{{ y.cx }}" cy="73" r="26" fill="#f8f2e0" stroke="#5d4726" stroke-width="1.4"></circle>
+      <path d="{{ y.tri }}" fill="#a8814a" stroke="#5d4726" stroke-width="1" stroke-linejoin="round"></path>
+    </sc-for>
+  </g>
+
+  <!-- legend -->
+  <g transform="translate(660,1034)">
+    <g transform="translate(47,78)"><polygon points="0,-27 23.4,-13.5 23.4,13.5 0,27 -23.4,13.5 -23.4,-13.5" fill="url(#pPlains)" stroke="#33271b" stroke-width="1.4"></polygon><text y="52" text-anchor="middle" font-family="'EB Garamond',serif" font-weight="700" font-size="20" fill="#2b2013">$2</text><text y="71" text-anchor="middle" font-family="'EB Garamond',serif" font-size="13.5" fill="#6b5433">+$2 per cube</text></g>
+    <g transform="translate(141,78)"><polygon points="0,-27 23.4,-13.5 23.4,13.5 0,27 -23.4,13.5 -23.4,-13.5" fill="url(#pCity)" stroke="#33271b" stroke-width="1.4"></polygon><text y="52" text-anchor="middle" font-family="'EB Garamond',serif" font-weight="700" font-size="20" fill="#2b2013">$2</text><text y="71" text-anchor="middle" font-family="'EB Garamond',serif" font-size="13.5" fill="#6b5433">+$2 per cube</text></g>
+    <g transform="translate(235,78)"><polygon points="0,-27 23.4,-13.5 23.4,13.5 0,27 -23.4,13.5 -23.4,-13.5" fill="url(#pForest)" stroke="#33271b" stroke-width="1.4"></polygon><text y="52" text-anchor="middle" font-family="'EB Garamond',serif" font-weight="700" font-size="20" fill="#2b2013">$3</text></g>
+    <g transform="translate(329,78)"><polygon points="0,-27 23.4,-13.5 23.4,13.5 0,27 -23.4,13.5 -23.4,-13.5" fill="url(#pMount)" stroke="#33271b" stroke-width="1.4"></polygon><text y="52" text-anchor="middle" font-family="'EB Garamond',serif" font-weight="700" font-size="20" fill="#2b2013">$5</text></g>
+  </g>
+
+  <!-- company strip -->
+  <sc-for list="{{ companies }}" as="co" hint-placeholder-count="6">
+    <g transform="{{ co.tf }}">
+      <rect x="0" y="0" width="267" height="138" fill="#15120f" stroke="#4d4029" stroke-width="1.2"></rect>
+      <rect x="8" y="8" width="251" height="34" fill="#0c0a08"></rect>
+      <g transform="translate(24,24)">
+        <path d="M-8 -3.2 L0 -8 L8 -3.2 L0 1.6 Z" fill="{{ co.color }}" stroke="#0c0a08" stroke-width="1" stroke-linejoin="round"></path>
+        <path d="M-8 -3.2 L-8 6.4 L0 11.2 L0 1.6 Z" fill="{{ co.color }}" stroke="#0c0a08" stroke-width="1" stroke-linejoin="round"></path>
+        <path d="M-8 -3.2 L-8 6.4 L0 11.2 L0 1.6 Z" fill="#000" opacity=".22"></path>
+        <path d="M8 -3.2 L8 6.4 L0 11.2 L0 1.6 Z" fill="{{ co.color }}" stroke="#0c0a08" stroke-width="1" stroke-linejoin="round"></path>
+        <path d="M8 -3.2 L8 6.4 L0 11.2 L0 1.6 Z" fill="#000" opacity=".42"></path>
+      </g>
+      <rect x="229" y="18" width="25" height="15" fill="{{ co.color }}" stroke="#0c0a08" stroke-width="1"></rect>
+      <rect x="8" y="46" width="251" height="3" fill="{{ co.color }}"></rect>
+      <rect x="8" y="55" width="251" height="75" fill="#241d16"></rect>
+      <rect x="8" y="55" width="251" height="75" fill="none" stroke="#3d3323" stroke-width="1"></rect>
+      <rect x="20" y="96" width="227" height="26" fill="url(#pRail)" opacity=".55"></rect>
+      <rect x="20" y="102" width="227" height="2.5" fill="#4a3d2a"></rect>
+      <rect x="20" y="113" width="227" height="2.5" fill="#4a3d2a"></rect>
+    </g>
+  </sc-for>
+
+</svg>
+
+<!-- text overlay -->
+<div style="position:absolute;inset:0;pointer-events:none;font-family:'EB Garamond',serif">
+  <div style="position:absolute;inset:0;color:#f2e6c8;font-weight:600;font-size:1.47cqw;letter-spacing:0.01em">
+    <sc-for list="{{ trackCells }}" as="t" hint-placeholder-count="16">
+      <div style="{{ t.style }}">{{ t.n }}</div>
+    </sc-for>
+  </div>
+  <div style="position:absolute;inset:0;color:#241a10">
+    <sc-for list="{{ cityVals }}" as="v" hint-placeholder-count="14">
+      <div style="{{ v.style }}">{{ v.val }}</div>
+    </sc-for>
+    <sc-for list="{{ cityNames }}" as="n" hint-placeholder-count="14">
+      <div style="{{ n.style }}">{{ n.name }}</div>
+    </sc-for>
+  </div>
+  <div style="position:absolute;inset:0">
+    <sc-for list="{{ yearLabels }}" as="y" hint-placeholder-count="7">
+      <div style="{{ y.style }}">{{ y.label }}</div>
+    </sc-for>
+    <sc-for list="{{ coLabels }}" as="c" hint-placeholder-count="6">
+      <div style="{{ c.nameStyle }}">{{ c.name }}</div>
+      <div style="{{ c.leftStyle }}">{{ c.start }}</div>
+      <div style="{{ c.rightStyle }}">{{ c.shares }}</div>
+      <div style="{{ c.subStyle }}">Railroad Company</div>
+    </sc-for>
+  </div>
+</div>
+
+</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1700,&quot;height&quot;:1400}}">
+const GRID = [
+"OOOOOOOOOOOCFFCFCFFO",
+"OPCOPPCOOOFFFFFMFFCO",
+"OCPPPCPPPCFFFMMFFFFO",
+"PPPPPPPPPFCFMCPPCOOO",
+"OPPPPCPPCFFMMFPCOOOO",
+"PPPPFPCFFFMMFCPOOOOO",
+"OCPPFCFFFCMMFPOOOOOO",
+"PPPPFFFFFMCFCPOOOOOO",
+"OPPFFFFMMMFFFFCOOOOO",
+"PPFCFFCMMFFCPPOOOOOO",
+"OCFFFCMMMCFPPFOOOOOO",
+"PFFFFFMFFFPFCOOOOOOO",
+"OFFFCFCFFPPFOOOOOOOO",
+"PFFFFFFFPFCOOOOOOOOO",
+"OCFFCFFPPFOOOOOOOOOO",
+"PFFFFPPFCOOOOOOOOOOO",
+"PFCFPCOOOOOOOOOOOOOO",
+"COOOOOOOOOOOOOOOOOOO"];
+
+const CITIES = {
+  "11,0":["Buffalo","4/3"], "14,0":["Syracuse","2/1"], "16,0":["Albany","3/2"],
+  "2,1":["Chicago","7/5",1], "6,1":["Detroit","4/2"], "18,1":["Boston","5/3"],
+  "1,2":["Rock Island","2/1"], "5,2":["Fort Wayne","2/1"], "9,2":["Cleveland","4/2"],
+  "10,3":["Pittsburg","5/3"], "13,3":["Harrisburg","1/1"], "16,3":["New York","8/5",1],
+  "5,4":["Indianapolis","4/2"], "8,4":["Columbus","1/1"], "15,4":["Philadelphia","6/4"],
+  "6,5":["Cincinnati","4/2"], "13,5":["Baltimore","5/3"],
+  "1,6":["St. Louis","5/3"], "5,6":["Louisville","1/1"], "9,6":["Charlestown","2/1"],
+  "10,7":["Roanoke","2/1"], "12,7":["Richmond","3/2"],
+  "14,8":["Norfolk","2/2"],
+  "3,9":["Nashville","3/2"], "6,9":["Knoxville","2/1"], "11,9":["Raleigh","2/1"],
+  "1,10":["Memphis","3/2"], "5,10":["Chattanooga","4/2"], "9,10":["Charlotte","3/2"],
+  "12,11":["Wilmington","2/1"],
+  "4,12":["Birmingham","2/1"], "6,12":["Atlanta","5/3",1],
+  "10,13":["Charleston","3/2"],
+  "1,14":["Jackson","3/2"], "4,14":["Montgomery","2/1"],
+  "8,15":["Savannah","3/2"],
+  "2,16":["Mobile","2/1"], "5,16":["Tallahassee","2/1"],
+  "0,17":["New Orleans","5/3"]
+};
+
+const PORTS = new Set(["Chicago", "Baltimore", "Philadelphia", "New York", "Boston"]);
+
+const COMPANIES = [
+  ["AMERICAN", "#efe9dc", 30, 5],
+  ["NATIONAL", "#b6b1a5", 28, 4],
+  ["CONTINENTAL", "#3d7a46", 25, 3],
+  ["MAJESTIC", "#dcb62c", 21, 4],
+  ["LIBERTY", "#b4382e", 18, 2],
+  ["REPUBLIC", "#2f6fae", 16, 3]
+];
+
+const BW = 1700, BH = 1400;
+const L = v => (v / BW * 100).toFixed(3) + "%";
+const T = v => (v / BH * 100).toFixed(3) + "%";
+const FS = px => (px / 17).toFixed(3) + "cqw";
+
+function mulberry(a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function buildRanges(TW, TH) {
+  const rnd = mulberry(20250807);
+  const rows = [
+    { yb: 22, x0: -30, w: 178 }, { yb: 40, x0: -22, w: 170 },
+    { yb: 58, x0: -34, w: 182 }, { yb: 76, x0: -18, w: 166 },
+    { yb: 94, x0: -28, w: 176 }, { yb: 112, x0: -24, w: 172 }
+  ];
+  const fills = [], shades = [], ridges = [], hachs = [];
+  for (const r of rows) {
+    const pts = [[r.x0, r.yb]];
+    let x = r.x0;
+    const n = 6 + Math.floor(rnd() * 3);
+    for (let i = 0; i < n; i++) {
+      const seg = r.w / n;
+      const ax = x + seg * (0.35 + rnd() * 0.3);
+      const ah = 9 + rnd() * 8;
+      pts.push([ax, r.yb - ah]);
+      x += seg;
+      const vd = 1 + rnd() * 5;
+      if (i < n - 1) pts.push([x, r.yb - vd]);
+    }
+    pts.push([r.x0 + r.w, r.yb]);
+    const line = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" ");
+    for (const dx of [-TW, 0, TW]) {
+      const sh = `translate(${dx},0)`;
+      fills.push({ d: line + " Z", tf: sh });
+      ridges.push({ d: line, tf: sh });
+      for (let i = 1; i < pts.length - 1; i++) {
+        const [ax, ay] = pts[i], [vx, vy] = pts[i + 1] || pts[i];
+        if (ay >= r.yb - 6) continue;
+        shades.push({ d: `M${ax.toFixed(1)} ${ay.toFixed(1)} L${vx.toFixed(1)} ${vy.toFixed(1)} L${ax.toFixed(1)} ${r.yb} Z`, tf: sh });
+        const k = (vx - ax), h = (r.yb - ay);
+        for (let j = 1; j <= 3; j++) {
+          const t = j * 0.2;
+          const sx = ax + k * t, sy = ay + (vy - ay) * t;
+          hachs.push({ d: `M${sx.toFixed(1)} ${sy.toFixed(1)} l${(k * 0.3).toFixed(1)} ${(h * 0.42).toFixed(1)}`, tf: sh });
+        }
+      }
+    }
+  }
+  return { fills, shades, ridges, hachs };
+}
+
+function scatter(seed, TW, TH, count, margin) {
+  const rnd = mulberry(seed), out = [];
+  const cells = [];
+  const cols = Math.ceil(Math.sqrt(count * TW / TH)), rows = Math.ceil(count / cols);
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) cells.push([i, j]);
+  for (const [i, j] of cells) {
+    const x = (i + 0.15 + rnd() * 0.7) * (TW / cols);
+    const y = (j + 0.15 + rnd() * 0.7) * (TH / rows);
+    const s = rnd(), t = rnd();
+    for (const dx of [-TW, 0, TW]) for (const dy of [-TH, 0, TH]) {
+      if (dx && Math.min(x, TW - x) > margin) continue;
+      if (dy && Math.min(y, TH - y) > margin) continue;
+      out.push({ x: x + dx, y: y + dy, s, t });
+    }
+  }
+  return out;
+}
+
+function buildGrass(TW, TH) {
+  const pts = scatter(770311, TW, TH, 78, 12);
+  const blades = [], seeds = [];
+  for (const p of pts) {
+    const h = 4.6 + p.s * 3.6, w = 2.0 + p.t * 1.7;
+    const x = p.x.toFixed(1), y = p.y.toFixed(1);
+    blades.push({ d: `M${x} ${y} l${(-w).toFixed(1)} ${(-h * 0.72).toFixed(1)} M${x} ${y} l${(w * 0.25).toFixed(1)} ${(-h).toFixed(1)} M${x} ${y} l${(w * 1.05).toFixed(1)} ${(-h * 0.62).toFixed(1)}` });
+    if (p.t > 0.62) seeds.push({ cx: (p.x + w * 0.25).toFixed(1), cy: (p.y - h).toFixed(1) });
+  }
+  return { blades, seeds };
+}
+
+function buildTrees(TW, TH) {
+  const pts = scatter(48221, TW, TH, 54, 12);
+  const crowns = [], lights = [], trunks = [], shades = [];
+  for (const p of pts) {
+    const r = 3.4 + p.s * 3.4;
+    const x = p.x, y = p.y;
+    trunks.push({ d: `M${x.toFixed(1)} ${(y + r * 0.6).toFixed(1)} l0 ${(r * 0.8).toFixed(1)}` });
+    crowns.push({ cx: x.toFixed(1), cy: y.toFixed(1), r: r.toFixed(1) });
+    shades.push({ d: `M${(x - r * 0.1).toFixed(1)} ${(y + r * 0.98).toFixed(1)} a${r.toFixed(1)} ${r.toFixed(1)} 0 0 0 ${(r * 0.95).toFixed(1)} ${(-r * 0.72).toFixed(1)}` });
+    lights.push({ d: `M${(x - r * 0.68).toFixed(1)} ${(y - r * 0.3).toFixed(1)} a${(r * 0.78).toFixed(1)} ${(r * 0.78).toFixed(1)} 0 0 1 ${(r * 0.86).toFixed(1)} ${(-r * 0.6).toFixed(1)}` });
+  }
+  return { crowns, lights, trunks, shades };
+}
+
+function buildBlocks(TW, TH) {
+  const pts = scatter(90514, TW, TH, 30, 8);
+  const blocks = [];
+  for (const p of pts) {
+    const w = 3.4 + p.s * 4.6, h = 2.6 + p.t * 3.4;
+    blocks.push({ x: (p.x - w / 2).toFixed(1), y: (p.y - h / 2).toFixed(1), w: w.toFixed(1), h: h.toFixed(1) });
+  }
+  return blocks;
+}
+
+class Component extends DCLogic {
+  renderVals() {
+    const R = 41, HW = Math.sqrt(3) * R, RP = 1.5 * R;
+    const OX = 120, OY = 97;
+    const cx = (c, r) => OX + c * HW + (r % 2) * HW / 2;
+    const cy = r => OY + r * RP;
+
+    const hexes = [], glyphs = [], cityVals = [], cityNames = [];
+    GRID.forEach((line, r) => {
+      for (let c = 0; c < line.length; c++) {
+        const t = line[c];
+        if (t === "O") continue;
+        const x = +cx(c, r).toFixed(1), y = +cy(r).toFixed(1);
+        hexes.push({ sym: "#hx-" + t, x, y });
+        const cd = CITIES[c + "," + r];
+        if (!cd) continue;
+        glyphs.push({ sym: "#skyline", x, y: y + 4 });
+        if (cd[2]) glyphs.push({ sym: "#ties", x, y: y + 31 });
+        const isPort = PORTS.has(cd[0]);
+        if (isPort) glyphs.push({ sym: "#portMark", x: x + 20, y: y - 13 });
+        cityVals.push({
+          val: cd[1],
+          style: `position:absolute;left:${L(isPort ? x - 7 : x)};top:${T(y - 10)};transform:translate(-50%,-100%);font-size:${FS(24)};font-weight:700;line-height:1;letter-spacing:0.01em;white-space:nowrap`
+        });
+        const n = cd[0].length;
+        cityNames.push({
+          name: cd[0],
+          style: `position:absolute;left:${L(x)};top:${T(y + 15)};transform:translate(-50%,0);font-size:${FS(n > 10 ? 11.4 : n > 8 ? 12.2 : 13.2)};font-weight:600;line-height:1;letter-spacing:0.015em;white-space:nowrap`
+        });
+      }
+    });
+
+    const FR = 44, NT = 31, NS = 19, FH = 1240;
+    const topW = BW / NT, sideH = (FH - 2 * FR) / NS;
+    const trackCells = [], trackDivs = [], trackMarks = [];
+    const cell = (x, y, n, rot) => ({
+      n, style: `position:absolute;left:${L(x)};top:${T(y)};transform:translate(-50%,-50%)${rot};white-space:nowrap`
+    });
+    for (let i = 0; i < NT; i++) {
+      const x = (i + 0.5) * topW;
+      trackCells.push(cell(x, FR / 2, 20 + i, ""));
+      const bn = i === 0 ? 0 : 100 - i;
+      trackCells.push(cell(x, FH - FR / 2, bn, ""));
+      if (i > 0) {
+        trackDivs.push({ x1: i * topW, y1: 0, x2: i * topW, y2: FR });
+        trackDivs.push({ x1: i * topW, y1: FH - FR, x2: i * topW, y2: FH });
+      }
+      if ((20 + i) % 10 === 0) trackMarks.push({ x: i * topW, y: 0, w: topW, h: FR });
+      if (bn % 10 === 0) trackMarks.push({ x: i * topW, y: FH - FR, w: topW, h: FR });
+    }
+    for (let i = 0; i < NS; i++) {
+      const y = FR + (i + 0.5) * sideH;
+      trackCells.push(cell(FR / 2, y, 19 - i, " rotate(-90deg)"));
+      trackCells.push(cell(BW - FR / 2, y, 51 + i, " rotate(90deg)"));
+      if (i > 0) {
+        trackDivs.push({ x1: 0, y1: FR + i * sideH, x2: FR, y2: FR + i * sideH });
+        trackDivs.push({ x1: BW - FR, y1: FR + i * sideH, x2: BW, y2: FR + i * sideH });
+      }
+      if ((19 - i) % 10 === 0) trackMarks.push({ x: 0, y: FR + i * sideH, w: FR, h: sideH });
+      if ((51 + i) % 10 === 0) trackMarks.push({ x: BW - FR, y: FR + i * sideH, w: FR, h: sideH });
+    }
+    trackDivs.push(
+      { x1: FR, y1: FR, x2: FR, y2: FH - FR }, { x1: BW - FR, y1: FR, x2: BW - FR, y2: FH - FR },
+      { x1: 0, y1: FR, x2: BW, y2: FR }, { x1: 0, y1: FH - FR, x2: BW, y2: FH - FR });
+
+    const tableCols = [0, 1, 2].map(i => ({ tf: `translate(${84 + i * 100},0)` }));
+
+    const years = [];
+    for (let i = 0; i < 7; i++) {
+      const cw = 520 / 7, c0 = 8 + (i + 0.5) * cw;
+      years.push({
+        cx: +c0.toFixed(1),
+        label: 1851 + i,
+        div: i ? `M${(8 + i * cw).toFixed(1)} 40 V106` : "M0 0",
+        tri: i === 6 ? "M0 0" : `M${(c0 - 8).toFixed(1)} 59 L${(c0 + 12).toFixed(1)} 73 L${(c0 - 8).toFixed(1)} 87 Z`
+      });
+    }
+
+    const yearLabels = years.map(y => ({
+      label: y.label,
+      style: `position:absolute;left:${L(1100 + y.cx)};top:${T(1046 + 24)};transform:translate(-50%,-50%);font-weight:600;font-size:${FS(20)};color:#2b2013;white-space:nowrap`
+    }));
+
+    const companies = [], coLabels = [];
+    COMPANIES.forEach((c, i) => {
+      const bx = 28 + i * 275, by = 1252;
+      companies.push({ tf: `translate(${bx},${by})`, color: c[1] });
+      coLabels.push({
+        name: c[0], start: c[2], shares: c[3],
+        nameStyle: `position:absolute;left:${L(bx + 133.5)};top:${T(by + 25)};transform:translate(-50%,-50%);font-family:'Cinzel',serif;font-weight:700;font-size:${FS(15.5)};letter-spacing:0.1em;color:#ece0c4;white-space:nowrap`,
+        leftStyle: `position:absolute;left:${L(bx + 42)};top:${T(by + 25)};transform:translateY(-50%);font-weight:700;font-size:${FS(15)};color:#ece0c4`,
+        rightStyle: `position:absolute;left:${L(bx + 222)};top:${T(by + 25)};transform:translate(-100%,-50%);font-weight:700;font-size:${FS(15)};color:#ece0c4`,
+        subStyle: `position:absolute;left:${L(bx + 133.5)};top:${T(by + 76)};transform:translate(-50%,-50%);font-style:italic;font-size:${FS(13)};letter-spacing:0.12em;color:#8d7a58;white-space:nowrap`
+      });
+    });
+
+    const mt = buildRanges(124, 116);
+    const gr = buildGrass(116, 104);
+    const tr = buildTrees(112, 100);
+    const blocks = buildBlocks(66, 58);
+
+    return { hexes, glyphs, cityVals, cityNames, trackCells, trackDivs, trackMarks, tableCols, years, yearLabels, companies, coLabels,
+      mtFills: mt.fills, mtShades: mt.shades, mtRidges: mt.ridges, mtHachs: mt.hachs,
+      grBlades: gr.blades, grSeeds: gr.seeds,
+      trCrowns: tr.crowns, trLights: tr.lights, trTrunks: tr.trunks, trShades: tr.shades, blocks };
+  }
+}
+
+</script>
+</body>
+</html>

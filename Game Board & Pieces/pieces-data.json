@@ -1,0 +1,312 @@
+{
+  "note": "Component specs for American Rails. Colours are final. See README-pieces.md for geometry and pieces-static.html for the drawn artwork.",
+  "fonts": {
+    "display": "Cinzel",
+    "weights": [
+      500,
+      600,
+      700,
+      900
+    ],
+    "text": "EB Garamond",
+    "textWeights": [
+      400,
+      500,
+      600,
+      700
+    ],
+    "italics": true,
+    "source": "Google Fonts"
+  },
+  "playerLocomotives": {
+    "count": 5,
+    "sizeMm": {
+      "length": 30,
+      "height": 19,
+      "thickness": 8
+    },
+    "material": "8 mm ply, painted through so the cut edge matches the face",
+    "profile": "4-4-0 American, side elevation facing right; mirror for left",
+    "outlineDesignUnits": {
+      "pilotWedge": "M91 44 L105 44 L105 57 L91 53 Z",
+      "frame": "M2 44 H98 V54 H2 Z",
+      "cabBody": "M6 16 H32 V44 H6 Z",
+      "cabRoof": "M1 10 H43 V16.5 H1 Z",
+      "boiler": "M37 21 H85 V44 H37 Z",
+      "smokebox": {
+        "cx": 84,
+        "cy": 32.5,
+        "r": 11.5
+      },
+      "stack": "M76 22 H92 L95 5 H73 Z",
+      "steamDome": "M52 15 H63 V22 H52 Z",
+      "wheels": [
+        {
+          "cx": 18,
+          "cy": 58,
+          "r": 9.4
+        },
+        {
+          "cx": 44,
+          "cy": 58,
+          "r": 9.4
+        },
+        {
+          "cx": 70,
+          "cy": 58,
+          "r": 9.4
+        }
+      ]
+    },
+    "extrusion": "same silhouette offset up-and-right in the shade colour to suggest thickness, face colour on top",
+    "grainOverlay": {
+      "stroke": "#000",
+      "opacity": 0.12,
+      "width": 1.1,
+      "path": "M14 42 l13 -22 M28 44 l14 -24 M44 44 l14 -22 M60 42 l12 -20 M74 40 l10 -16"
+    },
+    "colours": [
+      {
+        "player": "Natural",
+        "face": "#dcc79f",
+        "shade": "#ad9367"
+      },
+      {
+        "player": "Purple",
+        "face": "#5e2a55",
+        "shade": "#3a1633"
+      },
+      {
+        "player": "Pink",
+        "face": "#c22a5e",
+        "shade": "#821539"
+      },
+      {
+        "player": "Brown",
+        "face": "#8a6524",
+        "shade": "#583f12"
+      },
+      {
+        "player": "Orange",
+        "face": "#e2691a",
+        "shade": "#95430c"
+      }
+    ]
+  },
+  "yearMarker": {
+    "count": 1,
+    "sameCuttingAs": "playerLocomotives",
+    "face": "#23262e",
+    "shade": "#0d0f13",
+    "behaviour": "starts in the 1851 circle on the board year track; advances one cell right at the end of each year; the seventh circle ends the game"
+  },
+  "companyCubes": {
+    "count": 6,
+    "sizeMm": 8,
+    "note": "companies have no locomotive; cubes are their only piece",
+    "isoFaces": {
+      "top": "M4 16 L30 2 L56 16 L30 30 Z",
+      "left": "M4 16 L4 44 L30 58 L30 30 Z",
+      "right": "M56 16 L56 44 L30 58 L30 30 Z"
+    },
+    "stroke": {
+      "colour": "#3d2e1d",
+      "width": 1.4,
+      "linejoin": "round"
+    },
+    "colours": [
+      {
+        "company": "American",
+        "top": "#efe9dc",
+        "left": "#c4bfb2",
+        "right": "#9d998e"
+      },
+      {
+        "company": "National",
+        "top": "#b6b1a5",
+        "left": "#918d83",
+        "right": "#6f6c64"
+      },
+      {
+        "company": "Continental",
+        "top": "#3d7a46",
+        "left": "#316138",
+        "right": "#24482a"
+      },
+      {
+        "company": "Majestic",
+        "top": "#dcb62c",
+        "left": "#b09123",
+        "right": "#836c1a"
+      },
+      {
+        "company": "Liberty",
+        "top": "#b4382e",
+        "left": "#902d25",
+        "right": "#6c221c"
+      },
+      {
+        "company": "Republic",
+        "top": "#2f6fae",
+        "left": "#26598b",
+        "right": "#1c4368"
+      }
+    ]
+  },
+  "shareCards": {
+    "count": 6,
+    "sizeMm": {
+      "width": 88,
+      "height": 62
+    },
+    "orientation": "landscape",
+    "designUnits": {
+      "width": 300,
+      "height": 212
+    },
+    "ownership": "purchased by players and held in hand",
+    "layout": {
+      "blackEdge": "full bleed #100e0c",
+      "colourField": "x9 y9 282x194, company base colour",
+      "outerRule": "x13 y13 274x186 stroke 1.6",
+      "innerRule": "x17 y17 266x178 stroke 0.7",
+      "companyName": {
+        "anchor": "middle",
+        "baselineY": 45,
+        "font": "Cinzel 700",
+        "size": 23,
+        "letterSpacing": 1.8
+      },
+      "hairline": "M42 52 H258 stroke 0.8",
+      "subLine": {
+        "text": "Railroad Company",
+        "anchor": "middle",
+        "baselineY": 66,
+        "font": "EB Garamond italic",
+        "size": 12
+      },
+      "illustrationWell": "translate(19,72) 262x122 fill #efe8d6 stroke 1.4"
+    },
+    "ornaments": "four corner scrolls, centred flourish top and bottom, paired flourishes at mid-height of left and right edges; company dark shade at 0.5 opacity",
+    "inkRule": "American, Majestic and National take dark ink #1a1712; the rest take light ink #f5f0e5",
+    "colours": [
+      {
+        "company": "Continental",
+        "base": "#2f7a3f",
+        "mid": "#1d5029",
+        "dark": "#0f2e17",
+        "ink": "light"
+      },
+      {
+        "company": "Majestic",
+        "base": "#e8c62a",
+        "mid": "#a8891a",
+        "dark": "#4a3c07",
+        "ink": "dark"
+      },
+      {
+        "company": "Republic",
+        "base": "#2f7fc4",
+        "mid": "#1d5387",
+        "dark": "#0d2c4c",
+        "ink": "light"
+      },
+      {
+        "company": "American",
+        "base": "#e9e6dd",
+        "mid": "#a8a49a",
+        "dark": "#454239",
+        "ink": "dark"
+      },
+      {
+        "company": "Liberty",
+        "base": "#cf2b26",
+        "mid": "#8e1a17",
+        "dark": "#3d0b0a",
+        "ink": "light"
+      },
+      {
+        "company": "National",
+        "base": "#9c9a92",
+        "mid": "#6d6b64",
+        "dark": "#2f2e2a",
+        "ink": "dark"
+      }
+    ],
+    "scene": {
+      "space": "262 x 122, clipped to the well; horizon at y 62",
+      "track": {
+        "comment": "runs across the scene, rising and narrowing to the right",
+        "centreY": "112 - 17t",
+        "x": "4 + 254t",
+        "scale": "1 - 0.46t",
+        "tRange": [
+          0,
+          1
+        ]
+      },
+      "trainPlacement": {
+        "locomotive": 0.14,
+        "cars": [
+          0.26,
+          0.38,
+          0.5,
+          0.62
+        ],
+        "direction": "hauling left"
+      },
+      "layersBackToFront": [
+        "sky hatch",
+        "clouds",
+        "birds",
+        "far range + hachure",
+        "wooded ridge + conifers + horizon rule",
+        "plain hatch",
+        "telegraph poles",
+        "ballast + sleepers + rails",
+        "train + smoke",
+        "foreground scrub"
+      ],
+      "carWindows": "#efe8d6 at ~0.48 opacity",
+      "PLACEHOLDER": "The scenes are procedural line drawings, not real engravings. No illustration art was generated. Keep the 262x122 proportion when real engravings replace them."
+    }
+  },
+  "houseTokens": {
+    "colour": "black",
+    "note": "same gabled house as the action table row 2 icon; taken from the dashed supply area on the board and placed on the map",
+    "faces": {
+      "frontGable": {
+        "d": "M4 28 L4 12 L9.5 4 L15 12 L15 28 Z",
+        "fill": "#2a2c33"
+      },
+      "rightWall": {
+        "d": "M15 12 L27 6.6 L27 22.6 L15 28 Z",
+        "fill": "#101216"
+      },
+      "roofPlane": {
+        "d": "M9.5 4 L21.5 -1.4 L27 6.6 L15 12 Z",
+        "fill": "#3f424b"
+      }
+    },
+    "stroke": {
+      "colour": "#000",
+      "width": 1.4,
+      "linejoin": "round"
+    },
+    "note2": "three greys keep the form readable at token size; a flat silhouette loses the roof"
+  },
+  "sheet": {
+    "width": 1440,
+    "background": "#221d18",
+    "paper": "#e7d7b3",
+    "border": "2px #5d4726",
+    "sectionLabel": "Cinzel 600 15px letter-spacing 3px #5d4726 above a 1px rule",
+    "sections": [
+      "player locomotives",
+      "year marker",
+      "company cubes",
+      "company share cards",
+      "house tokens"
+    ]
+  }
+}
