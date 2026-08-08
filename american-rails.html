@@ -224,6 +224,13 @@ button.act-done { background: #4c9a5a; color: #0c160e; border-color: #3c7d48; }
 button.act-done:hover { background: #59b16a; }
 button.act-redo { border: 1px solid var(--color-accent); }
 .payout-msg { font-weight: 700; }
+.bidwatch .lastmove, .bot-msg .lastmove { font-weight: 700; color: var(--color-accent); }
+.bid-turn { margin: 0 6px 0 2px; white-space: nowrap; }
+.bot-diff, .bot-badge { font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 1px 6px; border-radius: 9px; white-space: nowrap; }
+.bot-badge { margin-left: 5px; }
+.bd-easy { background: #3f7d48; color: #eafbee; }
+.bd-medium { background: #c9a24b; color: #1a1205; }
+.bd-hard { background: #b4382e; color: #fbeae8; }
 /* dividend payout + winner highlights */
 .co-row.paying { background: rgba(201,162,75,.18); box-shadow: inset 3px 0 0 var(--color-accent); border-radius: 6px; }
 .pl-row2.paid { animation: paidPulse 1s ease; }
@@ -5388,11 +5395,11 @@ function endGame(s){ s.phase='gameOver'; const max=Math.max(...s.players.map(p=>
 
 /* ============================ 8b. BOTS (Easy / Medium / Hard) ============================ */
 const COMPANY_START = { american:30, national:28, continental:25, majestic:21, liberty:18, republic:16 };
-let botSpeed = 550, botTimer = null;                 // ms between bot steps (0 in tests)
+let botSpeed = 850, botTimer = null;                 // ms between bot steps (0 in tests) — slow enough to follow
 function isBotSeat(s, seat){ return !!(s && s.players[seat] && s.players[seat].bot); }
 function botDrivesNow(s){ if (!s || s.phase==='payout' || s.phase==='gameOver' || s.phase==='lobby') return false;
   if (!isBotSeat(s, s.currentPlayer)) return false; return s.mode==='local' || (typeof net!=='undefined' && net.isHost); }
-function botDelay(s){ const k = s.turnPhase==='bidding'?0.7 : s.turnPhase==='turnDone'?0.8 : 1; return Math.round(botSpeed*k); }
+function botDelay(s){ const k = s.turnPhase==='bidding'?1.05 : s.turnPhase==='turnDone'?0.7 : 1.05; return Math.round(botSpeed*k); }
 function maybeRunBot(){ if (botTimer) return; if (!botDrivesNow(gameState)) return;
   botTimer=setTimeout(()=>{ botTimer=null; const s=gameState; if (!botDrivesNow(s)) return;
     let cmd; try { cmd=botDecide(s); } catch(e){ cmd=null; } if (!cmd) cmd=botFallback(s);
@@ -5852,13 +5859,32 @@ function renderPanels(s){
     const fan = Object.keys(groups).length ? Object.entries(groups).map(([cid,cnt])=>miniStack(cid,cnt)).join('') : '<span class="no-shares">— no shares —</span>';
     const cls = [ (i===s.currentPlayer && s.phase!=='payout' && s.phase!=='gameOver')?'active':'', paidPlayers.has(i)?'paid':'', winnerSet.has(i)?'winner':'' ].filter(Boolean).join(' ');
     ph+=`<div class="pl-row2 ${cls}"><span class="pl-dot" style="background:${PLAYER_COLORS[i]||'#888'}"></span>`
-      +`<div class="pl-main"><div class="pl-head"><span class="pl-name">${winnerSet.has(i)?'🏆 ':''}${p.name}</span><span class="pl-money">$${p.money}</span></div>`
+      +`<div class="pl-main"><div class="pl-head"><span class="pl-name">${winnerSet.has(i)?'🏆 ':''}${p.name}${p.bot?` <span class="bot-badge bd-${p.bot}">🤖 ${p.bot}</span>`:''}</span><span class="pl-money">$${p.money}</span></div>`
       +`<div class="share-fan">${fan}</div></div></div>`; });
   $('#players').innerHTML=ph;
   $('#log').innerHTML = s.log.slice(-14).map(l=>`<div class="log-line">${l}</div>`).join('');
   const lg=$('#log'); lg.scrollTop=lg.scrollHeight;
 }
 function btn(label, call, extra){ return `<button ${extra||''} onclick="AR.ui('${call}')">${label}</button>`; }
+// the auction watch-bar: shows the company, high bid, the last move, and controls only for the active human
+function biddingBar(s, cur, mine){
+  const a=s.auction, money=s.players[s.currentPlayer].money;
+  const high = a.highBidder!=null ? `high bid <b>$${a.bid}</b> · ${s.players[a.highBidder].name}` : 'awaiting first bid';
+  const last = s.log[s.log.length-1] || '';
+  const curIsBot = isBotSeat(s, s.currentPlayer);
+  let h = `<span class="prompt bidwatch">🔨 ${coName(a.companyId)} auction — ${high}. <span class="lastmove">${last}</span></span>`;
+  if (!curIsBot && (s.mode==='local' || mine)){
+    const mn=auctionMinNext(s);
+    h += `<span class="bid-turn"><b>${cur.name}</b> to bid:</span>`;
+    h += btn('Bid $'+mn,'bid:'+mn, money>=mn?'':'disabled');
+    if (money>=mn+5) h+=btn('Bid $'+(mn+5),'bid:'+(mn+5));
+    h += `<span class="bid-custom"><input id="bid-input" class="bid-input" type="number" min="${mn}" max="${money}" value="${mn}"><button onclick="AR.ui('bid:'+Math.min(${money}, Math.max(${mn}, parseInt(document.getElementById('bid-input').value)||${mn})))">Bid</button></span>`;
+    h += btn('Pass','pass','class="ghost"');
+  } else {
+    h += `<span class="bid-turn">${curIsBot?'🤖 ':''}<b>${cur.name}</b> deciding…</span>`;
+  }
+  return h;
+}
 function renderActions(s){
   const bar=$('#actions-bar'); const cur=s.players[s.currentPlayer];
   const mine = s.mode==='local' || s.localPlayerId===s.currentPlayer;
@@ -5869,17 +5895,14 @@ function renderActions(s){
     return; }
   if (s.phase==='gameOver'){ const max=Math.max(...s.players.map(p=>p.money));
     bar.innerHTML = `<div class="banner win-banner" style="width:100%">🏆 ${s.winner.map(i=>s.players[i].name).join(' & ')} win with $${max}! <button class="ghost" style="margin-left:14px" data-action="quit">New game</button></div>`; return; }
-  if (isBotSeat(s, s.currentPlayer)){ bar.innerHTML = `<span class="prompt bot-msg">🤖 <b>${cur.name}</b> is thinking…</span>`; return; }
+  // BIDDING: everyone watches the auction (company, high bid, and the last move); the active human bidder gets controls
+  if (s.turnPhase==='bidding' && s.auction){ bar.innerHTML = biddingBar(s, cur, mine); return; }
+  if (isBotSeat(s, s.currentPlayer)){ const last=s.log[s.log.length-1]||'';
+    bar.innerHTML = `<span class="prompt bot-msg">🤖 <b>${cur.name}</b> <span class="bot-diff bd-${cur.bot}">${cur.bot}</span> is playing… &nbsp; <span class="lastmove">${last}</span></span>`; return; }
   if (!mine){ bar.innerHTML = `<span class="label">Waiting for ${cur?cur.name:'other player'}…</span>`; return; }
   let h='';
   const tp=s.turnPhase;
-  if (tp==='bidding'){ const a=s.auction; const mn=auctionMinNext(s); const money=s.players[s.currentPlayer].money;
-    h=`<span class="prompt"><b>${cur.name}</b>: bid on a ${coName(a.companyId)} share — high bid $${a.bid||0}${a.highBidder!=null?' ('+s.players[a.highBidder].name+')':''}. </span>`;
-    h+=btn('Bid $'+mn, 'bid:'+mn, money>=mn?'':'disabled');
-    if (money>=mn+5) h+=btn('Bid $'+(mn+5),'bid:'+(mn+5));
-    h+=`<span class="bid-custom"><input id="bid-input" class="bid-input" type="number" min="${mn}" max="${money}" value="${mn}"><button onclick="AR.ui('bid:'+Math.min(${money}, Math.max(${mn}, parseInt(document.getElementById('bid-input').value)||${mn})))">Bid</button></span>`;
-    h+=btn('Pass','pass','class="ghost"');
-  } else if (tp==='placeStartCube'){ const ps=s.pendingStartCube;
+  if (tp==='placeStartCube'){ const ps=s.pendingStartCube;
     h=`<span class="prompt"><b>${cur.name}</b>: place ${coName(ps.companyId)}'s first cube — click an empty city on the map.</span>`;
   } else if (tp==='chooseAction'){
     h=`<span class="prompt"><b>${cur.name}</b>: choose your action (phase ${s.actionPhase+1}).</span>`;
