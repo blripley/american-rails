@@ -5441,7 +5441,15 @@ function cashRank(s, me){ return s.players.filter((p,i)=> i!==me && p.money > s.
 function heldBy(s, cid, who){ return s.players[who].shares.filter(x=>x===cid).length; }
 function totalHeld(s, cid){ return s.players.reduce((n,p)=>n+p.shares.filter(x=>x===cid).length,0); }
 function oppHeldFrac(s, me, cid){ const t=totalHeld(s,cid); return t? (t-heldBy(s,cid,me))/t : 0; }
-function botCanWinAuction(s, me){ return cashRank(s, me)===0; }  // only the richest is a confident bidder
+function botCanWinAuction(s, me){ return cashRank(s, me)===0; }  // richest → confident bidder in any fight
+// can the bot realistically win a share of cid even if not the richest? — it dominates that company (values its
+// dividends most, so it will outbid owners of less) and can afford a competitive price
+function botWinsShare(s, me, cid){
+  const my=s.players[me].money, richestOpp=Math.max(0,...s.players.map((p,i)=>i===me?0:p.money));
+  if (my>=richestOpp) return true;
+  const frac = totalHeld(s,cid) ? heldBy(s,cid,me)/totalHeld(s,cid) : 0;
+  return frac>=0.5 && my >= Math.min(estShareValue(s,cid), richestOpp*0.85);
+}
 // decide whether to auction and which share to put up. Two motives:
 //  GRAB  — you can win it yourself: take the overall best share (prefer stacking one you already own)
 //  DRAIN — you can't win, but auctioning a share a richer rival wants makes them spend cash (=score),
@@ -5451,9 +5459,11 @@ function auctionPlan(s, me, diff){
   if(!avail.length || diff==='easy') return {value:0, pick:null, mode:null};
   const best = avail.slice().sort((a,b)=>estShareValue(s,b)-estShareValue(s,a))[0];   // the overall strongest share
   const late = roundsLeft(s)<=2, ahead = leaderExcept(s,me) - s.players[me].money;
-  if (botCanWinAuction(s, me)){
-    const score=cid=>estShareValue(s,cid)*(heldBy(s,cid,me)>0?1.25:1) + heldBy(s,cid,me)*4; // stack if you own it, else best overall
-    const pick=avail.slice().sort((a,b)=>score(b)-score(a))[0];
+  // GRAB any share the bot can actually win — richest overall, OR a company it dominates (even if not richest)
+  const winnable = avail.filter(cid=>botWinsShare(s,me,cid));
+  if (winnable.length){
+    const score=cid=>estShareValue(s,cid)*(heldBy(s,cid,me)>0?1.25:1) + heldBy(s,cid,me)*4; // stack one you own, else best overall
+    const pick=winnable.slice().sort((a,b)=>score(b)-score(a))[0];
     return {value: estShareValue(s,pick)*0.24*(diff==='hard'?1.2:0.9), pick, mode:'grab'};
   }
   if (diff==='hard' && (late || ahead>6)){   // offensive: force a richer rival to sink money into a share that won't pay off in time
@@ -5488,8 +5498,8 @@ function botBid(s, me, diff){ const a=s.auction, cid=a.companyId, minNext=auctio
   const val = estShareValue(s, cid) * (diff==='easy'?0.6 : diff==='medium'?0.9 : 1.35);
   const frac = diff==='easy'?0.25 : diff==='medium'?0.38 : 0.62;   // hard is willing to commit more cash to a good share
   let cap = Math.min(val, money*frac);
-  const own = s.players[me].shares.filter(x=>x===cid).length;
-  if (own>0) cap *= (diff==='hard'?0.85:0.5);                       // hard keeps stacking shares of a company it likes
+  const own = s.players[me].shares.filter(x=>x===cid).length, ownFrac = totalHeld(s,cid)?own/totalHeld(s,cid):0;
+  if (own>0) cap *= (ownFrac>=0.5 ? (diff==='hard'?1.15:1.0) : (diff==='hard'?0.85:0.6)); // pay up to control a company you dominate; diversify otherwise
   if (diff==='easy' && Math.random()<0.3) return 'pass';
   return (minNext<=cap) ? 'bid:'+minNext : 'pass'; }
 function botStartCity(s, me, diff){ const empties=Object.keys(BOARD).filter(id=>BOARD[id].city && !(s.hexes[id]&&s.hexes[id].cubes.length));
