@@ -5480,16 +5480,31 @@ function stealValue(s, me, cityId, diff){
   const victim=occ[0]; if(s.players[me].shares.includes(victim) && oppHeldFrac(s,me,victim)<0.5) return 0; // don't gut a company that's mostly yours
   const c=BOARD[cityId].city; return (c.full-c.shared) * oppHeldFrac(s,me,victim) * Math.min(6,roundsLeft(s)) * 0.12;
 }
+// value of developing city `id` to the bot: its own share of the +2 (solo) / +1 (shared) income; hard also subtracts what opponents gain
+function developValue(s, me, id, diff){
+  const hs=s.hexes[id]; if(!hs) return 0; const cos=[...new Set(hs.cubes)]; const bonus = cos.length>=2?1:2;
+  let mine=0, theirs=0;
+  for(const cid of cos){ const t=totalHeld(s,cid)||1, f=heldBy(s,cid,me)/t; mine+=f*bonus; theirs+=(1-f)*bonus; }
+  return cityScore(s,id,diff)*0.25 + mine*3 - (diff==='hard'?theirs*0.9:0);
+}
+// HARD: occupying an empty single-cube chokepoint (forest/mountain) beside an opponent's track denies them that route
+function blockValue(s, me, id, diff){
+  if(diff!=='hard') return 0; const def=BOARD[id]; if(def.terrain!=='forest'&&def.terrain!=='mountain') return 0;
+  const hs=s.hexes[id]; if(hs&&hs.cubes.length) return 0;
+  for(const nb of def.adj){ const nhs=s.hexes[nb]; if(nhs){ for(const cid of nhs.cubes){ if(oppHeldFrac(s,me,cid)>0.5) return 1.2; } } }
+  return 0;
+}
 function botDecide(s){ const me=s.currentPlayer, diff=s.players[me].bot||'easy';
   switch(s.turnPhase){
     case 'bidding': return botBid(s, me, diff);
     case 'placeStartCube': return 'hex:'+botStartCity(s, me, diff);
     case 'chooseAction': return 'choose:'+botAction(s, me, diff);
-    case 'funding': return 'fund:'+botFundCo(s, me);
+    case 'funding': return 'fund:'+botFundCo(s, me, diff);
     case 'take2choice': return botTake2(s, me, diff);
     case 'auctionSelect': { const ap=auctionPlan(s, me, diff); return ap.pick?'auc:'+ap.pick:'back'; }
     case 'developing': { const L=legalDevelopHexes(s); if(!L.length) return 'back';
-      const best = diff==='easy'? L[Math.floor(Math.random()*L.length)] : L.slice().sort((a,b)=>cityScore(s,b,diff)-cityScore(s,a,diff))[0]; return 'hex:'+best; }
+      if(diff==='easy') return 'hex:'+L[Math.floor(Math.random()*L.length)];
+      return 'hex:'+L.slice().sort((a,b)=>developValue(s,me,b,diff)-developValue(s,me,a,diff))[0]; }
     case 'expanding': return botExpandStep(s, me, diff);
     case 'turnDone': return 'done';
     default: return botFallback(s); } }
@@ -5505,8 +5520,14 @@ function botBid(s, me, diff){ const a=s.auction, cid=a.companyId, minNext=auctio
 function botStartCity(s, me, diff){ const empties=Object.keys(BOARD).filter(id=>BOARD[id].city && !(s.hexes[id]&&s.hexes[id].cubes.length));
   if (diff==='easy') return empties[Math.floor(Math.random()*empties.length)];
   return empties.sort((a,b)=>cityScore(s,b,diff)-cityScore(s,a,diff))[0]; }
-function botFundCo(s, me){ const owned=[...new Set(s.players[me].shares)].filter(cid=>s.companies[cid].onMap && !isRemoved(s.companies[cid]));
-  return (owned.sort((a,b)=>s.companies[a].treasury-s.companies[b].treasury)[0]) || activeCompanyIds(s)[0]; }
+function botFundCo(s, me, diff){ const owned=[...new Set(s.players[me].shares)].filter(cid=>s.companies[cid].onMap && !isRemoved(s.companies[cid]));
+  if(!owned.length) return activeCompanyIds(s)[0];
+  if(diff==='easy') return owned.sort((a,b)=>s.companies[a].treasury-s.companies[b].treasury)[0];
+  // fund companies you DOMINATE (the treasury mostly benefits you) and that actually need it to build
+  const score=cid=>{ const co=s.companies[cid], dom= totalHeld(s,cid)? heldBy(s,cid,me)/totalHeld(s,cid):1;
+    const need=(co.treasury<8?1:0.3)*(legalExpandHexes(s,me,cid).length?1:0.4);
+    return dom*2 + need + (10-Math.min(10,co.treasury))*0.08; };
+  return owned.slice().sort((a,b)=>score(b)-score(a))[0]; }
 function botTake2(s, me, diff){ if (s.players.length>=4 && diff!=='easy' && ownedExpandableCompanies(s,me).length) return 'take2expand';
   return diff==='easy' ? 'take2:take' : 'take2:fromEach'; }
 // BFS hop-distance from a set of start hexes over the land adjacency graph
@@ -5536,7 +5557,8 @@ function botExpandTarget(s, me, cid, diff){
 function botExpandStep(s, me, diff){ const p=s.pending;
   if (!p.companyId){ const cos=ownedExpandableCompanies(s, me); if(!cos.length) return 'endexpand';
     let bestCo=cos[0], best=-1; for(const cid of cos){ const t=botExpandTarget(s, me, cid, diff); const hs=legalExpandHexes(s,me,cid);
-      const sc = (diff!=='easy' && t) ? cityScore(s,t,diff)+(SPECIALS.has(BOARD[t].city.name)?4:0) : (hs.length?Math.max(...hs.map(h=>cityScore(s,h,diff))):0);
+      const dom = totalHeld(s,cid)? heldBy(s,cid,me)/totalHeld(s,cid):1;               // #4 grow companies you dominate (income → your dividends)
+      const sc = ((diff!=='easy' && t) ? cityScore(s,t,diff)+(SPECIALS.has(BOARD[t].city.name)?4:0) : (hs.length?Math.max(...hs.map(h=>cityScore(s,h,diff))):0)) + (diff!=='easy'?dom*3:0);
       if(sc>best){best=sc;bestCo=cid;} }
     return 'exco:'+bestCo; }
   const cid=p.companyId, hexes=legalExpandHexes(s, me, cid); if(!hexes.length) return 'endexpand';
@@ -5544,7 +5566,7 @@ function botExpandStep(s, me, diff){ const p=s.pending;
   const target=botExpandTarget(s, me, cid, diff);
   if(target){ const toTarget=bfsHex([target]); let best=hexes[0], bestKey=Infinity;
     for(const h of hexes){ const d = toTarget[h]!==undefined?toTarget[h]:999;
-      const key = d - (BOARD[h].city?1.5:0) - cityScore(s,h,diff)*0.05;               // step toward target; grab a city if you'd land on one
+      const key = d - (BOARD[h].city?1.5:0) - cityScore(s,h,diff)*0.05 - blockValue(s,me,h,diff); // step toward target; grab a city; (hard) grab a blocking chokepoint
       if(key<bestKey){ bestKey=key; best=h; } }
     return 'hex:'+best; }
   return 'hex:'+hexes.slice().sort((a,b)=>cityScore(s,b,diff)-cityScore(s,a,diff))[0]; }
@@ -5575,6 +5597,14 @@ function botAction(s, me, diff){ const rows=availableActionRows(s), money=s.play
   add('take2', take2v);
   add('pass', 0.6);
   if (!cand.length){ return rows.find(r=>r!=='develop'&&r!=='auction') || rows[0]; } // safety
+  // #5 final year: a fresh cube barely earns a dividend before the game ends — pivot to cash
+  if (roundsLeft(s)<=1 && diff!=='easy'){ for(const c of cand){ if(['expand3','expand4','develop','fund5','auction'].includes(c[0])) c[1]*=0.4; else if(c[0]==='take2') c[1]*=1.8; } }
+  // #1 HARD tempo: the action you pick is your seat next phase (lower row = act first = first pick). Prefer an earlier seat among real actions.
+  if (diff==='hard' && (expCos.length||devHexes.length)){ for(const c of cand){ if(c[0]!=='pass') c[1] += (ACTION_ROWS.length-1-ACTION_ROWS.indexOf(c[0]))*0.18; } }
+  // #1 HARD denial: grabbing expand4 blocks the next opponent from the biggest build this phase
+  if (diff==='hard' && s.phaseQueue.length>1){ const nxt=s.phaseQueue[1];
+    if (nxt!=null && nxt!==me){ let nd=0; for(const c2 of ownedExpandableCompanies(s,nxt)){ for(const h of legalExpandHexes(s,nxt,c2)){ const g=1.2+cityScore(s,h,diff); if(g>nd)nd=g; } }
+      for(const c of cand){ if(c[0]==='expand4') c[1]+= nd*0.3; } } }
   let bestRow=cand[0][0], bestVal=-Infinity;
   for (const [r,base] of cand){ const v=base + (diff==='easy'?Math.random()*3 : diff==='medium'?Math.random()*0.6 : 0); if (v>bestVal){ bestVal=v; bestRow=r; } }
   return bestRow; }
