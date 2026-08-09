@@ -259,6 +259,7 @@ button.act-redo { border: 1px solid var(--color-accent); }
   <h1>AMERICAN RAILS</h1>
   <div class="subtitle">Build railroads, buy shares, chase the biggest dividends.</div>
   <div class="mode-buttons">
+    <button data-action="resume" id="resume-btn" style="display:none">↩ Resume Last Game</button>
     <button data-action="mode-local" id="btn-local">Local Game (one screen)</button>
     <button data-action="mode-host" id="btn-host">Host Online Game</button>
     <button data-action="mode-join" id="btn-join">Join Online Game</button>
@@ -275,6 +276,13 @@ button.act-redo { border: 1px solid var(--color-accent); }
     <div class="label">Room code — share with your friends</div>
     <div class="room-code" id="room-code" data-room-code>----</div>
     <div id="connected-players" style="margin:var(--space-md) 0;" class="label">Waiting for players…</div>
+    <div class="field-row" style="gap:6px;flex-wrap:wrap;align-items:center;">
+      <span class="label">Fill seats with bots:</span>
+      <button data-action="add-bot" data-bot="easy" class="ghost">+ Easy</button>
+      <button data-action="add-bot" data-bot="medium" class="ghost">+ Medium</button>
+      <button data-action="add-bot" data-bot="hard" class="ghost">+ Hard</button>
+      <button data-action="remove-bot" class="ghost">Remove bot</button>
+    </div>
     <button id="start-online" data-action="start-online" disabled>Start Game</button>
   </div>
   <div id="join-view" class="panel-box hidden">
@@ -5427,6 +5435,27 @@ function estShareValue(s, cid){ const c=s.companies[cid];
   const income = c.income>0 ? c.income : COMPANY_START[cid]*0.25;   // setup: ~starting city income
   const held = s.players.reduce((n,p)=>n+p.shares.filter(x=>x===cid).length,0);
   return Math.ceil(income/(held+1)) * Math.min(6, roundsLeft(s)); }
+// --- standings & opponent awareness (medium uses it lightly, hard leans on it) ---
+function leaderExcept(s, me){ let best=-Infinity; s.players.forEach((p,i)=>{ if(i!==me && p.money>best) best=p.money; }); return best; }
+function cashRank(s, me){ return s.players.filter((p,i)=> i!==me && p.money > s.players[me].money).length; } // 0 = richest
+function heldBy(s, cid, who){ return s.players[who].shares.filter(x=>x===cid).length; }
+function totalHeld(s, cid){ return s.players.reduce((n,p)=>n+p.shares.filter(x=>x===cid).length,0); }
+function oppHeldFrac(s, me, cid){ const t=totalHeld(s,cid); return t? (t-heldBy(s,cid,me))/t : 0; }
+function botCanWinAuction(s, me){ return cashRank(s, me)===0; }  // only the richest is a confident bidder
+// choose which share to put up when auctioning: one the bot wants (stacking a company it owns pays off)
+function botAuctionPick(s, me, diff){
+  const avail=activeCompanyIds(s).filter(id=>s.companies[id].sharesInSupply>0); if(!avail.length) return null;
+  const score=cid=>{ const own=heldBy(s,cid,me); return estShareValue(s,cid)*(own>0?1.3:1) + own*4; };
+  return avail.sort((a,b)=>score(b)-score(a))[0];
+}
+// hard only: entering a city currently held by a lone rival company knocks that company's income full->shared
+function stealValue(s, me, cityId, diff){
+  if(diff!=='hard') return 0;
+  const hs=s.hexes[cityId]; if(!hs||!hs.cubes.length) return 0;
+  const occ=[...new Set(hs.cubes)]; if(occ.length!==1) return 0;                       // only a solo occupant can be demoted
+  const victim=occ[0]; if(s.players[me].shares.includes(victim) && oppHeldFrac(s,me,victim)<0.5) return 0; // don't gut a company that's mostly yours
+  const c=BOARD[cityId].city; return (c.full-c.shared) * oppHeldFrac(s,me,victim) * Math.min(6,roundsLeft(s)) * 0.12;
+}
 function botDecide(s){ const me=s.currentPlayer, diff=s.players[me].bot||'easy';
   switch(s.turnPhase){
     case 'bidding': return botBid(s, me, diff);
@@ -5434,8 +5463,7 @@ function botDecide(s){ const me=s.currentPlayer, diff=s.players[me].bot||'easy';
     case 'chooseAction': return 'choose:'+botAction(s, me, diff);
     case 'funding': return 'fund:'+botFundCo(s, me);
     case 'take2choice': return botTake2(s, me, diff);
-    case 'auctionSelect': { const avail=activeCompanyIds(s).filter(id=>s.companies[id].sharesInSupply>0);
-      if(!avail.length) return 'back'; avail.sort((a,b)=>estShareValue(s,b)-estShareValue(s,a)); return 'auc:'+avail[0]; }
+    case 'auctionSelect': { const pick=botAuctionPick(s, me, diff); return pick?'auc:'+pick:'back'; }
     case 'developing': { const L=legalDevelopHexes(s); if(!L.length) return 'back';
       const best = diff==='easy'? L[Math.floor(Math.random()*L.length)] : L.slice().sort((a,b)=>cityScore(s,b,diff)-cityScore(s,a,diff))[0]; return 'hex:'+best; }
     case 'expanding': return botExpandStep(s, me, diff);
@@ -5464,7 +5492,7 @@ function bfsHex(starts){ const dist={}, q=[]; (Array.isArray(starts)?starts:[sta
 function companyTrack(s, cid){ return Object.keys(s.hexes).filter(id=>s.hexes[id].cubes.includes(cid)); }
 function cityHexByName(name){ return Object.keys(BOARD).find(id=>BOARD[id].city && BOARD[id].city.name===name); }
 // pick a city to head for: chase the +$10 special connection when it's one link away, else the best-value city (minus cube cost)
-function botExpandTarget(s, cid, diff){
+function botExpandTarget(s, me, cid, diff){
   const track=companyTrack(s, cid); if(!track.length) return null;
   const fromTrack=bfsHex(track), connected=connectedCities(s, cid), trackSet=new Set(track), rl=Math.min(6, roundsLeft(s));
   let bonusTarget=null, bonusScore=-1;
@@ -5477,19 +5505,19 @@ function botExpandTarget(s, cid, diff){
   }
   let cityTarget=null, cityV=-1;
   for(const id in BOARD){ const c=BOARD[id].city; if(!c||trackSet.has(id)) continue; const d=fromTrack[id]; if(d===undefined) continue;
-    const v = cityScore(s,id,diff) - d*(diff==='hard'?0.5:0.7); if(v>cityV){ cityV=v; cityTarget=id; } }
+    const v = cityScore(s,id,diff) - d*(diff==='hard'?0.5:0.7) + stealValue(s,me,id,diff); if(v>cityV){ cityV=v; cityTarget=id; } }
   if(bonusTarget && bonusScore >= cityV*(diff==='hard'?0.7:0.8)) return bonusTarget;
   return cityTarget || bonusTarget;
 }
 function botExpandStep(s, me, diff){ const p=s.pending;
   if (!p.companyId){ const cos=ownedExpandableCompanies(s, me); if(!cos.length) return 'endexpand';
-    let bestCo=cos[0], best=-1; for(const cid of cos){ const t=botExpandTarget(s, cid, diff); const hs=legalExpandHexes(s,me,cid);
+    let bestCo=cos[0], best=-1; for(const cid of cos){ const t=botExpandTarget(s, me, cid, diff); const hs=legalExpandHexes(s,me,cid);
       const sc = (diff!=='easy' && t) ? cityScore(s,t,diff)+(SPECIALS.has(BOARD[t].city.name)?4:0) : (hs.length?Math.max(...hs.map(h=>cityScore(s,h,diff))):0);
       if(sc>best){best=sc;bestCo=cid;} }
     return 'exco:'+bestCo; }
   const cid=p.companyId, hexes=legalExpandHexes(s, me, cid); if(!hexes.length) return 'endexpand';
   if (diff==='easy') return 'hex:'+hexes[Math.floor(Math.random()*hexes.length)];   // easy stays greedy/wasteful
-  const target=botExpandTarget(s, cid, diff);
+  const target=botExpandTarget(s, me, cid, diff);
   if(target){ const toTarget=bfsHex([target]); let best=hexes[0], bestKey=Infinity;
     for(const h of hexes){ const d = toTarget[h]!==undefined?toTarget[h]:999;
       const key = d - (BOARD[h].city?1.5:0) - cityScore(s,h,diff)*0.05;               // step toward target; grab a city if you'd land on one
@@ -5499,6 +5527,7 @@ function botExpandStep(s, me, diff){ const p=s.pending;
 function botAction(s, me, diff){ const rows=availableActionRows(s), money=s.players[me].money, rl=roundsLeft(s);
   const expCos=ownedExpandableCompanies(s, me), devHexes=legalDevelopHexes(s);
   const shareAvail = activeCompanyIds(s).some(id=>s.companies[id].sharesInSupply>0);
+  const behind = leaderExcept(s,me) - money, late = rl<=2;    // trailing the leader? / little time left for income to pay off
   // best expansion value: extending track has a base worth plus a city bonus
   let eg=0; for(const cid of expCos){ for(const h of legalExpandHexes(s,me,cid)){ const g=(1.2+cityScore(s,h,diff))*rl*0.3; if(g>eg) eg=g; } }
   // only ADD actions the bot can actually complete (never a dead-end develop/auction)
@@ -5507,10 +5536,20 @@ function botAction(s, me, diff){ const rows=availableActionRows(s), money=s.play
   add('expand4', eg*1.25*gm);
   add('expand3', eg*gm);
   if (devHexes.length) add('develop', (Math.max(...devHexes.map(h=>cityScore(s,h,diff)))+1)*rl*0.28*gm);
-  if (shareAvail && money>=12) add('auction', (money*0.05 + rl*0.4) * (diff==='hard'?1.5:1));  // hard buys more shares
-  add('fund5', s.players[me].shares.some(cid=>s.companies[cid].onMap && s.companies[cid].treasury<3) ? (diff==='hard'?5:4) : 1.2);
+  // auction only when the bot expects to WIN the share — otherwise it just funds a company and hands a rival a share
+  if (shareAvail && money>=12 && diff!=='easy' && botCanWinAuction(s,me)){
+    const pick=botAuctionPick(s,me,diff), gain=pick?estShareValue(s,pick):0;
+    add('auction', gain*0.22*(diff==='hard'?1.2:0.9)); }
+  // fund is worth more when a company you own is too poor to build what you want (hard funds proactively)
+  let fundNeed=1.2;
+  for(const cid of [...new Set(s.players[me].shares)]){ const co=s.companies[cid]; if(!co.onMap||isRemoved(co)) continue;
+    if(co.treasury<3) fundNeed=Math.max(fundNeed, diff==='hard'?5:4);
+    else if(diff==='hard' && co.treasury<8 && legalExpandHexes(s,me,cid).length) fundNeed=Math.max(fundNeed,3.6); }
+  add('fund5', fundNeed);
   const drain = 2*(s.players.length-1);                       // take2:fromEach nets this and denies opponents
-  add('take2', (s.players.length>=4) ? (diff==='hard' ? Math.max(drain, eg>0?eg*0.6:0) : (eg>0?eg*0.6:2.2)) : 2.2);
+  let take2v = (s.players.length>=4) ? (diff==='hard' ? Math.max(drain, eg>0?eg*0.6:0) : (eg>0?eg*0.6:2.2)) : 2.2;
+  if (late && behind>0 && diff!=='easy') take2v += (diff==='hard'?drain*0.6:drain*0.3); // trailing late → grab cash & drain the leader
+  add('take2', take2v);
   add('pass', 0.6);
   if (!cand.length){ return rows.find(r=>r!=='develop'&&r!=='auction') || rows[0]; } // safety
   let bestRow=cand[0][0], bestVal=-Infinity;
@@ -5529,81 +5568,10 @@ function highlightSet(s){
 }
 const TERR_BASE={plains:'#d9a938',forest:'#8e9b40',mountain:'#b3aea3',city:'#f1e8ce'};
 const HEX_STROKE='#33271b', PARCH='#e6d6b2';
-function terrainDefs(){ return `<defs>
-  <filter id="paper" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" result="n"/>
-    <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.32  0 0 0 0 0.24  0 0 0 0 0.11  0 0 0 0.30 0"/></filter>
-  <radialGradient id="vig" cx="50%" cy="46%" r="80%"><stop offset="64%" stop-color="#000" stop-opacity="0"/><stop offset="100%" stop-color="#3a2b12" stop-opacity="0.30"/></radialGradient>
-</defs>`; }
-
-// ---- per-hex procedural terrain art (unique per tile, stable) ----
-function plainsArt(cx,cy){ const rng=hexRng(cx*7+1,cy*13+3); let s='';
-  for (let i=0;i<3;i++){ const [dx,dy]=inHex(rng,0.55); s+=`<circle cx="${(cx+dx).toFixed(1)}" cy="${(cy+dy).toFixed(1)}" r="${R(rng,HEX*0.4,HEX*0.72).toFixed(1)}" fill="${['#cf9f2b','#e2bd4c','#cba32f'][i]}" opacity="0.28"/>`; }
-  const n=Math.floor(R(rng,16,22));
-  for (let i=0;i<n;i++){ const [dx,dy]=inHex(rng,0.78); const bx=cx+dx, by=cy+dy, h=R(rng,HEX*0.13,HEX*0.24), tl=R(rng,-0.35,0.35);
-    const col=rng()<0.5?'#9c7016':'#b5862a';
-    s+=`<path d="M${bx.toFixed(1)} ${by.toFixed(1)} l${(-h*0.28+tl*h).toFixed(1)} ${(-h).toFixed(1)} M${bx.toFixed(1)} ${by.toFixed(1)} l${(tl*h).toFixed(1)} ${(-h*1.12).toFixed(1)} M${bx.toFixed(1)} ${by.toFixed(1)} l${(h*0.28+tl*h).toFixed(1)} ${(-h).toFixed(1)}" stroke="${col}" stroke-width="${(HEX*0.026).toFixed(2)}" stroke-linecap="round" fill="none" opacity="0.72"/>`; }
-  return s; }
-function forestArt(cx,cy){ const rng=hexRng(cx*11+5,cy*7+2); let s='';
-  const n=Math.floor(R(rng,13,18)); const pts=[];
-  for (let i=0;i<n;i++){ const [dx,dy]=inHex(rng,0.8); pts.push([cx+dx,cy+dy,R(rng,HEX*0.13,HEX*0.2)]); }
-  pts.sort((a,b)=>a[1]-b[1]);
-  for (const [bx,by,r] of pts){
-    s+=`<circle cx="${bx.toFixed(1)}" cy="${(by+r*0.35).toFixed(1)}" r="${r.toFixed(1)}" fill="#566a26"/>`;
-    s+=`<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="${(r*0.82).toFixed(1)}" fill="#6f8232"/>`;
-    s+=`<circle cx="${(bx-r*0.28).toFixed(1)}" cy="${(by-r*0.28).toFixed(1)}" r="${(r*0.38).toFixed(1)}" fill="#9aa855"/>`; }
-  return s; }
-function mountainArt(cx,cy){ const rng=hexRng(cx*5+9,cy*17+4); let s='';
-  const n=Math.floor(R(rng,3,5)); const peaks=[];
-  for (let i=0;i<n;i++){ const [dx,dy]=inHex(rng,0.55); peaks.push([cx+dx,cy+dy+HEX*0.22,R(rng,HEX*0.34,HEX*0.55),R(rng,HEX*0.34,HEX*0.6)]); }
-  peaks.sort((a,b)=>a[1]-b[1]);
-  for (const [bx,by,w,h] of peaks){ const ax=bx+R(rng,-w*0.12,w*0.12);
-    s+=`<path d="M${(bx-w).toFixed(1)} ${by.toFixed(1)} L${ax.toFixed(1)} ${(by-h).toFixed(1)} L${(bx+w).toFixed(1)} ${by.toFixed(1)} Z" fill="#8f8a80"/>`;
-    s+=`<path d="M${ax.toFixed(1)} ${(by-h).toFixed(1)} L${(bx+w).toFixed(1)} ${by.toFixed(1)} L${(bx+w*0.12).toFixed(1)} ${by.toFixed(1)} Z" fill="#c9c4b9"/>`;
-    s+=`<path d="M${ax.toFixed(1)} ${(by-h).toFixed(1)} l${(-w*0.16).toFixed(1)} ${(h*0.34).toFixed(1)} l${(w*0.14).toFixed(1)} ${(-h*0.12).toFixed(1)} l${(-w*0.1).toFixed(1)} ${(h*0.2).toFixed(1)}" stroke="#efece5" stroke-width="${(HEX*0.02).toFixed(2)}" fill="none" opacity="0.6"/>`; }
-  return s; }
-function tileArt(def,cx,cy){ if (def.terrain==='plains') return plainsArt(cx,cy); if (def.terrain==='forest') return forestArt(cx,cy); if (def.terrain==='mountain') return mountainArt(cx,cy); return ''; }
-// ---- city tile: skyline + value + name, with port / rail-tie markers ----
-function citySkyline(cx,by){ const rng=hexRng(cx*3+7, Math.round(by)*5+1); let s=''; const nb=6, bw=HEX*0.13, step=bw*1.28, x0=cx-(nb-1)*step/2;
-  for (let i=0;i<nb;i++){ const bx=x0+i*step, bh=R(rng,HEX*0.16,HEX*0.34);
-    s+=`<rect x="${(bx-bw/2).toFixed(1)}" y="${(by-bh).toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" fill="#2b2219"/>`;
-    if (rng()<0.5) s+=`<path d="M${(bx-bw/2-0.7).toFixed(1)} ${(by-bh).toFixed(1)} L${bx.toFixed(1)} ${(by-bh-HEX*0.08).toFixed(1)} L${(bx+bw/2+0.7).toFixed(1)} ${(by-bh).toFixed(1)} Z" fill="#2b2219"/>`; }
-  return s; }
-function portMark(x,y){ const s=HEX*0.15; // black gabled building w/ red slash
-  return `<g><path d="M${(x-s).toFixed(1)} ${(y+s*0.7).toFixed(1)} L${(x-s).toFixed(1)} ${(y-s*0.2).toFixed(1)} L${x.toFixed(1)} ${(y-s).toFixed(1)} L${(x+s).toFixed(1)} ${(y-s*0.2).toFixed(1)} L${(x+s).toFixed(1)} ${(y+s*0.7).toFixed(1)} Z" fill="#14110d"/>`
-    +`<rect x="${(x-s*0.7).toFixed(1)}" y="${(y+s*0.05).toFixed(1)}" width="${(s*1.4).toFixed(1)}" height="${(s*0.32).toFixed(1)}" fill="#b5342b"/></g>`; }
-function railTies(x,y){ const w=HEX*0.4, h=HEX*0.26, c='#2b2219'; let s=`<g stroke="${c}" stroke-width="${(HEX*0.045).toFixed(2)}" stroke-linecap="round">`;
-  s+=`<line x1="${(x-w*0.32).toFixed(1)}" y1="${(y-h/2).toFixed(1)}" x2="${(x-w*0.32).toFixed(1)}" y2="${(y+h/2).toFixed(1)}"/>`;
-  s+=`<line x1="${(x+w*0.32).toFixed(1)}" y1="${(y-h/2).toFixed(1)}" x2="${(x+w*0.32).toFixed(1)}" y2="${(y+h/2).toFixed(1)}"/>`;
-  for (let i=0;i<4;i++){ const ty=y-h/2+i*(h/3); s+=`<line x1="${(x-w*0.5).toFixed(1)}" y1="${ty.toFixed(1)}" x2="${(x+w*0.5).toFixed(1)}" y2="${ty.toFixed(1)}"/>`; }
-  return s+'</g>'; }
-
 let BOARD_VB=null, BASE_SVG=null, CLICK_LAYER=null, BOARD_SVG_MARKUP='';
 // ---- design board geometry (1700x1400 SVG per board-data.json) ----
-const BW=1700, FRAME_H=1240, BOARD_H=1400, BAND=44, MAPX=44, MAPY=44, MAPW=1612, MAPH=1152;
-function frameCell(x,y,w,h,num){
-  return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" fill="#45668c" stroke="#16304e" stroke-width="1"/>`
-    +`<text x="${(x+w/2).toFixed(1)}" y="${(y+h/2).toFixed(1)}" text-anchor="middle" dominant-baseline="central" fill="#dfe7f0" font-family="Cinzel,Georgia,serif" font-weight="600" font-size="21">${num}</text>`;
-}
-function scoringFrame(){
-  let s=`<rect x="0" y="0" width="${BW}" height="${FRAME_H}" fill="#45668c"/>`;
-  const topN=31, tcw=BW/topN;
-  for(let i=0;i<topN;i++) s+=frameCell(i*tcw,0,tcw,BAND,20+i);                    // top 20..50
-  for(let i=0;i<topN;i++) s+=frameCell(i*tcw,MAPY+MAPH,tcw,BAND, i===0?0:100-i);  // bottom 0,99..70
-  const sideN=19, sch=MAPH/sideN;
-  for(let i=0;i<sideN;i++) s+=frameCell(0,MAPY+i*sch,BAND,sch, 19-i);             // left 19..1
-  for(let i=0;i<sideN;i++) s+=frameCell(BW-BAND,MAPY+i*sch,BAND,sch, 51+i);       // right 51..69
-  return s;
-}
-// income position (0-99) -> pixel centre on the frame band
-function scorePos(n){ n=((n%100)+100)%100; const topN=31,tcw=BW/topN,sideN=19,sch=MAPH/sideN;
-  if(n>=20&&n<=50) return {x:(n-20)*tcw+tcw/2, y:BAND/2};                          // top
-  if(n>=51&&n<=69) return {x:BW-BAND/2, y:MAPY+(n-51)*sch+sch/2};                  // right
-  if(n===0) return {x:tcw/2, y:MAPY+MAPH+BAND/2};                                  // bottom-left
-  if(n>=70&&n<=99) return {x:(100-n)*tcw+tcw/2, y:MAPY+MAPH+BAND/2};               // bottom
-  return {x:BAND/2, y:MAPY+(19-n)*sch+sch/2};                                      // left 1..19
-}
-/* ============ on-board action panel (printed-design furniture) ============ */
-const TAN={mid:'#c9a06a',lt:'#ddbb87',dk:'#ab7f48',arrow:'#c08c4c',st:'#5e3f1a'};
+const BW=1700, BOARD_H=1400; // board SVG viewBox size (the printed frame lives in the embedded board-static.svg)
+/* ============ action-panel geometry (for placing live train markers on the embedded board) ============ */
 const AT={x:1250,y:556,w:384,h:478};
 const AT_BANDCY=[39,101,164,230,297,365,435];   // 7 action-band centres (table-local y)
 const AT_COLCX=[138,238,338];                    // 3 phase-column centres (table-local x)
@@ -5612,68 +5580,6 @@ const YT={x:1100,y:1046,w:536,h:114,cell:74.286};
 function atCell(phase,band){ return {x:AT.x+AT_COLCX[phase], y:AT.y+AT_BANDCY[band]}; }
 function atStrip(row){ return {x:AT.x+42, y:AT.y+AT_STRIPCY[row]}; }
 function ytCell(idx){ return {x:YT.x+8+(idx+0.5)*YT.cell, y:YT.y+73}; }
-function tanCube(cx,cy,s){ const P=(a,b)=>a.toFixed(1)+','+b.toFixed(1); const hw=s,vq=s*0.5,vh=s*0.9;
-  return `<polygon points="${P(cx,cy-vq)} ${P(cx+hw,cy)} ${P(cx,cy+vq)} ${P(cx-hw,cy)}" fill="${TAN.lt}" stroke="${TAN.st}" stroke-width="0.8"/>`
-    +`<polygon points="${P(cx-hw,cy)} ${P(cx,cy+vq)} ${P(cx,cy+vq+vh)} ${P(cx-hw,cy+vh)}" fill="${TAN.mid}" stroke="${TAN.st}" stroke-width="0.8"/>`
-    +`<polygon points="${P(cx,cy+vq)} ${P(cx+hw,cy)} ${P(cx+hw,cy+vh)} ${P(cx,cy+vq+vh)}" fill="${TAN.dk}" stroke="${TAN.st}" stroke-width="0.8"/>`; }
-function tanArrow(cx,cy){ return `<path d="M${cx-18} ${cy-5} L${cx+2} ${cy-5} L${cx+2} ${cy-12} L${cx+18} ${cy} L${cx+2} ${cy+12} L${cx+2} ${cy+5} L${cx-18} ${cy+5} Z" fill="${TAN.arrow}" stroke="${TAN.st}" stroke-width="1.2"/>`; }
-function tanHouse(cx,cy){ const P=(a,b)=>a.toFixed(1)+','+b.toFixed(1); cy-=3; const w=12,q=6,wh=13,rh=12;
-  return `<polygon points="${P(cx-w,cy)} ${P(cx,cy+q)} ${P(cx,cy+q+wh)} ${P(cx-w,cy+wh)}" fill="${TAN.mid}" stroke="${TAN.st}" stroke-width="0.9"/>`
-   +`<polygon points="${P(cx,cy+q)} ${P(cx+w,cy)} ${P(cx+w,cy+wh)} ${P(cx,cy+q+wh)}" fill="${TAN.dk}" stroke="${TAN.st}" stroke-width="0.9"/>`
-   +`<polygon points="${P(cx-w,cy)} ${P(cx,cy-rh)} ${P(cx,cy+q)}" fill="${TAN.lt}" stroke="${TAN.st}" stroke-width="0.9"/>`
-   +`<polygon points="${P(cx+w,cy)} ${P(cx,cy-rh)} ${P(cx,cy+q)}" fill="${TAN.mid}" stroke="${TAN.st}" stroke-width="0.9"/>`; }
-function tanLoco(cx,cy){ return `<g stroke="${TAN.st}" stroke-width="0.9">`
-   +`<rect x="${cx-16}" y="${cy-6}" width="26" height="12" rx="1.5" fill="${TAN.mid}"/>`
-   +`<rect x="${cx+2}" y="${cy-12}" width="10" height="8" fill="${TAN.mid}"/>`
-   +`<rect x="${cx-14}" y="${cy-12}" width="4" height="6" fill="${TAN.mid}"/>`
-   +`<circle cx="${cx-9}" cy="${cy+7}" r="3" fill="${TAN.dk}"/><circle cx="${cx+1}" cy="${cy+7}" r="3" fill="${TAN.dk}"/><circle cx="${cx+8}" cy="${cy+7}" r="3" fill="${TAN.dk}"/></g>`; }
-function tanPerson(cx,cy){ return `<g stroke="${TAN.st}" stroke-width="0.8" fill="${TAN.mid}"><circle cx="${cx}" cy="${cy-6}" r="4"/><path d="M${cx-5} ${cy+8} Q${cx} ${cy-3} ${cx+5} ${cy+8} Z"/></g>`; }
-function tanGavel(cx,cy){ return `<g stroke="${TAN.st}" stroke-width="1" fill="${TAN.mid}"><g transform="rotate(-35 ${cx} ${cy})"><rect x="${cx-9}" y="${cy-7}" width="18" height="12" rx="2"/><rect x="${cx-1.2}" y="${cy+3}" width="2.6" height="15"/></g><rect x="${cx-11}" y="${cy+15}" width="22" height="4" rx="1.5"/></g>`; }
-function actionIcon(b,cx,cy){
-  if(b===0) return tanArrow(cx,cy);
-  if(b===1) return tanHouse(cx,cy);
-  if(b===2) return `<text x="${cx}" y="${cy-4}" text-anchor="middle" font-family="Cinzel,serif" font-weight="700" font-size="19" fill="#2b2013">$5</text>`+tanLoco(cx,cy+13);
-  if(b===3) return `<text x="${cx-13}" y="${cy-3}" text-anchor="middle" font-family="Cinzel,serif" font-weight="700" font-size="17" fill="#2b2013">$2</text>`+tanPerson(cx+13,cy-6)
-     +`<text x="${cx-16}" y="${cy+20}" font-family="serif" font-size="17" fill="#6b5433">(</text>`+tanCube(cx-4,cy+15,4.5)+tanCube(cx+8,cy+15,4.5)+`<text x="${cx+13}" y="${cy+20}" font-family="serif" font-size="17" fill="#6b5433">)</text>`;
-  if(b===4) return tanCube(cx,cy-8,7)+tanCube(cx-12,cy+9,7)+tanCube(cx+12,cy+9,7);
-  if(b===5) return tanGavel(cx,cy);
-  if(b===6) return tanCube(cx-11,cy-8,7)+tanCube(cx+11,cy-8,7)+tanCube(cx-11,cy+11,7)+tanCube(cx+11,cy+11,7);
-  return ''; }
-function actionTableSVG(){ const A=AT; let s=`<g transform="translate(${A.x},${A.y})">`;
-  s+=`<path d="M0 0 H${A.w} V${A.h} H80 V338 H0 Z" fill="#f4ecd6" stroke="#5d4726" stroke-width="2"/>`;
-  s+=`<rect x="8" y="8" width="68" height="322" fill="#dccca6"/>`;
-  AT_STRIPCY.forEach((cy,i)=>{ s+=`<circle cx="42" cy="${cy}" r="29" fill="#f8f2e0" stroke="#5d4726" stroke-width="1.5"/>`
-    +`<text x="42" y="${cy+15}" text-anchor="middle" font-family="Cinzel,serif" font-weight="600" font-size="42" fill="#3d2e1d">${i+1}</text>`; });
-  for(let c=0;c<3;c++){ const gx=84+c*100, ccx=gx+54;
-    s+=`<rect x="${gx+8}" y="8" width="92" height="462" fill="#faf5e6" stroke="#c9b993" stroke-width="0.8"/>`;
-    [70,132,196,264,330,400].forEach(dy=>{ s+=`<line x1="${gx+8}" y1="${dy}" x2="${gx+100}" y2="${dy}" stroke="#d8c9a3" stroke-width="1"/>`; });
-    for(let b=0;b<7;b++) s+=actionIcon(b,ccx,AT_BANDCY[b]); }
-  return s+'</g>'; }
-function yearTrackSVG(){ const Y=YT; let s=`<g transform="translate(${Y.x},${Y.y})">`;
-  s+=`<rect x="0" y="0" width="${Y.w}" height="${Y.h}" rx="6" fill="#f4ecd6" stroke="#5d4726" stroke-width="2"/><rect x="8" y="40" width="520" height="66" fill="#faf5e6"/>`;
-  for(let i=0;i<7;i++){ const cx=8+(i+0.5)*Y.cell;
-    if(i>0) s+=`<line x1="${(8+i*Y.cell).toFixed(1)}" y1="40" x2="${(8+i*Y.cell).toFixed(1)}" y2="106" stroke="#d8c9a3" stroke-width="1"/>`;
-    s+=`<circle cx="${cx.toFixed(1)}" cy="73" r="26" fill="#f8f2e0" stroke="#5d4726" stroke-width="1.2"/>`;
-    if(i<6) s+=`<path d="M${(cx-8).toFixed(1)} 62 L${(cx+11).toFixed(1)} 73 L${(cx-8).toFixed(1)} 84 Z" fill="#a8814a" stroke="#5d4726" stroke-width="1"/>`;
-    s+=`<text x="${cx.toFixed(1)}" y="24" text-anchor="middle" font-family="Cinzel,serif" font-size="20" fill="#2b2013">${1851+i}</text>`; }
-  return s+'</g>'; }
-function legendSVG(){ let s=`<g transform="translate(660,1034)">`;
-  const items=[['plains','$2','+$2 per cube'],['city','$2','+$2 per cube'],['forest','$3',''],['mountain','$5','']], xs=[47,141,235,329];
-  items.forEach(([t,cost,sub],i)=>{ const hx=xs[i], hy=78;
-    s+=`<polygon points="${hexPoints(hx,hy,27)}" fill="${TERR_BASE[t]}" stroke="${HEX_STROKE}" stroke-width="1.4"/>`;
-    s+=`<text x="${hx}" y="${hy+52}" text-anchor="middle" font-family="Cinzel,serif" font-weight="700" font-size="20" fill="#2b2013">${cost}</text>`;
-    if(sub) s+=`<text x="${hx}" y="${hy+71}" text-anchor="middle" font-family="EB Garamond,Georgia,serif" font-size="13.5" fill="#6b5433">${sub}</text>`; });
-  return s+'</g>'; }
-function houseSupplySVG(){ let s=`<path d="M1058 906 L1300 906 L1300 1026 L998 1026 L998 952 Z" fill="none" stroke="#3d2e1d" stroke-width="2.2" stroke-dasharray="11 7"/>`;
-  [[1149,946],[1104,990],[1194,990]].forEach(([hx,hy])=>{ s+=`<path d="M${hx-13} ${hy+16} L${hx-13} ${hy-2} L${hx} ${hy-16} L${hx+13} ${hy-2} L${hx+13} ${hy+16} Z" fill="none" stroke="#3d2e1d" stroke-width="2" stroke-dasharray="4 4"/>`; });
-  return s; }
-function titleSVG(){ let s=`<g transform="translate(1442,472)" text-anchor="middle">`;
-  s+=`<text y="0" font-family="Cinzel,Georgia,serif" font-weight="900" font-size="42" letter-spacing="1" fill="#2b2013">AMERICAN RAILS</text>`;
-  s+=`<line x1="-186" y1="16" x2="186" y2="16" stroke="#5d4726" stroke-width="1.6"/>`;
-  s+=`<text y="44" font-family="EB Garamond,Georgia,serif" font-style="italic" font-size="22" fill="#5d4726">Tim Harrison</text>`;
-  s+=`<line x1="-150" y1="58" x2="150" y2="58" stroke="#5d4726" stroke-width="0.9"/>`;
-  s+=`<text y="76" font-family="Cinzel,Georgia,serif" font-weight="500" font-size="12" letter-spacing="3" fill="#5d4726">ARTWORK ALEXANDRE ROCHE</text>`;
-  return s+'</g>'; }
 function buildBaseBoard(){
   BOARD_VB={minX:0,minY:0,w:BW,h:BOARD_H};
   // BASE is the designer's fully-resolved board SVG (board-static.svg), used verbatim.
@@ -5770,9 +5676,6 @@ function renderBoard(s){
     svg.insertAdjacentHTML('beforeend', `<g id="overlay" pointer-events="none">${ov}</g><g id="clicks">${CLICK_LAYER}</g>`);
   } else { ovEl.innerHTML = ov; }
 }
-function shade(hex,amt){ const h=hex.replace('#',''); let r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
-  if(amt>=0){ r+=(255-r)*amt; g+=(255-g)*amt; b+=(255-b)*amt; } else { r*=(1+amt); g*=(1+amt); b*=(1+amt); }
-  return `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`; }
 /* ===== exact game pieces (from pieces-data.json) ===== */
 const CUBE_FACES={top:'M4 16 L30 2 L56 16 L30 30 Z',left:'M4 16 L4 44 L30 58 L30 30 Z',right:'M56 16 L56 44 L30 58 L30 30 Z'};
 const CUBE_COL={ american:['#efe9dc','#c4bfb2','#9d998e'], national:['#b6b1a5','#918d83','#6f6c64'],
@@ -5803,66 +5706,6 @@ function locoSVG(cx,cy,face,shade,sc,flip){ sc=sc||0.42; const dir=flip?-1:1;
   [5,4,3,2,1].forEach(d=>{ s+=`<g transform="translate(${d},${-d})" fill="${shade}">${locoShapes()}</g>`; });
   s+=`<g fill="${face}">${locoShapes()}</g>`;
   return s+`</g>`; }
-function cube3d(cx,cy,sz,color){ const hw=sz, vq=sz*0.5, vh=sz*0.82;
-  const top=shade(color,0.30), left=color, right=shade(color,-0.24), st='#141414', sw=0.55;
-  const P=(a,b)=>a.toFixed(1)+','+b.toFixed(1);
-  return `<g><polygon points="${P(cx,cy-vq)} ${P(cx+hw,cy)} ${P(cx,cy+vq)} ${P(cx-hw,cy)}" fill="${top}" stroke="${st}" stroke-width="${sw}"/>`
-    +`<polygon points="${P(cx-hw,cy)} ${P(cx,cy+vq)} ${P(cx,cy+vq+vh)} ${P(cx-hw,cy+vh)}" fill="${left}" stroke="${st}" stroke-width="${sw}"/>`
-    +`<polygon points="${P(cx,cy+vq)} ${P(cx+hw,cy)} ${P(cx+hw,cy+vh)} ${P(cx,cy+vq+vh)}" fill="${right}" stroke="${st}" stroke-width="${sw}"/></g>`; }
-// isometric development house (walls + hip roof), base eaves centred at (cx,cy)
-function house3d(cx,cy,sz){ const P=(a,b)=>a.toFixed(1)+','+b.toFixed(1);
-  const w=sz, q=sz*0.55, wh=sz*0.8, rh=sz*0.85;
-  const lw='#c7a06a', rw='#a1794b', lr='#b23c2b', rr='#8a2c20', st='#241c12', sw=0.5;
-  return `<g>`
-    +`<polygon points="${P(cx-w,cy)} ${P(cx,cy+q)} ${P(cx,cy+q+wh)} ${P(cx-w,cy+wh)}" fill="${lw}" stroke="${st}" stroke-width="${sw}"/>`
-    +`<polygon points="${P(cx,cy+q)} ${P(cx+w,cy)} ${P(cx+w,cy+wh)} ${P(cx,cy+q+wh)}" fill="${rw}" stroke="${st}" stroke-width="${sw}"/>`
-    +`<polygon points="${P(cx-w,cy)} ${P(cx,cy-rh)} ${P(cx,cy+q)}" fill="${lr}" stroke="${st}" stroke-width="${sw}"/>`
-    +`<polygon points="${P(cx+w,cy)} ${P(cx,cy-rh)} ${P(cx,cy+q)}" fill="${rr}" stroke="${st}" stroke-width="${sw}"/></g>`; }
-function trainGlyph(cx,cy,color,sc){ sc=sc||1; const s=6*sc;
-  return `<g transform="translate(${cx.toFixed(1)},${cy.toFixed(1)})">`
-    +`<rect x="${(-s*1.1).toFixed(1)}" y="${(-s*0.55).toFixed(1)}" width="${(s*1.9).toFixed(1)}" height="${(s*0.85).toFixed(1)}" rx="1.5" fill="${color}" stroke="#141414" stroke-width="0.8"/>`
-    +`<rect x="${(-s*1.1).toFixed(1)}" y="${(-s*1.0).toFixed(1)}" width="${(s*0.75).toFixed(1)}" height="${(s*0.5).toFixed(1)}" rx="1" fill="${color}" stroke="#141414" stroke-width="0.8"/>`
-    +`<rect x="${(s*0.35).toFixed(1)}" y="${(-s*1.35).toFixed(1)}" width="${(s*0.3).toFixed(1)}" height="${(s*0.5).toFixed(1)}" fill="#141414"/>`
-    +`<circle cx="${(-s*0.55).toFixed(1)}" cy="${(s*0.42).toFixed(1)}" r="${(s*0.3).toFixed(1)}" fill="#141414"/>`
-    +`<circle cx="${(s*0.55).toFixed(1)}" cy="${(s*0.42).toFixed(1)}" r="${(s*0.3).toFixed(1)}" fill="#141414"/></g>`; }
-function cubeRow(x,y,n){ let s=''; const cs=3.4; const start=x-(n*cs*0.6); for(let i=0;i<n;i++){ s+=`<rect x="${(start+i*cs*1.2).toFixed(1)}" y="${(y-1.7).toFixed(1)}" width="${cs}" height="${cs}" fill="#8a5a24" stroke="#3a2c18" stroke-width="0.4"/>`; } return s; }
-function actionIconSvg(row,x,y){ const c='#3a2c18';
-  if (row==='pass') return `<path d="M${x-6} ${y} h10 M${x+1} ${y-3.5} l3.5 3.5 l-3.5 3.5" stroke="${c}" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
-  if (row==='develop') return `<path d="M${x-4.5} ${y+3.5} v-4 l4.5 -3.5 l4.5 3.5 v4 z" fill="#161310"/>`;
-  if (row==='fund5') return `<text x="${x}" y="${y+3}" text-anchor="middle" font-size="10" font-weight="700" fill="#2e7d52">$5</text>`;
-  if (row==='take2') return `<text x="${x}" y="${y+3}" text-anchor="middle" font-size="10" font-weight="700" fill="#b8862f">$2</text>`;
-  if (row==='auction') return `<g><rect x="${x-5}" y="${y-4.5}" width="7" height="3" rx="1" fill="${c}" transform="rotate(-28 ${x} ${y})"/><line x1="${x+0.5}" y1="${y-1.5}" x2="${x+4.5}" y2="${y+4.5}" stroke="${c}" stroke-width="1.6"/></g>`;
-  if (row==='expand3') return cubeRow(x,y,3);
-  if (row==='expand4') return cubeRow(x,y,4);
-  return ''; }
-function renderFurniture(s){
-  const el=$('#furniture'); if(!el) return;
-  const W=316, years=[1851,1852,1853,1854,1855,1856,1857], yCellW=(W-8)/7;
-  let yr='';
-  years.forEach((yy,i)=>{ const x=4+i*yCellW, on=(yy===s.year);
-    yr+=`<rect x="${x.toFixed(1)}" y="4" width="${(yCellW-2).toFixed(1)}" height="30" rx="3" fill="${on?'#c9a24b':'#efe6d0'}" stroke="#3a2c18" stroke-width="0.9"/>`;
-    yr+=`<text x="${(x+yCellW/2-1).toFixed(1)}" y="17" text-anchor="middle" font-size="8" font-weight="700" fill="#2a2118">${yy}</text>`;
-    if(on) yr+=trainGlyph(x+yCellW/2-1, 27, '#141414', 0.72); });
-  const topY=58, rowH=23, turnX=22, phaseX=[68,148,228], phaseW=74;
-  let at=`<text x="${turnX}" y="52" text-anchor="middle" font-size="7.5" fill="#a8987a">TURN</text>`;
-  [0,1,2].forEach(i=> at+=`<text x="${(phaseX[i]+phaseW/2-8).toFixed(1)}" y="52" text-anchor="middle" font-size="7.5" fill="${(i===s.actionPhase&&s.phase==='action')?'#c9a24b':'#a8987a'}">PHASE ${i+1}</text>`);
-  for(let i=0;i<s.players.length;i++){ const y=topY+i*rowH+rowH/2; at+=`<circle cx="${turnX}" cy="${y.toFixed(1)}" r="9" fill="#efe6d0" stroke="#3a2c18" stroke-width="0.9"/><text x="${turnX}" y="${(y+3).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="700" fill="#2a2118">${i+1}</text>`; }
-  for(let p=0;p<3;p++){ const cur=(p===s.actionPhase && s.phase==='action');
-    at+=`<rect x="${(phaseX[p]-4).toFixed(1)}" y="${(topY-3).toFixed(1)}" width="${(phaseW+2).toFixed(1)}" height="${(7*rowH+2).toFixed(1)}" rx="4" fill="${cur?'rgba(201,162,75,0.12)':'none'}" stroke="${cur?'#c9a24b':'#4a3c25'}" stroke-width="${cur?1.4:0.7}"/>`;
-    ACTION_ROWS.forEach((row,r)=>{ const y=topY+r*rowH+rowH/2, cx=phaseX[p]+11;
-      if(p===0) at+=`<text x="${(phaseX[0]+30).toFixed(1)}" y="${(y+3).toFixed(1)}" font-size="7" fill="#8a7a5a" opacity="0.001">.</text>`;
-      at+=actionIconSvg(row,cx,y); });
-  }
-  s.players.forEach((pl,seat)=>{ const m=s.markers&&s.markers[seat]; if(!m) return;
-    const mx = m.phase<0 ? turnX : phaseX[m.phase]+11;
-    const my = topY + m.row*rowH + rowH/2;
-    at+=trainGlyph(mx, my, PLAYER_COLORS[seat], 0.8); });
-  const H=topY+7*rowH+8;
-  const devHouses = Array.from({length:Math.min(s.developmentSupply,12)}, ()=>'<svg width="11" height="11" viewBox="-6 -6 12 12"><path d="M-4 4 v-4 l4 -3.5 l4 3.5 v4 z" fill="#161310" stroke="#000" stroke-width="0.5"/></svg>').join('');
-  el.innerHTML=`<div class="furn-label">Year</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto"><rect x="0" y="0" width="${W}" height="${H}" fill="#f2ead4" rx="4"/>${yr}${at}</svg>`
-    +`<div class="furn-label" style="margin-top:3px">Action track — trains show turn order</div>`
-    +`<div class="dev-supply"><span class="furn-label" style="margin:0">Development houses: <b>${s.developmentSupply}</b></span> <span class="dev-houses">${devHouses}</span></div>`;
-}
 // a stack of `count` identical company share cards, overlapping
 function miniStack(cid, count){ const tpl=document.getElementById('card-'+cid);
   const inner = tpl ? tpl.innerHTML : `<div class="mini-fallback">${COMPANIES[cid].name}</div>`;
@@ -5898,7 +5741,7 @@ function renderPanels(s){
     const fan = Object.keys(groups).length ? Object.entries(groups).map(([cid,cnt])=>miniStack(cid,cnt)).join('') : '<span class="no-shares">— no shares —</span>';
     const cls = [ (i===s.currentPlayer && s.phase!=='payout' && s.phase!=='gameOver')?'active':'', paidPlayers.has(i)?'paid':'', winnerSet.has(i)?'winner':'' ].filter(Boolean).join(' ');
     ph+=`<div class="pl-row2 ${cls}"><span class="pl-dot" style="background:${PLAYER_COLORS[i]||'#888'}"></span>`
-      +`<div class="pl-main"><div class="pl-head"><span class="pl-name">${winnerSet.has(i)?'🏆 ':''}${p.name}${p.bot?` <span class="bot-badge bd-${p.bot}">🤖 ${p.bot}</span>`:''}</span><span class="pl-money">$${p.money}</span></div>`
+      +`<div class="pl-main"><div class="pl-head"><span class="pl-name">${winnerSet.has(i)?'🏆 ':''}${p.name}${p.bot?` <span class="bot-badge bd-${p.bot}">🤖 ${p.bot}</span>`:''}${p.disconnected?` <span class="bot-badge" style="background:#8a4a2a">⚠ away</span>`:''}</span><span class="pl-money">$${p.money}</span></div>`
       +`<div class="share-fan">${fan}</div></div></div>`; });
   $('#players').innerHTML=ph;
   $('#log').innerHTML = s.log.slice(-14).map(l=>`<div class="log-line">${l}</div>`).join('');
@@ -5999,6 +5842,7 @@ function render(s){ if (!s || s.phase==='lobby') return; renderBoard(s); renderP
 let gameState=null;
 function afterMutate(){ window.gameState=gameState; render(gameState); net.maybeBroadcast();
   if (gameState && gameState.phase==='payout' && !payoutTimer && (gameState.mode!=='online' || net.isHost)) runPayout();
+  saveGame();
   maybeRunBot();
 }
 // Route a UI action string. In online guest mode, forward to host instead of applying.
@@ -6017,7 +5861,7 @@ function runPayout(){ const s=gameState; if (!s || !s.payout){ return; }
     const s=gameState; s.payout.idx++;
     if (s.payout.idx >= s.payout.steps.length){
       clearInterval(payoutTimer); payoutTimer=null; s.payout=null;
-      endRound(s); window.gameState=s; render(s); net.maybeBroadcast();
+      endRound(s); window.gameState=s; render(s); net.maybeBroadcast(); saveGame();
       return;
     }
     applyDivStep(s, s.payout.steps[s.payout.idx]);
@@ -6076,10 +5920,13 @@ document.addEventListener('click', (e)=>{
   else if (action==='start-game'){ const names=[...document.querySelectorAll('[data-player-name]')].map(i=>i.value.trim()||'Player');
     const bots=[...document.querySelectorAll('[data-player-kind]')].map(sel=> sel.value==='human'?null:sel.value);
     gameState=createInitialState({mode:'local',names,bots}); window.gameState=gameState; show('game'); render(gameState); maybeRunBot(); }
-  else if (action==='quit'){ net.leave(); show('lobby'); gameState=null; }
+  else if (action==='quit'){ net.leave(); clearSave(); gameState=null; show('lobby'); refreshResumeBtn(); }
+  else if (action==='resume'){ resumeGame(); }
   else if (action==='mode-host'){ net.startHost(); }
   else if (action==='mode-join'){ $('#join-view').classList.remove('hidden'); $('#player-config').classList.add('hidden'); $('#host-view').classList.add('hidden'); }
   else if (action==='start-online'){ net.hostStartGame(); }
+  else if (action==='add-bot'){ net.addBot(btnEl.dataset.bot); }
+  else if (action==='remove-bot'){ net.removeBot(); }
   else if (action==='join'){ net.joinGame($('#join-name').value.trim()||'Player', ($('#room-input').value||'').toUpperCase().trim()); }
   else if (action==='zoom-toggle'){ const o=$('#zoom-opts'); if(o) o.hidden=!o.hidden; }
   else if (action==='zoom-in'){ setZoom(boardZoom*1.1180); }   /* finer steps: a level between each old 1.25 step */
@@ -6095,30 +5942,54 @@ document.addEventListener('click', (e)=>{
     document.querySelectorAll('#opts-menu button[data-bs]').forEach(b=> b.classList.toggle('active', b.dataset.bs===bs)); }
 });
 $('#player-count').addEventListener('change',(e)=>buildNameInputs(parseInt(e.target.value,10)));
+refreshResumeBtn(); // show "Resume" on the lobby if a local game was left unfinished
 
 /* ============================ 12. ONLINE (PeerJS) ============================ */
 function genRoomCode(){ const cs='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c=''; for (let i=0;i<4;i++) c+=cs[Math.floor(Math.random()*cs.length)]; return c; }
 const net = {
-  isHost:false, peer:null, conns:[], roomCode:null, seatOf:new Map(), lobbyNames:[],
+  isHost:false, peer:null, conns:[], roomCode:null, seatOf:new Map(), lobbyNames:[], lobbyBots:[],
   startHost(){ if (typeof Peer==='undefined'){ alert('Online needs an internet connection (PeerJS failed to load).'); return; }
     this.isHost=true; this.roomCode=genRoomCode(); $('#host-view').classList.remove('hidden'); $('#player-config').classList.add('hidden'); $('#join-view').classList.add('hidden');
-    $('#room-code').textContent=this.roomCode; this.lobbyNames=[$('#host-name').value.trim()||'Host'];
+    $('#room-code').textContent=this.roomCode; this.lobbyNames=[$('#host-name').value.trim()||'Host']; this.lobbyBots=[null];
     this.peer=new Peer('amrails-'+this.roomCode);
     this.peer.on('error', err=>{ console.error(err); $('#connected-players').textContent='Error: '+err.type; });
     this.peer.on('connection', conn=>{ this.conns.push(conn);
       conn.on('data', d=>this._hostOnData(conn,d));
       conn.on('open', ()=>{});
-      conn.on('close', ()=>{ this.conns=this.conns.filter(c=>c!==conn); });
+      conn.on('close', ()=>{ this.conns=this.conns.filter(c=>c!==conn); this._onGuestClose(conn); });
     });
     this._renderHostLobby();
   },
-  _hostOnData(conn,msg){ if (msg.type==='join'){ conn.playerName=msg.playerName; if (this.lobbyNames.length<5){ conn.seat=this.lobbyNames.length; this.lobbyNames.push(msg.playerName); conn.send({type:'welcome',seat:conn.seat,roomCode:this.roomCode}); this._renderHostLobby(); } else conn.send({type:'full'}); }
-    else if (msg.type==='moveRequest'){ if (gameState && gameState.currentPlayer===msg.seat){ applyUi(gameState, msg.cmd); this._broadcastState(); render(gameState); } }
+  addBot(diff){ if (!this.isHost) return; const total=this.lobbyNames.length; if (total>=5) return;
+    const names=['Ada','Boris','Cleo','Dex','Echo']; this.lobbyNames.push((names[total]||('Bot'+total))+' 🤖'); this.lobbyBots.push(diff); this._renderHostLobby(); },
+  removeBot(){ if (!this.isHost) return;
+    for (let k=this.lobbyBots.length-1;k>=0;k--){ if (this.lobbyBots[k]){ this.lobbyBots.splice(k,1); this.lobbyNames.splice(k,1); break; } } this._renderHostLobby(); },
+  _hostOnData(conn,msg){
+    if (msg.type==='join'){ conn.playerName=msg.playerName;
+      // game already running → let a newcomer (or the same player) slot into a disconnected seat
+      if (gameState && gameState.phase!=='lobby'){
+        let seat = gameState.players.findIndex(p=>p.disconnected && p.name===msg.playerName);
+        if (seat<0) seat = gameState.players.findIndex(p=>p.disconnected);
+        if (seat>=0){ const p=gameState.players[seat]; p.disconnected=false; p.bot=p.botBackup||null; delete p.botBackup; p.name=msg.playerName; conn.seat=seat;
+          conn.send({type:'welcome',seat,roomCode:this.roomCode}); conn.send({type:'gameStart',state:makeView(gameState,seat)});
+          pushLog(gameState, `${msg.playerName} reconnected (seat ${seat+1}).`); afterMutate(); }
+        else conn.send({type:'full'});
+        return; }
+      // lobby join
+      if (this.lobbyNames.length<5){ conn.seat=this.lobbyNames.length; this.lobbyNames.push(msg.playerName); this.lobbyBots.push(null); conn.send({type:'welcome',seat:conn.seat,roomCode:this.roomCode}); this._renderHostLobby(); }
+      else conn.send({type:'full'}); }
+    else if (msg.type==='moveRequest'){ if (gameState && gameState.currentPlayer===msg.seat && gameState.phase!=='payout'){ applyUi(gameState, msg.cmd); afterMutate(); } }
   },
-  _renderHostLobby(){ $('#connected-players').innerHTML = this.lobbyNames.map((n,i)=>`${i+1}. ${n}${i===0?' (you, host)':''}`).join('<br>');
+  // a human dropped mid-game: keep their seat playing with a fill bot; they (or a friend) can rejoin into it
+  _onGuestClose(conn){ if (conn.seat==null || !gameState || gameState.phase==='lobby' || gameState.phase==='gameOver') return;
+    const p=gameState.players[conn.seat]; if (!p || p.disconnected) return;
+    p.disconnected=true; p.botBackup = (p.bot||null); p.bot = p.bot || 'medium';
+    pushLog(gameState, `${p.name} disconnected — a bot is filling in (they can rejoin with the room code).`);
+    afterMutate(); },
+  _renderHostLobby(){ $('#connected-players').innerHTML = this.lobbyNames.map((n,i)=>`${i+1}. ${n}${i===0?' (you, host)':''}${this.lobbyBots[i]?` · <span class="bot-diff bd-${this.lobbyBots[i]}">${this.lobbyBots[i]}</span>`:''}`).join('<br>');
     $('#start-online').disabled = this.lobbyNames.length<3; },
-  hostStartGame(){ gameState=createInitialState({mode:'online',names:this.lobbyNames.slice()}); gameState.localPlayerId=0; window.gameState=gameState;
-    this._broadcastState(true); show('game'); render(gameState); },
+  hostStartGame(){ gameState=createInitialState({mode:'online',names:this.lobbyNames.slice(),bots:this.lobbyBots.slice()}); gameState.localPlayerId=0; window.gameState=gameState;
+    this._broadcastState(true); show('game'); render(gameState); maybeRunBot(); },
   _broadcastState(start){ for (const conn of this.conns){ if (conn.seat!=null){ const view=makeView(gameState, conn.seat); conn.send({type: start?'gameStart':'stateUpdate', state:view}); } } },
   maybeBroadcast(){ if (this.isHost && gameState && gameState.mode==='online') this._broadcastState(); },
   requestMove(cmd){ if (this.hostConn) this.hostConn.send({type:'moveRequest', seat:this.mySeat, cmd}); },
@@ -6141,6 +6012,19 @@ const net = {
 // In online mode, guests receive a view; host has full state. For this game there is no
 // hidden info, so the "view" is essentially the full state (money/shares are public).
 function makeView(s, seat){ const v=JSON.parse(JSON.stringify(s)); v.localPlayerId=seat; return v; }
+
+/* ---- save / resume: local games auto-save so an accidental refresh doesn't lose the night ---- */
+const SAVE_KEY='ar-save-v1';
+function saveGame(){ try{
+  if(!gameState || gameState.mode!=='local') return;                 // online is host-authoritative; use rejoin instead
+  if(gameState.phase==='lobby'||gameState.phase==='payout') return;   // payout is a transient animation — skip
+  if(gameState.phase==='gameOver'){ localStorage.removeItem(SAVE_KEY); return; }
+  localStorage.setItem(SAVE_KEY, JSON.stringify(gameState));
+}catch(e){} }
+function hasSave(){ try{ const j=localStorage.getItem(SAVE_KEY); if(!j) return null; const st=JSON.parse(j); return (st&&st.phase&&st.phase!=='gameOver'&&st.phase!=='lobby')?st:null; }catch(e){ return null; } }
+function clearSave(){ try{ localStorage.removeItem(SAVE_KEY); }catch(e){} }
+function resumeGame(){ const st=hasSave(); if(!st) return false; gameState=st; window.gameState=gameState; show('game'); render(gameState); maybeRunBot(); return true; }
+function refreshResumeBtn(){ const b=$('#resume-btn'); if(b) b.style.display = hasSave()?'':'none'; }
 
 /* ============================ 13. TEST API ============================ */
 window.startGame = function(config){ gameState=createInitialState(config); window.gameState=gameState; show('game'); render(gameState); maybeRunBot(); return true; };
@@ -6175,6 +6059,56 @@ window.__selfTest = function(){
   window.startGame({mode:'local',names:['A','B','C']}); s=st();
   const before=st().auction.bid; bid(gameState,5); assert('illegal $5 bid rejected (min $10)', st().auction.bid===before);
   bid(gameState,10); assert('valid $10 bid accepted', st().auction.bid===10);
+
+  /* ---- money-math unit checks on controlled mini-states ---- */
+  function miniState(){ return { players:[{money:50,shares:[]},{money:50,shares:[]},{money:50,shares:[]}],
+    companies:Object.fromEntries(COMPANY_IDS.map(id=>[id,{treasury:0,income:0,sharesInSupply:COMPANIES[id].shares,sharesRemoved:0,cubesInSupply:COMPANIES[id].cubes,onMap:false,bonuses:[],removed:false}])),
+    hexes:{}, developmentSupply:12, year:1854, log:[] }; }
+  const H=Object.keys(BOARD).find(id=>{const c=BOARD[id].city; return c && c.developable && c.full>c.shared;});
+  const CF=BOARD[H].city.full, CS=BOARD[H].city.shared;
+  // shared-city income: 1st gets full, 2nd demotes incumbent to shared, 3rd+ just gets shared
+  let m=miniState();
+  m.hexes[H]={cubes:['american'],developed:false}; applyCityEntry(m,H,'american');
+  assert('city: 1st entrant gets full', m.companies.american.income===CF);
+  m.hexes[H].cubes.push('national'); applyCityEntry(m,H,'national');
+  assert('city: 2nd entrant gets shared', m.companies.national.income===CS);
+  assert('city: incumbent demoted to shared', m.companies.american.income===CS);
+  m.hexes[H].cubes.push('continental'); applyCityEntry(m,H,'continental');
+  assert('city: 3rd entrant gets shared', m.companies.continental.income===CS);
+  assert('city: incumbents unchanged on 3rd', m.companies.american.income===CS && m.companies.national.income===CS);
+  // developed-city interaction: +2 solo, then demote to shared+1 each when a 2nd enters
+  let m2=miniState(); m2.hexes[H]={cubes:['american'],developed:false}; applyCityEntry(m2,H,'american');
+  m2.hexes[H].developed=true; applyDevelopment(m2,H);
+  assert('develop: solo company +2', m2.companies.american.income===CF+2);
+  m2.hexes[H].cubes.push('national'); applyCityEntry(m2,H,'national');
+  assert('develop: incumbent -> shared+1 when shared', m2.companies.american.income===CS+1);
+  assert('develop: newcomer gets shared+1', m2.companies.national.income===CS+1);
+  // dividends: ceil(income/held) per share
+  let m3=miniState(); m3.companies.american.income=7; m3.players[0].shares=['american','american']; m3.players[1].shares=['american'];
+  const st0=computeDividends(m3).find(x=>x.company==='american');
+  assert('dividend per-share = ceil(income/held)', !!st0 && st0.per===3 && st0.held===3);
+  applyDivStep(m3, st0);
+  assert('dividend pays per*count', m3.players[0].money===56 && m3.players[1].money===53);
+  // special connections: +$10 per pair, once each, idempotent
+  let m4=miniState(); for(const id in BOARD) m4.hexes[id]={cubes:['american'],developed:false};
+  applySpecialConnections(m4,'american');
+  assert('all 3 special connections = +30 income', m4.companies.american.income===30);
+  assert('each bonus recorded once', m4.companies.american.bonuses.length===3);
+  applySpecialConnections(m4,'american');
+  assert('connection bonus not double-counted', m4.companies.american.income===30);
+  // expand cost: $2 + $2/cube; forest $3, mountain $5; developed city adds NO surcharge (house rule)
+  let m5=miniState();
+  const plains=Object.keys(BOARD).find(id=>BOARD[id].terrain==='plains');
+  m5.hexes[plains]={cubes:[],developed:false}; assert('cost: empty plains $2', expandCost(m5,plains)===2);
+  m5.hexes[plains].cubes=['american']; assert('cost: plains w/1 cube $4', expandCost(m5,plains)===4);
+  m5.hexes[H]={cubes:['american'],developed:true}; assert('cost: developed city no surcharge', expandCost(m5,H)===4);
+  assert('cost: forest flat $3', expandCost(m5,Object.keys(BOARD).find(id=>BOARD[id].terrain==='forest'))===3);
+  assert('cost: mountain flat $5', expandCost(m5,Object.keys(BOARD).find(id=>BOARD[id].terrain==='mountain'))===5);
+  // take $2 from each: taker +2*(n-1), others -2
+  let m6=miniState(); m6.turnPhase='take2choice'; m6.currentPlayer=0; doTake2(m6,'fromEach');
+  assert('take2 fromEach: taker +2*(n-1)', m6.players[0].money===54);
+  assert('take2 fromEach: each other -2', m6.players[1].money===48 && m6.players[2].money===48);
+
   render(gameState);
   const passed=results.filter(r=>r.pass).length;
   ANIM=_prevAnim;
