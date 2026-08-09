@@ -6006,6 +6006,10 @@ document.addEventListener('click', (e)=>{
 });
 $('#player-count').addEventListener('change',(e)=>buildNameInputs(parseInt(e.target.value,10)));
 refreshResumeBtn(); // show "Resume" on the lobby if a local game was left unfinished
+// Safety net: if it's ever a bot's turn with nothing scheduled (a "start the bot" signal was missed
+// anywhere — e.g. after a dividend round), kick it off. maybeRunBot is idempotent, so this only ever
+// acts when a bot is genuinely stalled, and self-heals it within ~1s.
+setInterval(()=>{ if (gameState && !botTimer && botDrivesNow(gameState)) maybeRunBot(); }, 1000);
 
 /* ============================ 12. ONLINE (PeerJS) ============================ */
 function genRoomCode(){ const cs='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c=''; for (let i=0;i<4;i++) c+=cs[Math.floor(Math.random()*cs.length)]; return c; }
