@@ -25,13 +25,14 @@ PREPARATION ROUND: one share of EACH company is auctioned. Min bid $10; clockwis
 higher-or-pass; passed players are out; winner pays final bid into that company's
 treasury and takes the share, then places one cube on any EMPTY city, setting the
 company income to that city's FULL value (company now on the map). No bids -> share
-removed.
+removed. The OPENING turn order (round 1, phase 1) is the order players first win a
+prep auction — 1st winner acts first, etc.; anyone who wins nothing goes last in seat order.
 
 ROUND = 3 action phases + 1 dividend phase (up to 7 rounds, 1851..1857).
 
 ACTION TRACK (rows = actions; a taken row blocks others that phase). Rows top->bottom:
 Pass, Develop, Fund $5, Take $2 / Expand 2, Expand 3, Auction a share, Expand 4.
-- Phase 1 order = turn order. Phases 2-3 order = standings on the action track
+- Phase 1 order = opening turn order (see above). Phases 2-3 order = standings on the action track
   (top row acted first). Choosing a row blocks it even if you decline to implement.
 - End of round: turn order for next round = last phase's standings; advance the year.
 
@@ -5144,7 +5145,7 @@ function createInitialState(config){
     year:1851, round:0, actionPhase:0,
     turnOrder: names.map((_,i)=>i), currentPlayer:0,
     turnPhase:'bidding', pending:null, auction:null, pendingStartCube:null,
-    setupQueue:[], auctionStarter:0,
+    setupQueue:[], auctionStarter:0, setupWinOrder:[], // order players first win a prep auction → sets the opening turn order
     phaseOrder:[], phaseQueue:[], takenRows:{}, picks:{},
     log:[], winner:null, history:[], config, localPlayerId:0,
   };
@@ -5223,7 +5224,7 @@ function placeStartingCube(s, hexId){
 }
 function finishAuction(s, winnerSeat){
   s.auction=null;
-  if (s.phase==='setup'){ if (winnerSeat!=null) s.auctionStarter=winnerSeat; nextPreparationAuction(s); }
+  if (s.phase==='setup'){ if (winnerSeat!=null){ s.auctionStarter=winnerSeat; if(!s.setupWinOrder.includes(winnerSeat)) s.setupWinOrder.push(winnerSeat); } nextPreparationAuction(s); }
   else { advanceAfterAction(s); } // auction already resolved publicly — nothing to confirm/redo, just advance
 }
 
@@ -5285,7 +5286,12 @@ function ownedExpandableCompanies(s, playerId){
 /* ============================ 7. ACTION PHASES ============================ */
 // player train markers on the action track: {phase:-1 turn-order (row=turn-order slot), 0/1/2 action column (row=ACTION_ROWS index)}
 function initMarkers(s){ s.markers={}; s.turnOrder.forEach((seat,i)=>{ s.markers[seat]={phase:-1,row:i}; }); }
-function beginPlayRounds(s){ s.round=1; s.year=1851; startActionPhase(s, s.turnOrder.slice()); initMarkers(s); pushLog(s,'Round 1 (1851) begins.'); }
+function beginPlayRounds(s){ s.round=1; s.year=1851;
+  // opening turn order = the order players won prep auctions; anyone who won nothing keeps seating order at the back
+  const won=s.setupWinOrder.slice(), rest=s.turnOrder.filter(seat=>!won.includes(seat));
+  s.turnOrder = won.concat(rest);
+  pushLog(s, `Turn order (by auction wins): ${s.turnOrder.map(i=>s.players[i].name).join(', ')}.`);
+  startActionPhase(s, s.turnOrder.slice()); initMarkers(s); pushLog(s,'Round 1 (1851) begins.'); }
 function startActionPhase(s, order){ s.phase='action'; s.phaseOrder=order.slice(); s.phaseQueue=order.slice(); s.takenRows={}; s.picks={}; s.turnPhase='chooseAction'; s.currentPlayer=s.phaseQueue[0]; s.pending=null; s.turnSnapshot=null; }
 function availableActionRows(s){ return ACTION_ROWS.filter(r=>!s.takenRows[r]); }
 
@@ -6102,6 +6108,7 @@ window.__selfTest = function(){
   window.startGame({mode:'local',names:['A','B','C','D']}); let s=driveSetup(st());
   assert('4p: setup reaches action phase', s.phase==='action');
   assert('4p: all non-removed companies on map', Object.values(s.companies).filter(c=>!c.removed).every(c=>c.onMap));
+  assert('4p: opening turn order follows prep-auction win order', gameState.setupWinOrder.length>0 && gameState.turnOrder.slice(0,gameState.setupWinOrder.length).every((seat,i)=>seat===gameState.setupWinOrder[i]));
   s=playToEnd(s);
   assert('4p: game ends at 1857', s.phase==='gameOver' && s.year===1857);
   assert('4p: has a winner', (s.winner||[]).length>=1);
