@@ -301,7 +301,7 @@ button.act-redo { border: 1px solid var(--color-accent); }
       <div class="year-chip">Year <span class="mono" id="year-label" data-year>1851</span></div>
       <div class="turn-status" id="turn-status" data-turn-status></div>
       <div class="actions-bar" id="actions-bar" data-actions></div>
-      <button class="ghost topbar-leave" data-action="quit">Leave</button>
+      <button class="ghost topbar-leave" data-action="quit" title="Local games are saved — resume from the menu">Save &amp; exit</button>
     </div>
     <div class="board-stage">
       <div class="board-wrap" id="board-wrap" data-board></div>
@@ -5348,7 +5348,7 @@ function doFund5(s, companyId){ if (s.turnPhase!=='funding') return false; if (i
   s.companies[companyId].treasury += 5; pushLog(s, `${s.players[s.currentPlayer].name}: Fund $5 to ${COMPANIES[companyId].name}.`); completeAction(s); return true; }
 function doTake2(s, mode){ if (s.turnPhase!=='take2choice') return false; const cur=s.currentPlayer;
   if (mode==='take'){ s.players[cur].money += 2; pushLog(s, `${s.players[cur].name}: Take $2 from the bank.`); }
-  else if (mode==='fromEach'){ let got=0; s.players.forEach((p,i)=>{ if (i!==cur){ p.money -= 2; got+=2; } }); s.players[cur].money += got; pushLog(s, `${s.players[cur].name}: Take $2 from each other player.`); }
+  else if (mode==='fromEach'){ s.players.forEach((p,i)=>{ if (i!==cur) p.money = Math.max(0, p.money-2); }); pushLog(s, `${s.players[cur].name}: every other player pays $2 to the bank.`); }
   else return false;
   completeAction(s); return true; }
 function doDevelop(s, hexId){ if (s.turnPhase!=='developing') return false;
@@ -5535,7 +5535,9 @@ function botFundCo(s, me, diff){ const owned=[...new Set(s.players[me].shares)].
     return dom*2 + need + (10-Math.min(10,co.treasury))*0.08; };
   return owned.slice().sort((a,b)=>score(b)-score(a))[0]; }
 function botTake2(s, me, diff){ if (s.players.length>=4 && diff!=='easy' && ownedExpandableCompanies(s,me).length) return 'take2expand';
-  return diff==='easy' ? 'take2:take' : 'take2:fromEach'; }
+  // 'fromEach' now sends others' $2 to the BANK (you gain nothing) — only a grind to drag the field down; else just take the $2
+  if (diff==='hard' && s.players.length>=4 && leaderExcept(s,me) > s.players[me].money) return 'take2:fromEach';
+  return 'take2:take'; }
 // BFS hop-distance from a set of start hexes over the land adjacency graph
 function bfsHex(starts){ const dist={}, q=[]; (Array.isArray(starts)?starts:[starts]).forEach(id=>{ if(BOARD[id]){dist[id]=0;q.push(id);} });
   for(let i=0;i<q.length;i++){ const id=q[i], d=dist[id]; for(const nb of BOARD[id].adj){ if(dist[nb]===undefined){ dist[nb]=d+1; q.push(nb); } } }
@@ -5597,9 +5599,9 @@ function botAction(s, me, diff){ const rows=availableActionRows(s), money=s.play
     if(co.treasury<3) fundNeed=Math.max(fundNeed, diff==='hard'?5:4);
     else if(diff==='hard' && co.treasury<8 && legalExpandHexes(s,me,cid).length) fundNeed=Math.max(fundNeed,3.6); }
   add('fund5', fundNeed);
-  const drain = 2*(s.players.length-1);                       // take2:fromEach nets this and denies opponents
-  let take2v = (s.players.length>=4) ? (diff==='hard' ? Math.max(drain, eg>0?eg*0.6:0) : (eg>0?eg*0.6:2.2)) : 2.2;
-  if (late && behind>0 && diff!=='easy') take2v += (diff==='hard'?drain*0.6:drain*0.3); // trailing late → grab cash & drain the leader
+  // both take2 options shift you ~+$2 relative to each opponent (take from the bank, or everyone else pays the bank)
+  let take2v = 2.5;
+  if (late && behind>0 && diff!=='easy') take2v += (diff==='hard'?2.5:1.2); // grabbing cash matters more late when trailing
   add('take2', take2v);
   add('pass', 0.6);
   if (!cand.length){ return rows.find(r=>r!=='develop'&&r!=='auction') || rows[0]; } // safety
@@ -5854,7 +5856,7 @@ function renderActions(s){
   } else if (tp==='funding'){ h=`<span class="prompt"><b>Fund $5</b>: choose a company treasury.</span>`;
     for (const id of activeCompanyIds(s)) h+=`<button class="co-btn" style="background:${COMPANIES[id].color}" onclick="AR.ui('fund:${id}')">${coCube(id)}${COMPANIES[id].name}</button>`;
     h+=btn('Back','back','class="ghost"');
-  } else if (tp==='take2choice'){ h=`<span class="prompt"><b>Take $2</b>:</span>`+btn('Take $2 (bank)','take2:take')+btn('Take $2 from each player','take2:fromEach');
+  } else if (tp==='take2choice'){ h=`<span class="prompt"><b>Take $2</b>:</span>`+btn('Take $2 (bank)','take2:take')+btn('Everyone else pays $2 to bank','take2:fromEach');
     if (s.players.length>=4){ const canExp=ownedExpandableCompanies(s,s.currentPlayer).length>0; h+=btn('Expand 2 instead','take2expand', canExp?'':'disabled'); }
     h+=btn('Back','back','class="ghost"');
   } else if (tp==='auctionSelect'){ h=`<span class="prompt"><b>Auction</b>: choose a company to put a share up.</span>`;
@@ -5868,9 +5870,9 @@ function renderActions(s){
         h+= ok
           ? `<button class="co-btn" style="background:${COMPANIES[id].color}" onclick="AR.ui('exco:${id}')">${coCube(id)}${COMPANIES[id].name}</button>`
           : `<button class="co-btn co-broke" style="background:${COMPANIES[id].color}" disabled title="${COMPANIES[id].name} can't afford to build (or has nowhere to build)">${coCube(id)}${COMPANIES[id].name}</button>`; }
-      h+=(p.remaining===EXPAND_COUNT[s.pendingAction]) ? btn('Back','back','class="ghost"') : btn('Done','endexpand','class="ghost"');
+      h+=(p.remaining===EXPAND_COUNT[s.pendingAction]) ? btn('Back','back','class="ghost"') : (btn('Done','endexpand','class="ghost"')+btn('↺ Restart turn','redo','class="ghost"'));
     } else { h=`<span class="prompt"><b>Expand</b> ${coName(p.companyId)} (${p.remaining} left): click a highlighted hex.</span>`
-      +`<button class="ghost" onclick="AR.ui('exco:')">Change company</button>`+btn('Done','endexpand','class="ghost"'); }
+      +`<button class="ghost" onclick="AR.ui('exco:')">Change company</button>`+btn('Done','endexpand','class="ghost"')+btn('↺ Restart turn','redo','class="ghost"'); }
   } else if (tp==='turnDone'){ const act=s.picks[s.currentPlayer];
     h=`<span class="prompt"><b>${cur.name}</b> chose <b>${ACTION_SHORT[act]||ACTION_LABELS[act]||'their action'}</b>. Finish your turn?</span>`
       +`<button class="act-done" onclick="AR.ui('done')">✓ Done turn</button>`
@@ -5915,17 +5917,19 @@ function uiAction(cmd){
 // dividend payout animation — pays company-by-company (most expensive first) with a pause between each
 let payoutTimer=null;
 function runPayout(){ const s=gameState; if (!s || !s.payout){ return; }
+  const iv = Math.min(1800, Math.max(450, Math.round(botSpeed*1.5))); // dividend pace follows the Bot speed setting (Fast/Normal/Slow)
   payoutTimer=setInterval(()=>{
     if (!gameState || !gameState.payout){ clearInterval(payoutTimer); payoutTimer=null; return; }
     const s=gameState; s.payout.idx++;
     if (s.payout.idx >= s.payout.steps.length){
       clearInterval(payoutTimer); payoutTimer=null; s.payout=null;
       endRound(s); window.gameState=s; render(s); net.maybeBroadcast(); saveGame();
+      maybeRunBot(); // new round started — kick off the first player's turn if it's a bot (else the game hangs here)
       return;
     }
     applyDivStep(s, s.payout.steps[s.payout.idx]);
     window.gameState=s; render(s); net.maybeBroadcast();
-  }, 1800);
+  }, iv);
 }
 function applyUi(s, cmd){
   const [k,v]=cmd.split(':');
@@ -5979,7 +5983,7 @@ document.addEventListener('click', (e)=>{
   else if (action==='start-game'){ const names=[...document.querySelectorAll('[data-player-name]')].map(i=>i.value.trim()||'Player');
     const bots=[...document.querySelectorAll('[data-player-kind]')].map(sel=> sel.value==='human'?null:sel.value);
     gameState=createInitialState({mode:'local',names,bots}); window.gameState=gameState; show('game'); render(gameState); maybeRunBot(); }
-  else if (action==='quit'){ net.leave(); clearSave(); gameState=null; show('lobby'); refreshResumeBtn(); }
+  else if (action==='quit'){ saveGame(); net.leave(); gameState=null; show('lobby'); refreshResumeBtn(); } // keep the save so you can resume
   else if (action==='resume'){ resumeGame(); }
   else if (action==='mode-host'){ net.startHost(); }
   else if (action==='mode-join'){ $('#join-view').classList.remove('hidden'); $('#player-config').classList.add('hidden'); $('#host-view').classList.add('hidden'); }
@@ -6166,8 +6170,10 @@ window.__selfTest = function(){
   assert('cost: mountain flat $5', expandCost(m5,Object.keys(BOARD).find(id=>BOARD[id].terrain==='mountain'))===5);
   // take $2 from each: taker +2*(n-1), others -2
   let m6=miniState(); m6.turnPhase='take2choice'; m6.currentPlayer=0; doTake2(m6,'fromEach');
-  assert('take2 fromEach: taker +2*(n-1)', m6.players[0].money===54);
-  assert('take2 fromEach: each other -2', m6.players[1].money===48 && m6.players[2].money===48);
+  assert('take2 fromEach: actor gains nothing (money goes to bank)', m6.players[0].money===50);
+  assert('take2 fromEach: each other player pays $2 to bank', m6.players[1].money===48 && m6.players[2].money===48);
+  let m6b=miniState(); m6b.turnPhase='take2choice'; m6b.currentPlayer=0; doTake2(m6b,'take');
+  assert('take2 take: actor +2 from bank', m6b.players[0].money===52 && m6b.players[1].money===50);
 
   render(gameState);
   const passed=results.filter(r=>r.pass).length;
