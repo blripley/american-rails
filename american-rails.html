@@ -5442,11 +5442,25 @@ function heldBy(s, cid, who){ return s.players[who].shares.filter(x=>x===cid).le
 function totalHeld(s, cid){ return s.players.reduce((n,p)=>n+p.shares.filter(x=>x===cid).length,0); }
 function oppHeldFrac(s, me, cid){ const t=totalHeld(s,cid); return t? (t-heldBy(s,cid,me))/t : 0; }
 function botCanWinAuction(s, me){ return cashRank(s, me)===0; }  // only the richest is a confident bidder
-// choose which share to put up when auctioning: one the bot wants (stacking a company it owns pays off)
-function botAuctionPick(s, me, diff){
-  const avail=activeCompanyIds(s).filter(id=>s.companies[id].sharesInSupply>0); if(!avail.length) return null;
-  const score=cid=>{ const own=heldBy(s,cid,me); return estShareValue(s,cid)*(own>0?1.3:1) + own*4; };
-  return avail.sort((a,b)=>score(b)-score(a))[0];
+// decide whether to auction and which share to put up. Two motives:
+//  GRAB  — you can win it yourself: take the overall best share (prefer stacking one you already own)
+//  DRAIN — you can't win, but auctioning a share a richer rival wants makes them spend cash (=score),
+//          worth it mainly late game (they can't earn it back) or against a clear leader (hard only)
+function auctionPlan(s, me, diff){
+  const avail=activeCompanyIds(s).filter(id=>s.companies[id].sharesInSupply>0);
+  if(!avail.length || diff==='easy') return {value:0, pick:null, mode:null};
+  const best = avail.slice().sort((a,b)=>estShareValue(s,b)-estShareValue(s,a))[0];   // the overall strongest share
+  const late = roundsLeft(s)<=2, ahead = leaderExcept(s,me) - s.players[me].money;
+  if (botCanWinAuction(s, me)){
+    const score=cid=>estShareValue(s,cid)*(heldBy(s,cid,me)>0?1.25:1) + heldBy(s,cid,me)*4; // stack if you own it, else best overall
+    const pick=avail.slice().sort((a,b)=>score(b)-score(a))[0];
+    return {value: estShareValue(s,pick)*0.24*(diff==='hard'?1.2:0.9), pick, mode:'grab'};
+  }
+  if (diff==='hard' && (late || ahead>6)){   // offensive: force a richer rival to sink money into a share that won't pay off in time
+    const drainW = late?1.3:0.7;
+    return {value: estShareValue(s,best)*0.12*drainW*(ahead>0?1.2:0.7), pick:best, mode:'drain'};
+  }
+  return {value:0, pick:null, mode:null};
 }
 // hard only: entering a city currently held by a lone rival company knocks that company's income full->shared
 function stealValue(s, me, cityId, diff){
@@ -5463,7 +5477,7 @@ function botDecide(s){ const me=s.currentPlayer, diff=s.players[me].bot||'easy';
     case 'chooseAction': return 'choose:'+botAction(s, me, diff);
     case 'funding': return 'fund:'+botFundCo(s, me);
     case 'take2choice': return botTake2(s, me, diff);
-    case 'auctionSelect': { const pick=botAuctionPick(s, me, diff); return pick?'auc:'+pick:'back'; }
+    case 'auctionSelect': { const ap=auctionPlan(s, me, diff); return ap.pick?'auc:'+ap.pick:'back'; }
     case 'developing': { const L=legalDevelopHexes(s); if(!L.length) return 'back';
       const best = diff==='easy'? L[Math.floor(Math.random()*L.length)] : L.slice().sort((a,b)=>cityScore(s,b,diff)-cityScore(s,a,diff))[0]; return 'hex:'+best; }
     case 'expanding': return botExpandStep(s, me, diff);
@@ -5536,10 +5550,9 @@ function botAction(s, me, diff){ const rows=availableActionRows(s), money=s.play
   add('expand4', eg*1.25*gm);
   add('expand3', eg*gm);
   if (devHexes.length) add('develop', (Math.max(...devHexes.map(h=>cityScore(s,h,diff)))+1)*rl*0.28*gm);
-  // auction only when the bot expects to WIN the share — otherwise it just funds a company and hands a rival a share
-  if (shareAvail && money>=12 && diff!=='easy' && botCanWinAuction(s,me)){
-    const pick=botAuctionPick(s,me,diff), gain=pick?estShareValue(s,pick):0;
-    add('auction', gain*0.22*(diff==='hard'?1.2:0.9)); }
+  // auction with intent: GRAB the best share when you can win it, or (hard) DRAIN a richer rival late game
+  if (shareAvail){ const ap=auctionPlan(s,me,diff);
+    if (ap.pick && (ap.mode==='drain' || money>=12)) add('auction', ap.value); }
   // fund is worth more when a company you own is too poor to build what you want (hard funds proactively)
   let fundNeed=1.2;
   for(const cid of [...new Set(s.players[me].shares)]){ const co=s.companies[cid]; if(!co.onMap||isRemoved(co)) continue;
