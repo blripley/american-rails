@@ -257,6 +257,12 @@ button.act-redo { border: 1px solid var(--color-accent); }
 @keyframes paidPulse { 0%{ background: rgba(121,217,138,.55);} 100%{ background: transparent; } }
 .pl-row2.winner { background: linear-gradient(90deg, rgba(201,162,75,.28), rgba(201,162,75,.06)); box-shadow: inset 3px 0 0 var(--color-accent), 0 0 14px rgba(201,162,75,.35); border-radius: 6px; }
 .pl-row2.winner .pl-name { color: var(--color-accent); }
+/* the rest of the podium — quieter than the winner's gold, but clearly ranked */
+.pl-row2.place-silver { background: linear-gradient(90deg, rgba(200,205,215,.17), rgba(200,205,215,.03)); box-shadow: inset 3px 0 0 #b7bbc3; border-radius: 6px; }
+.pl-row2.place-silver .pl-name { color: #dfe3ea; }
+.pl-row2.place-bronze { background: linear-gradient(90deg, rgba(189,122,69,.17), rgba(189,122,69,.03)); box-shadow: inset 3px 0 0 #bd7a45; border-radius: 6px; }
+.pl-row2.place-bronze .pl-name { color: #e3b48c; }
+.trophy { vertical-align: -3px; margin-right: 5px; filter: drop-shadow(0 1px 1px rgba(0,0,0,.45)); }
 .win-banner { animation: winPop .5s ease; }
 @keyframes winPop { 0%{ transform: scale(.9); opacity:0; } 100%{ transform: scale(1); opacity:1; } }
 .actions-bar button { font-size: var(--font-size-sm); padding: 6px 10px; }
@@ -6239,6 +6245,34 @@ function locoSVG(cx,cy,face,shade,sc,flip){ sc=sc||0.42; const dir=flip?-1:1;
   s+=`<g fill="${face}">${locoShapes()}</g>`;
   return s+`</g>`; }
 // a stack of `count` identical company share cards, overlapping
+/* ---- podium trophies -------------------------------------------------------
+   Drawn rather than emoji, so they sit alongside the board's own pieces instead of borrowing the
+   system font's idea of a trophy. Three metals, each a highlight/body/shade triple like the cubes. */
+const TROPHY_METAL = {
+  gold:   ['#f6dc8a','#d9ac45','#8a671b'],
+  silver: ['#eceef2','#b7bbc3','#797d86'],
+  bronze: ['#ecbb8d','#bd7a45','#75461f'],
+};
+function trophySVG(metal, size){
+  const [lt,md,dk] = TROPHY_METAL[metal] || TROPHY_METAL.gold, s = size||15;
+  return `<svg class="trophy" viewBox="0 0 24 24" width="${s}" height="${s}" role="img" aria-label="${metal} trophy">`
+    + `<path d="M6 5 C2.4 5.4 2.9 10.4 7.4 11.6" fill="none" stroke="${md}" stroke-width="1.7" stroke-linecap="round"/>`
+    + `<path d="M18 5 C21.6 5.4 21.1 10.4 16.6 11.6" fill="none" stroke="${md}" stroke-width="1.7" stroke-linecap="round"/>`
+    + `<path d="M6.3 3 H17.7 V7 C17.7 11.4 15.1 14.1 12 14.1 C8.9 14.1 6.3 11.4 6.3 7 Z" fill="${lt}" stroke="${dk}" stroke-width="1"/>`
+    + `<path d="M8.5 4.4 C8.5 8.5 9.3 11.2 10.7 12.7 C8.7 11.9 7.7 9.4 7.7 6.6 V4.4 Z" fill="#fff" opacity=".38"/>`
+    + `<rect x="10.8" y="13.7" width="2.4" height="3.1" fill="${md}"/>`
+    + `<path d="M8 16.7 H16 L17.3 20.3 H6.7 Z" fill="${md}" stroke="${dk}" stroke-width="1" stroke-linejoin="round"/>`
+    + `<rect x="5.4" y="20.1" width="13.2" height="2.4" rx="1.1" fill="${dk}"/></svg>`;
+}
+// Final places by money. Ties share a place and the next is skipped, the way a race does it: two
+// players level at the top are both 1st, and the next player down is 3rd.
+function finalPlaces(s){
+  const order = s.players.map(p=>({id:p.id, money:p.money})).sort((a,b)=>b.money-a.money);
+  const place={}; let rank=0, seen=0, prev=null;
+  for (const p of order){ seen++; if (p.money!==prev){ rank=seen; prev=p.money; } place[p.id]=rank; }
+  return place;
+}
+const PLACE_METAL = {1:'gold', 2:'silver', 3:'bronze'};
 function miniStack(cid, count){ const tpl=document.getElementById('card-'+cid);
   const inner = tpl ? tpl.innerHTML : `<div class="mini-fallback">${COMPANIES[cid].name}</div>`;
   let s=''; for(let k=0;k<count;k++) s+=`<div class="mini"${k?' style="margin-left:-36px"':''}>${inner}</div>`;
@@ -6251,6 +6285,7 @@ function renderPanels(s){
   const paidPlayers = new Set(payStep ? payStep.payments.map(pm=>pm.player) : []);
   const payingCo = payStep ? payStep.company : null;
   const winnerSet = new Set((s.phase==='gameOver' && s.winner) ? s.winner : []);
+  const places = s.phase==='gameOver' ? finalPlaces(s) : null;   // gold / silver / bronze on the podium
   let status;
   if (s.phase==='gameOver') status = `<span class="who">Game over</span> — winner: ${s.winner.map(i=>s.players[i].name).join(', ')}`;
   else if (s.phase==='payout') status = `<span class="who">Dividends</span> — paying out…`;
@@ -6273,15 +6308,16 @@ function renderPanels(s){
     const fan = Object.keys(groups).length ? Object.entries(groups).map(([cid,cnt])=>miniStack(cid,cnt)).join('') : '<span class="no-shares">— no shares —</span>';
     // during an auction every player carries their standing: high bidder, still in, or passed
     let bidTag='', out=false;
-    if (s.turnPhase==='bidding' && s.auction){ const a=s.auction, live=a.active.includes(i);
+    if (s.turnPhase==='bidding' && s.auction && s.phase!=='gameOver'){ const a=s.auction, live=a.active.includes(i);
       if (a.highBidder===i) bidTag=`<span class="bid-tag bt-high" title="Current high bid">▲ $${a.bid}</span>`;
       else if (live && i===s.currentPlayer) bidTag=`<span class="bid-tag bt-turn" title="It's their turn to bid or pass">bidding…</span>`;
       else if (live) bidTag=`<span class="bid-tag bt-in" title="Still in the auction">in</span>`;
       else { bidTag=`<span class="bid-tag bt-out" title="Out of this auction">passed</span>`; out=true; } }
     // a bot's personality stays hidden — you have to read it from how it bids, like a real opponent
-    const cls = [ (i===s.currentPlayer && s.phase!=='payout' && s.phase!=='gameOver')?'active':'', paidPlayers.has(i)?'paid':'', winnerSet.has(i)?'winner':'', out?'bid-out':'' ].filter(Boolean).join(' ');
+    const metal = places ? PLACE_METAL[places[i]] : null;       // null past 3rd, and during the game
+    const cls = [ (i===s.currentPlayer && s.phase!=='payout' && s.phase!=='gameOver')?'active':'', paidPlayers.has(i)?'paid':'', winnerSet.has(i)?'winner':'', metal?('place-'+metal):'', out?'bid-out':'' ].filter(Boolean).join(' ');
     ph+=`<div class="pl-row2 ${cls}"><span class="pl-dot" style="background:${PLAYER_COLORS[i]||'#888'}"></span>`
-      +`<div class="pl-main"><div class="pl-head"><span class="pl-name">${winnerSet.has(i)?'🏆 ':''}${p.name}${p.bot?` <span class="bot-badge bd-${p.bot}">🤖 ${botLabel(p.bot)}</span>`:''}${p.disconnected?` <span class="bot-badge" style="background:#8a4a2a">⚠ away</span>`:''}${bidTag}</span><span class="pl-money">$${p.money}</span></div>`
+      +`<div class="pl-main"><div class="pl-head"><span class="pl-name">${metal?trophySVG(metal):''}${p.name}${p.bot?` <span class="bot-badge bd-${p.bot}">🤖 ${botLabel(p.bot)}</span>`:''}${p.disconnected?` <span class="bot-badge" style="background:#8a4a2a">⚠ away</span>`:''}${bidTag}</span><span class="pl-money">$${p.money}</span></div>`
       +`<div class="share-fan">${fan}</div></div></div>`; });
   $('#players').innerHTML=ph;
   $('#log').innerHTML = s.log.slice(-14).map(l=>`<div class="log-line">${l}</div>`).join('');
@@ -6316,7 +6352,7 @@ function renderActions(s){
       : `<span class="prompt payout-msg">💰 Paying dividends…</span>`;
     return; }
   if (s.phase==='gameOver'){ const max=Math.max(...s.players.map(p=>p.money));
-    bar.innerHTML = `<div class="banner win-banner" style="width:100%">🏆 ${s.winner.map(i=>s.players[i].name).join(' & ')} win with $${max}! <button class="ghost" style="margin-left:14px" data-action="quit">New game</button></div>`; return; }
+    bar.innerHTML = `<div class="banner win-banner" style="width:100%">${trophySVG('gold',20)} ${s.winner.map(i=>s.players[i].name).join(' & ')} win with $${max}! <button class="ghost" style="margin-left:14px" data-action="quit">New game</button></div>`; return; }
   // BIDDING: everyone watches the auction (company, high bid, and the last move); the active human bidder gets controls
   if (s.turnPhase==='bidding' && s.auction){ bar.innerHTML = biddingBar(s, cur, mine); return; }
   if (isBotSeat(s, s.currentPlayer)){ const last=s.log[s.log.length-1]||'';
@@ -6797,6 +6833,20 @@ window.__selfTest = function(){
     const early=miniState(); early.year=1851; early.players[0].money=90;
     assert('endgame: no tilt while there is still time', endgameTilt(early,0,'hard')===0);
     assert('endgame: medium bots do not play the clock', endgameTilt(m,0,'medium')===0); }
+
+  /* ---- podium: gold / silver / bronze ---- */
+  { const mk=moneys=>({players:moneys.map((m,i)=>({id:i,money:m}))});
+    let pl=finalPlaces(mk([300,220,150,90]));
+    assert('podium: places run 1-2-3-4 by money', pl[0]===1&&pl[1]===2&&pl[2]===3&&pl[3]===4);
+    assert('podium: only the top three get a trophy',
+      !!PLACE_METAL[pl[0]] && !!PLACE_METAL[pl[1]] && !!PLACE_METAL[pl[2]] && !PLACE_METAL[pl[3]]);
+    pl=finalPlaces(mk([300,300,150,90]));
+    assert('podium: a tie for 1st gives two golds and no silver', pl[0]===1&&pl[1]===1&&pl[2]===3&&pl[3]===4);
+    pl=finalPlaces(mk([300,220,220,90]));
+    assert('podium: a tie for 2nd gives two silvers and no bronze', pl[1]===2&&pl[2]===2&&pl[3]===4);
+    assert('podium: seat order does not decide places', finalPlaces(mk([90,300,220]))[1]===1);
+    assert('podium: three metals are defined', ['gold','silver','bronze'].every(m=>TROPHY_METAL[m]&&TROPHY_METAL[m].length===3));
+    assert('podium: trophies render as svg', /^<svg[\s\S]*<\/svg>$/.test(trophySVG('silver')) && trophySVG('bronze').includes('#bd7a45')); }
 
   /* ---- tier labels: shown one step down from the internal keys ---- */
   assert('labels: the ladder reads Training / Easy / Medium / Hard',
