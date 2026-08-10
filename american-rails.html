@@ -233,8 +233,7 @@ button.act-redo { border: 1px solid var(--color-accent); }
 .bd-easy { background: #3f7d48; color: #eafbee; }
 .bd-medium { background: #c9a24b; color: #1a1205; }
 .bd-hard { background: #b4382e; color: #fbeae8; }
-.persona-tag { font-size: .58rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
-  color: var(--color-text-muted); margin-left: 5px; white-space: nowrap; }
+.bd-extreme { background: #1a1208; color: #e8b4ad; border: 1px solid #b4382e; }
 /* live auction status, one per player: who is still in, who is high, who has dropped out */
 .bid-tag { font-size: .58rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em;
   padding: 1px 6px; border-radius: 9px; margin-left: 5px; white-space: nowrap; border: 1px solid transparent; }
@@ -293,6 +292,7 @@ button.act-redo { border: 1px solid var(--color-accent); }
       <button data-action="add-bot" data-bot="easy" class="ghost">+ Easy</button>
       <button data-action="add-bot" data-bot="medium" class="ghost">+ Medium</button>
       <button data-action="add-bot" data-bot="hard" class="ghost">+ Hard</button>
+      <button data-action="add-bot" data-bot="extreme" class="ghost">+ Extreme</button>
       <button data-action="remove-bot" class="ghost">Remove bot</button>
     </div>
     <button id="start-online" data-action="start-online" disabled>Start Game</button>
@@ -5447,6 +5447,34 @@ const BOT_PERSONAS = {
   saboteur:   { label:'Saboteur',   aggr:1.12, open:0.30, jump:0.60, concentrate:0.90, spend:0.60, spite:0.85, blurb:'bids to make rivals bleed' },
 };
 const PERSONA_IDS = Object.keys(BOT_PERSONAS);
+// The difficulty ladder. Extreme inherits every single thing Hard knows and then adds to it,
+// so `hardPlus` guards the shared behaviour and `isExtreme` guards what only Extreme does.
+const BOT_TIER = { easy:0, medium:1, hard:2, extreme:3 };
+// Extreme's auction dials, gathered in one place because they are the difference between a bot that
+// finishes second every game and one that wins. Tuned by simulation, not by feel — see the numbers
+// in the commit that set them.
+const EX_TUNE = {
+  // Ceiling, as a multiple of the dividends it forecasts the share will pay. Slightly over 1 on
+  // purpose: a share is also the RIGHT TO EXPAND that company, and a player holding four roads has
+  // four times the choices every turn — an option the dividend forecast doesn't price. Because it
+  // creeps by the minimum it almost never pays this, but the ceiling still binds, so it cannot be
+  // baited into a genuinely bad buy. (Simulation: 0.75 -> 54% wins, 0.95 -> 76%, 1.35 -> 78%. Past
+  // this point only the cash cap binds and the valuation stops meaning anything.)
+  valueFrac: 1.15,
+  aggr: 1.0,
+  spend: 0.6,        // THE key discipline: never more than 60% of its cash on one share
+  appetite: [1, 0.95, 0.9, 0.85, 0.8],    // shares are underpriced in this game, so it keeps buying
+  ownBoost: 1.2,     // wanting more of a company it already holds
+  rivalHeld: 0.5,    // wanting a minority stake in a company a rival dominates
+  // How far it will divert a cube to wall the leader out. Deliberately small: blocking measurably
+  // BACKFIRES when it costs real track (simulation: weight 2.2 -> 80% wins, 0.3 -> 90%), because a
+  // cube spent on a wall is a cube not earning income. At 0.3 it only takes the gate when the gate
+  // was roughly on its way anyway.
+  chokeWeight: 0.3,
+};
+function tierOf(diff){ return BOT_TIER[diff]!=null ? BOT_TIER[diff] : 0; }
+function hardPlus(diff){ return tierOf(diff) >= 2; }
+function isExtreme(diff){ return tierOf(diff) >= 3; }
 function personaOf(s, seat){ const p=s.players[seat];
   if (!p) return BOT_PERSONAS.baron;
   if (!p.persona || !BOT_PERSONAS[p.persona]) p.persona = PERSONA_IDS[(seat + (s.seed||0)) % PERSONA_IDS.length]; // late-joining bots get one too
@@ -5497,7 +5525,7 @@ function horizonRounds(s){
   const supplyRounds = piles[Math.min(piles.length-1, threshold-1)];   // when the threshold-th pile runs dry
   return Math.max(1, Math.min(years, shareRounds, supplyRounds)); }
 function cityScore(s, id, diff){ const c=BOARD[id]&&BOARD[id].city; if(!c) return 0; let v=c.full;
-  if (diff==='hard'){ if (SPECIALS.has(c.name)) v+=1.5; if (HUBS.has(c.name)) v+=1; } return v; }
+  if (hardPlus(diff)){ if (SPECIALS.has(c.name)) v+=1.5; if (HUBS.has(c.name)) v+=1; } return v; }
 /* ---- SHARE VALUATION -------------------------------------------------------
 Dividends pay ceil(income / shares held) to EVERY held share. Three consequences the bots
 now reason about, instead of treating all six companies as interchangeable:
@@ -5519,15 +5547,20 @@ function projectedIncome(s, cid, extraCash, diff){
   const co=s.companies[cid], rl=horizonRounds(s);
   const base = co.onMap ? co.income : bestEmptyCityIncome(s);
   if (diff==='easy') return base;                             // easy bots never look past today's income
-  const cash  = co.treasury + (extraCash||0) + rl*1.6;        // treasury now + the odd Fund $5
+  // Calibrated against 72 simulated company-lifetimes rather than guessed: a company receives about
+  // $41 over a game (its winning bid, Fund $5s, later auction bids), spends $3.13 a cube, places
+  // about 13 cubes, and each cube is worth ~1.1 income once cities, developments and connection
+  // bonuses are counted. Income actually runs 6 -> 22 across a game; the old constants predicted
+  // an average of 9 against a true average of 15, which made every share look like a bad buy.
+  const cash  = co.treasury + (extraCash||0) + rl*4;          // treasury now, plus funding still to come
   const cubes = Math.min(co.cubesInSupply, rl*2.2);           // a small company runs out of track
-  const builds = Math.max(0, Math.min(cubes, cash/3.2));      // ~$3.20 a cube once hex crowding is counted
-  return base + builds*0.75*0.45; }                           // ~0.75 income per cube, phased in over the game
+  const builds = Math.max(0, Math.min(cubes, cash/3.13));
+  return base + builds*1.0*0.55; }                            // 0.55: growth ramps in, so the AVERAGE is what matters
 // shares of this company likely to be sold AFTER this one — they dilute everybody's dividend
 function expectedDilution(s, cid, diff){
   if (diff==='easy') return 0;
   const supply = Math.max(0, s.companies[cid].sharesInSupply-1);
-  return Math.min(supply, horizonRounds(s)*0.22) * (diff==='hard'?0.65:0.5); }
+  return Math.min(supply, horizonRounds(s)*0.22) * (hardPlus(diff)?0.65:0.5); }
 // dollars of dividend one more share of cid pays `me` before 1857.
 //   contested — a rival takes it if I don't: I gain one share's dividend at the diluted rate
 //   solo      — nobody else wants it: only the true marginal gain, ~$0 for a company I already own
@@ -5587,7 +5620,12 @@ function auctionPlan(s, me, diff){
   const per=personaOf(s,me), money=s.players[me].money;
   const worth=cid=>shareValueToBot(s,me,cid,0,diff);
   const best = avail.slice().sort((a,b)=>worth(b)-worth(a))[0];   // the overall strongest share
-  const late = horizonRounds(s)<=2.2, ahead = leaderExcept(s,me) - s.players[me].money;
+  const late = horizonRounds(s)<=2.2;
+  const foe = targetSeat(s, me, diff);
+  // Extreme measures the gap on projected finishing money, so it knows who is really winning
+  const ahead = (isExtreme(diff) && foe>=0)
+    ? projectedFinal(s, foe, diff) - projectedFinal(s, me, diff)
+    : leaderExcept(s,me) - s.players[me].money;
   // GRAB a share the bot can actually win AND would genuinely pay for. Two traps this avoids:
   //  • putting up a company it already owns outright (a 2nd share of your own road pays you
   //    nothing — you'd just be inviting a rival in to halve your dividend);
@@ -5601,13 +5639,17 @@ function auctionPlan(s, me, diff){
     const pick=winnable.slice().sort((a,b)=>score(b)-score(a))[0];
     // dividends it should clear, less the price it expects to pay — on the same rough scale as an expansion
     const profit = Math.max(0, worth(pick) - expectedSharePrice(s,me,pick,diff));
-    return {value: profit*(diff==='hard'?0.85:0.7), pick, mode:'grab'};
+    return {value: profit*(hardPlus(diff)?0.85:0.7), pick, mode:'grab'};
   }
-  if (diff==='hard' && (late || ahead>6)){   // offensive: force a richer rival to sink money into a share that won't pay off in time
+  if (hardPlus(diff) && (late || ahead>6)){   // offensive: force a richer rival to sink money into a share that won't pay off in time
     const drainW = (late?1.3:0.7) * (0.6+per.spite);
-    // drain with a share that costs YOU least if it lands, and only if a rival will actually pay for it
-    const pick = avail.filter(cid=>heldBy(s,cid,me)===0 && rivalBestCap(s,me,cid,diff)>=12)
-      .sort((a,b)=>worth(b)-worth(a))[0];
+    // Drain with a share that costs YOU least if it lands, and only if a rival will actually pay for
+    // it. Extreme aims the bait squarely at the seat it has decided is winning.
+    const bait = cid => (isExtreme(diff) && foe>=0)
+      ? Math.min(s.players[foe].money*0.5, shareValueToBot(s,foe,cid,0,diff)*0.5)
+      : rivalBestCap(s,me,cid,diff);
+    const pick = avail.filter(cid=>heldBy(s,cid,me)===0 && bait(cid)>=12)
+      .sort((a,b)=> (isExtreme(diff)?bait(b)-bait(a) : worth(b)-worth(a)))[0];
     if (pick) return {value: worth(pick)*0.10*drainW*(ahead>0?1.2:0.7)*(money>12?1:0.5), pick, mode:'drain'};
   }
   return {value:0, pick:null, mode:null};
@@ -5630,7 +5672,7 @@ function cubeCityGain(s, me, cid, hexId, diff){
   let inc = solo ? c.full : c.shared;                       // an empty city pays full; joining a crowd pays shared
   if (hs && hs.developed) inc += solo?2:1;
   let steal=0;                                              // arriving demotes a lone incumbent from full to shared
-  if (diff==='hard' && occ.length===1){ const v=occ[0];
+  if (hardPlus(diff) && occ.length===1){ const v=occ[0];
     if (!(heldBy(s,v,me)>0 && oppHeldFrac(s,me,v)<0.5)) steal = (c.full-c.shared)*oppHeldFrac(s,me,v); }
   return {inc, steal};
 }
@@ -5655,7 +5697,7 @@ function connectionGain(s, cid, hexId, conn, diff){
     else { const d=(SD[other]||{})[hexId];                 // could this company still bridge to the other end?
       if (d!==undefined && d<=reach) option += 10*0.30*Math.min(1, reach/(d*1.6)); }
   }
-  return realized + option*(diff==='hard'?1:0.5);
+  return realized + option*(hardPlus(diff)?1:0.5);
 }
 // The best a turn of `cubes` cubes can do for this company: which city to head for, and what
 // reaching it is worth to me. Distance matters (a city 4 hops away needs Expand 4, not Expand 2)
@@ -5665,6 +5707,9 @@ function bestExpansion(s, me, cid, cubes, diff){
   if(!track.length || !legalExpandHexes(s,me,cid).length) return {value:0, target:null};
   const slice=incomeSlice(s,me,cid), rl=horizonRounds(s), dist=bfsHex(track), trackSet=new Set(track);
   const conn = diff==='easy' ? null : connectedCities(s, cid);   // hoisted: this is a BFS, not a lookup
+  // Extreme prices routes in dollars rather than hexes, so it stops marching companies through
+  // $5 mountain chains when a $2 plains detour of the same length was there all along.
+  const cost = isExtreme(diff) ? cheapestRoute(s, track) : null;
   let best=0, target=null;
   for (const id in BOARD){
     if (!BOARD[id].city || trackSet.has(id)) continue;
@@ -5673,7 +5718,8 @@ function bestExpansion(s, me, cid, cubes, diff){
     const income = g.inc + (diff==='easy'?0:connectionGain(s,cid,id,conn,diff));
     const mine = income*slice + g.steal;                    // what actually reaches me, plus what a rival drops
     if (mine<=0) continue;
-    const afford = Math.min(1, 0.15 + co.treasury/(d*2.8));  // can the treasury pay for the whole route?
+    const routeCost = cost ? (cost[id]!==undefined?cost[id]:d*2.8) : d*2.8;
+    const afford = Math.min(1, 0.15 + co.treasury/routeCost);  // can the treasury pay for the whole route?
     const reach  = d<=cubes ? 1 : (cubes/d)*0.55;            // arrive now, or bank progress toward it
     const v = mine*rl*reach*afford - d*0.35;
     if (v>best){ best=v; target=id; }
@@ -5685,20 +5731,43 @@ function developGain(s, me, id, diff){
   const hs=s.hexes[id]; if(!hs) return 0; const cos=[...new Set(hs.cubes)], bonus = cos.length>=2?1:2;
   let mine=0, theirs=0;
   for(const cid of cos){ const f=incomeSlice(s,me,cid); mine+=f*bonus; theirs+=(1-f)*bonus; }
-  return (mine - (diff==='hard'?theirs*0.35:0)) * horizonRounds(s);
+  return (mine - (hardPlus(diff)?theirs*0.35:0)) * horizonRounds(s);
 }
 function developValue(s, me, id, diff){ return developGain(s, me, id, diff); }
+// EXTREME: cash on the table is not the standing — a player sitting on $60 with two shares of a
+// $30-income road is winning, and a player sitting on $90 with nothing is not. Extreme scores every
+// seat on what they should FINISH with, and aims its aggression at whoever that says is winning.
+function projectedFinal(s, seat, diff){
+  const rl = horizonRounds(s);
+  let total = s.players[seat].money;
+  for (const cid of new Set(s.players[seat].shares)){
+    const co=s.companies[cid]; if(!co || isRemoved(co) || !co.onMap) continue;
+    total += projectedIncome(s, cid, 0, diff) * incomeSlice(s, seat, cid) * rl;
+  }
+  return total;
+}
+// the seat Extreme is gunning for: whoever is on course to win, which may not be the cash leader
+function targetSeat(s, me, diff){
+  let best=-Infinity, seat=-1;
+  s.players.forEach((p,i)=>{ if(i===me) return;
+    const v = isExtreme(diff) ? projectedFinal(s,i,diff) : p.money;
+    if (v>best){ best=v; seat=i; } });
+  return seat;
+}
 // HARD, near the end: a leader wants the game OVER before rivals' income compounds, and drains the
 // cube piles and share supply to trigger it; a trailer wants the clock to run and stops helping.
 function endgameTilt(s, me, diff){
-  if (diff!=='hard') return 0;
+  if (!hardPlus(diff)) return 0;
   if (horizonRounds(s) > 3.2) return 0;
-  const lead = s.players[me].money - leaderExcept(s, me);
+  // Extreme judges the gap on projected finishing money, so it knows whether it is really ahead
+  const lead = isExtreme(diff)
+    ? projectedFinal(s,me,diff) - Math.max(...s.players.map((p,i)=>i===me?-Infinity:projectedFinal(s,i,diff)))
+    : s.players[me].money - leaderExcept(s, me);
   return lead>8 ? 1 : (lead<-8 ? -1 : 0);
 }
 // HARD: occupying an empty single-cube chokepoint (forest/mountain) beside an opponent's track denies them that route
 function blockValue(s, me, id, diff){
-  if(diff!=='hard') return 0; const def=BOARD[id]; if(def.terrain!=='forest'&&def.terrain!=='mountain') return 0;
+  if(!hardPlus(diff)) return 0; const def=BOARD[id]; if(def.terrain!=='forest'&&def.terrain!=='mountain') return 0;
   const hs=s.hexes[id]; if(hs&&hs.cubes.length) return 0;
   for(const nb of def.adj){ const nhs=s.hexes[nb]; if(nhs){ for(const cid of nhs.cubes){ if(oppHeldFrac(s,me,cid)>0.5) return 1.2; } } }
   return 0;
@@ -5727,16 +5796,27 @@ function botDecide(s){ const me=s.currentPlayer, diff=s.players[me].bot||'easy';
 // flat: it was capped at a fixed slice of cash, so every company came out the same price.
 // `ctx` lets a bot ask "what WOULD I pay for that share?" before deciding to put it up for auction
 function botBidCap(s, me, diff, ctx){
-  const a=ctx||s.auction||{}, cid=a.companyId, p=s.players[me], money=p.money, per=personaOf(s,me);
+  const a=ctx||s.auction||{}, cid=a.companyId, p=s.players[me], money=p.money, per=bidStyle(s,me,diff);
   if (!cid) return 0;
   // a winning bid is paid INTO the company treasury, so part of it comes back as track and income
   const seedCash = Math.min(money*0.5, 20) * (heldBy(s,cid,me)>0 ? 1 : 0.8);
   let v = shareValueToBot(s, me, cid, seedCash, diff);
-  v *= (diff==='easy'?0.34 : diff==='medium'?0.46 : 0.55);    // never pay full value — the margin is the profit
+  // Extreme raises its ceiling because it never pays it: it creeps by the minimum and walks the
+  // moment the price passes the share's worth, so a high ceiling costs it nothing.
+  v *= (diff==='easy'?0.34 : diff==='medium'?0.46 : isExtreme(diff)?EX_TUNE.valueFrac : 0.55);
   v *= per.aggr;
   const owned = p.shares.length;
-  v *= [1, 0.86, 0.62, 0.45, 0.34][Math.min(4, owned)];       // your first road is your engine; a fourth share is a luxury
-  if (heldBy(s,cid,me)>0) v *= per.concentrate;               // control-hungry bots stack, spreaders don't
+  if (isExtreme(diff)){
+    // MONOPOLY DISCIPLINE. A company nobody else holds pays you its whole income every round —
+    // the strongest position on the board. So: consolidate what you already hold, and never buy a
+    // minority stake in a rival's company, where your money funds THEIR dividend.
+    const mine=heldBy(s,cid,me), theirs=totalHeld(s,cid)-mine;
+    v *= theirs>mine ? EX_TUNE.rivalHeld : (mine>0 ? EX_TUNE.ownBoost : 1.0);
+    v *= EX_TUNE.appetite[Math.min(4, owned)];
+  } else {
+    v *= [1, 0.86, 0.62, 0.45, 0.34][Math.min(4, owned)];     // your first road is your engine; a fourth share is a luxury
+    if (heldBy(s,cid,me)>0) v *= per.concentrate;             // control-hungry bots stack, spreaders don't
+  }
   // a fixed but unguessable ±18% mood for this particular share, so a bot never bids to the cent
   v *= 0.82 + 0.36*botNoise(s, me, 'mood'+cid+(a.isSetup?'prep':'r'+(s.round||0)));
   // cash discipline: money is victory points, and more shares are coming up
@@ -5749,17 +5829,33 @@ function botBidCap(s, me, diff, ctx){
     else spend *= 0.78;
   } else if (horizonRounds(s)<=1.6) spend *= 0.35;            // the end is in sight: a share pays once or twice, cash pays forever
   let cap = Math.min(v, money*spend, money);
-  // SPITE (hard): can't win it outright, so make the leader bleed for it — but never past a
-  // price this bot would be content to be stuck with if the bluff is called
-  if (diff==='hard' && a.highBidder!=null && a.highBidder!==me && per.spite>0.4
-      && s.players[a.highBidder].money > money && money > 15){
-    cap = Math.max(cap, Math.min(v*(1+per.spite*0.45), money*0.45));
+  // SPITE (Hard+): can't win it outright, so make the leader bleed for it — but never past a
+  // price this bot would be content to be stuck with if the bluff is called. Extreme only does this
+  // to the seat it has judged to be winning, and never in the prep round where cash is scarcest.
+  if (hardPlus(diff) && a.highBidder!=null && a.highBidder!==me && per.spite>0.4 && money>15){
+    const worthPunishing = isExtreme(diff)
+      ? (!a.isSetup && a.highBidder===targetSeat(s, me, diff))
+      : s.players[a.highBidder].money > money;
+    if (worthPunishing) cap = Math.max(cap, Math.min(v*(1+per.spite*0.45), money*0.45));
   }
   return Math.floor(cap); }
+// Extreme keeps a personality for STYLE — how it opens, whether it creeps or slams — but never
+// lets one talk it out of money: its ceiling, its appetite and its spending limit are always the
+// ruthless ones. A Banker Extreme bids like a Banker and pays like a Tycoon.
+function bidStyle(s, me, diff){ const p=personaOf(s, me);
+  if (!isExtreme(diff)) return p;
+  return { label:p.label, blurb:p.blurb, open:Math.min(p.open,0.25), jump:p.jump,
+           aggr:EX_TUNE.aggr, concentrate:EX_TUNE.ownBoost, spend:EX_TUNE.spend,
+           spite:Math.max(p.spite,0.5) }; }
 // How much to actually put on the table: an opening bid is an anchor (a strong bot slams the
 // door), later raises creep once the ceiling is close.
-function botBidAmount(s, me, cap, minNext, per){
+function botBidAmount(s, me, cap, minNext, per, diff){
   const a=s.auction, r=botNoise(s, me, 'step'+a.companyId+a.bid+(s.round||0));
+  // SNIPING. In an ascending auction the winner pays one step above the runner-up either way, so
+  // raising in big jumps only ever overshoots what it needed to spend. Extreme therefore creeps by
+  // the minimum every time and lets its ceiling — not its temperament — decide when to stop.
+  if (isExtreme(diff)) return a.bid===0 ? Math.min(cap, minNext + (per.open>0.2 && r<0.4 ? 1 : 0))
+                                        : Math.min(cap, minNext);
   if (a.bid===0){ const open = 10 + Math.round((cap-10) * per.open * (0.6 + 0.8*r));
     return Math.max(minNext, Math.min(cap, open)); }
   const room = cap - minNext;
@@ -5773,7 +5869,7 @@ function botBid(s, me, diff){ const a=s.auction, minNext=auctionMinNext(s), mone
   if (diff==='easy' && botNoise(s,me,'nerve'+a.companyId+a.bid) < 0.22) return 'pass';  // easy bots lose their nerve
   const cap = Math.min(botBidCap(s, me, diff), money);
   if (minNext > cap) return 'pass';
-  return 'bid:' + botBidAmount(s, me, cap, minNext, personaOf(s, me)); }
+  return 'bid:' + botBidAmount(s, me, cap, minNext, bidStyle(s, me, diff), diff); }
 function botStartCity(s, me, diff){ const empties=Object.keys(BOARD).filter(id=>BOARD[id].city && !(s.hexes[id]&&s.hexes[id].cubes.length));
   if (diff==='easy') return empties[Math.floor(Math.random()*empties.length)];
   return empties.sort((a,b)=>cityScore(s,b,diff)-cityScore(s,a,diff))[0]; }
@@ -5787,12 +5883,48 @@ function botFundCo(s, me, diff){ const owned=[...new Set(s.players[me].shares)].
   return owned.slice().sort((a,b)=>score(b)-score(a))[0]; }
 function botTake2(s, me, diff){ if (s.players.length>=4 && diff!=='easy' && ownedExpandableCompanies(s,me).length) return 'take2expand';
   // 'fromEach' now sends others' $2 to the BANK (you gain nothing) — only a grind to drag the field down; else just take the $2
-  if (diff==='hard' && s.players.length>=4 && leaderExcept(s,me) > s.players[me].money) return 'take2:fromEach';
+  if (hardPlus(diff) && s.players.length>=4 && leaderExcept(s,me) > s.players[me].money) return 'take2:fromEach';
   return 'take2:take'; }
 // BFS hop-distance from a set of start hexes over the land adjacency graph
 function bfsHex(starts){ const dist={}, q=[]; (Array.isArray(starts)?starts:[starts]).forEach(id=>{ if(BOARD[id]){dist[id]=0;q.push(id);} });
   for(let i=0;i<q.length;i++){ const id=q[i], d=dist[id]; for(const nb of BOARD[id].adj){ if(dist[nb]===undefined){ dist[nb]=d+1; q.push(nb); } } }
   return dist; }
+// EXTREME: the dollar cost of the cheapest route to every hex. Terrain is not uniform — plains and
+// cities are $2 (plus $2 for every cube already there), forest $3, mountain $5 — so the shortest
+// route and the affordable route are frequently not the same one.
+function cheapestRoute(s, starts){
+  const cost={}, seen={};
+  (Array.isArray(starts)?starts:[starts]).forEach(id=>{ if(BOARD[id]) cost[id]=0; });
+  const pq=Object.keys(cost).map(id=>[0,id]);
+  while (pq.length){
+    let bi=0; for(let i=1;i<pq.length;i++) if(pq[i][0]<pq[bi][0]) bi=i;      // small graph: a linear scan beats a heap
+    const [c,id]=pq.splice(bi,1)[0];
+    if (seen[id]) continue; seen[id]=true;
+    for (const nb of BOARD[id].adj){
+      const step = expandCost(s, nb), nc = c + step;
+      if (cost[nb]===undefined || nc < cost[nb]){ cost[nb]=nc; pq.push([nc, nb]); }
+    }
+  }
+  return cost; }
+// EXTREME: forest and mountain hexes hold exactly ONE cube, so taking an empty one on the route the
+// target seat needs is a wall, not a nuisance. Returns the hexes standing between them and their prize.
+function chokeHexes(s, me, diff){
+  if (!isExtreme(diff)) return null;
+  const foe = targetSeat(s, me, diff); if (foe<0) return null;
+  const out = new Set();
+  for (const cid of new Set(s.players[foe].shares)){
+    const co=s.companies[cid]; if(!co || !co.onMap || isRemoved(co)) continue;
+    const plan = bestExpansion(s, foe, cid, 4, 'hard'); if(!plan.target) continue;   // 'hard' avoids recursing into this
+    const track=companyTrack(s,cid); if(!track.length) continue;
+    const fromTrack=bfsHex(track), toGoal=bfsHex([plan.target]);
+    const span=fromTrack[plan.target]; if(span===undefined||span>5) continue;
+    for (const id in BOARD){ const t=BOARD[id].terrain;
+      if (t!=='forest' && t!=='mountain') continue;
+      const hs=s.hexes[id]; if (hs && hs.cubes.length) continue;                     // already occupied: no longer a gate
+      if (fromTrack[id]!==undefined && toGoal[id]!==undefined && fromTrack[id]+toGoal[id]===span) out.add(id);
+    }
+  }
+  return out; }
 function companyTrack(s, cid){ return Object.keys(s.hexes).filter(id=>s.hexes[id].cubes.includes(cid)); }
 function cityHexByName(name){ return Object.keys(BOARD).find(id=>BOARD[id].city && BOARD[id].city.name===name); }
 // The city this company should be heading for — the same dollar valuation the action chooser
@@ -5812,12 +5944,13 @@ function botExpandStep(s, me, diff){ const p=s.pending;
   if (diff==='easy') return 'hex:'+hexes[Math.floor(Math.random()*hexes.length)];   // easy stays greedy/wasteful
   const target=botExpandTarget(s, me, cid, diff, cubes);
   if(target){ const toTarget=bfsHex([target]); let best=hexes[0], bestKey=Infinity;
-    const conn=connectedCities(s,cid), slice=incomeSlice(s,me,cid);
+    const conn=connectedCities(s,cid), slice=incomeSlice(s,me,cid), chokes=chokeHexes(s,me,diff);
     for(const h of hexes){ const d = toTarget[h]!==undefined?toTarget[h]:999;
       const g = cubeCityGain(s,me,cid,h,diff);
-      // step toward the target, but never walk past a city that pays on the way
+      // step toward the target, but never walk past a city that pays on the way — and (Extreme)
+      // detour to slam a single-cube gate shut in front of whoever is winning
       const key = d - (g.inc*slice+g.steal)*0.35 - connectionGain(s,cid,h,conn,diff)*0.25
-                    - blockValue(s,me,h,diff) + expandCost(s,h)*0.08;
+                    - blockValue(s,me,h,diff) - (chokes&&chokes.has(h)?EX_TUNE.chokeWeight:0) + expandCost(s,h)*0.08;
       if(key<bestKey){ bestKey=key; best=h; } }
     return 'hex:'+best; }
   return 'hex:'+hexes.slice().sort((a,b)=>cityScore(s,b,diff)-cityScore(s,a,diff))[0]; }
@@ -5830,7 +5963,7 @@ function botAction(s, me, diff){ const rows=availableActionRows(s), money=s.play
   const expValue = n => { let best=0; for(const cid of expCos){ const v=bestExpansion(s,me,cid,n,diff).value; if(v>best) best=v; } return best; };
   const e4=expValue(4), e3=expValue(3), e2=expValue(2);
   // only ADD actions the bot can actually complete (never a dead-end develop/auction)
-  const gm = diff==='hard'?1.15 : diff==='medium'?1.0 : 0.8;   // hard is keener to grow income
+  const gm = hardPlus(diff)?1.15 : diff==='medium'?1.0 : 0.8;   // hard is keener to grow income
   const dead = botAvoided(s, me);                              // rows it already backed out of this turn
   const cand=[]; const add=(r,v)=>{ if (rows.includes(r) && !dead.includes(r)) cand.push([r,v]); };
   add('expand4', e4*gm);
@@ -5851,7 +5984,7 @@ function botAction(s, me, diff){ const rows=availableActionRows(s), money=s.play
   add('fund5', fundV);
   // Take $2 also lets 4-5p players place 2 cubes — that is the real value of the row, not the $2
   let take2v = 2;
-  if (late && behind>0 && diff!=='easy') take2v += (diff==='hard'?2.5:1.2); // grabbing cash matters more late when trailing
+  if (late && behind>0 && diff!=='easy') take2v += (hardPlus(diff)?2.5:1.2); // grabbing cash matters more late when trailing
   if (s.players.length>=4 && diff!=='easy') take2v = Math.max(take2v, e2*gm);
   add('take2', take2v);
   add('pass', 0.4);
@@ -5860,9 +5993,9 @@ function botAction(s, me, diff){ const rows=availableActionRows(s), money=s.play
   // `rl` is the real horizon, so this also fires when the cube/dev piles (not the year) are about to end it.
   if (rl<=1.6 && diff!=='easy'){ for(const c of cand){ if(['expand3','expand4','develop','fund5','auction'].includes(c[0])) c[1]*=0.4; else if(c[0]==='take2') c[1]*=1.8; } }
   // #1 HARD tempo: the action you pick is your seat next phase (lower row = act first = first pick). Prefer an earlier seat among real actions.
-  if (diff==='hard' && (expCos.length||devHexes.length)){ for(const c of cand){ if(c[0]!=='pass') c[1] += (ACTION_ROWS.length-1-ACTION_ROWS.indexOf(c[0]))*0.6; } }
+  if (hardPlus(diff) && (expCos.length||devHexes.length)){ for(const c of cand){ if(c[0]!=='pass') c[1] += (ACTION_ROWS.length-1-ACTION_ROWS.indexOf(c[0]))*0.6; } }
   // #1 HARD denial: grabbing expand4 blocks the next opponent from the biggest build this phase
-  if (diff==='hard' && s.phaseQueue.length>1){ const nxt=s.phaseQueue[1];
+  if (hardPlus(diff) && s.phaseQueue.length>1){ const nxt=s.phaseQueue[1];
     if (nxt!=null && nxt!==me){ let nd=0; for(const c2 of ownedExpandableCompanies(s,nxt)){ const v=bestExpansion(s,nxt,c2,4,diff).value; if(v>nd) nd=v; }
       for(const c of cand){ if(c[0]==='expand4') c[1]+= nd*0.22; } } }
   // HARD endgame control: ahead near the end, spend cubes and sell shares to bring the game to a
@@ -6065,10 +6198,10 @@ function renderPanels(s){
       else if (live && i===s.currentPlayer) bidTag=`<span class="bid-tag bt-turn" title="It's their turn to bid or pass">bidding…</span>`;
       else if (live) bidTag=`<span class="bid-tag bt-in" title="Still in the auction">in</span>`;
       else { bidTag=`<span class="bid-tag bt-out" title="Out of this auction">passed</span>`; out=true; } }
-    const persona = p.bot && p.persona && BOT_PERSONAS[p.persona];
+    // a bot's personality stays hidden — you have to read it from how it bids, like a real opponent
     const cls = [ (i===s.currentPlayer && s.phase!=='payout' && s.phase!=='gameOver')?'active':'', paidPlayers.has(i)?'paid':'', winnerSet.has(i)?'winner':'', out?'bid-out':'' ].filter(Boolean).join(' ');
     ph+=`<div class="pl-row2 ${cls}"><span class="pl-dot" style="background:${PLAYER_COLORS[i]||'#888'}"></span>`
-      +`<div class="pl-main"><div class="pl-head"><span class="pl-name">${winnerSet.has(i)?'🏆 ':''}${p.name}${p.bot?` <span class="bot-badge bd-${p.bot}">🤖 ${p.bot}</span>`:''}${persona?` <span class="persona-tag" title="${persona.label} — ${persona.blurb}">${persona.label}</span>`:''}${p.disconnected?` <span class="bot-badge" style="background:#8a4a2a">⚠ away</span>`:''}${bidTag}</span><span class="pl-money">$${p.money}</span></div>`
+      +`<div class="pl-main"><div class="pl-head"><span class="pl-name">${winnerSet.has(i)?'🏆 ':''}${p.name}${p.bot?` <span class="bot-badge bd-${p.bot}">🤖 ${p.bot}</span>`:''}${p.disconnected?` <span class="bot-badge" style="background:#8a4a2a">⚠ away</span>`:''}${bidTag}</span><span class="pl-money">$${p.money}</span></div>`
       +`<div class="share-fan">${fan}</div></div></div>`; });
   $('#players').innerHTML=ph;
   $('#log').innerHTML = s.log.slice(-14).map(l=>`<div class="log-line">${l}</div>`).join('');
@@ -6236,7 +6369,7 @@ function buildNameInputs(count){ const wrap=$('#player-names'); const defs=['Ben
     const inp=document.createElement('input'); inp.value=defs[i]||('Player '+(i+1)); inp.maxLength=16; inp.dataset.playerName=i;
     inp.addEventListener('input', ()=>{ inp.dataset.touched='1'; });
     const sel=document.createElement('select'); sel.className='kind-select'; sel.dataset.playerKind=i;
-    sel.innerHTML='<option value="human">Human</option><option value="easy">Bot · Easy</option><option value="medium">Bot · Medium</option><option value="hard">Bot · Hard</option>';
+    sel.innerHTML='<option value="human">Human</option><option value="easy">Bot · Easy</option><option value="medium">Bot · Medium</option><option value="hard">Bot · Hard</option><option value="extreme">Bot · Extreme</option>';
     sel.addEventListener('change', ()=>{ if (sel.value!=='human' && !inp.dataset.touched) inp.value = (botNames[i]||('Bot '+(i+1)))+' 🤖'; });
     row.appendChild(inp); row.appendChild(sel); wrap.appendChild(row);
   } }
@@ -6502,6 +6635,39 @@ window.__selfTest = function(){
     const early=miniState(); early.year=1851; early.players[0].money=90;
     assert('endgame: no tilt while there is still time', endgameTilt(early,0,'hard')===0);
     assert('endgame: medium bots do not play the clock', endgameTilt(m,0,'medium')===0); }
+
+  /* ---- Extreme tier ---- */
+  { const m=miniState(); m.year=1853; m.turnPhase='bidding'; m.currentPlayer=0; m.round=2;
+    m.companies.american.onMap=true; m.companies.american.income=12; m.companies.american.treasury=6;
+    m.players.forEach(p=>{p.persona='banker';});                       // the tamest persona on the roster
+    m.auction={companyId:'american',isSetup:false,bid:0,highBidder:null,active:[0,1,2],cur:0};
+    assert('tiers: Extreme inherits everything Hard has', hardPlus('extreme') && isExtreme('extreme') && !isExtreme('hard'));
+    // a Banker Extreme must not bid like a Banker — persona is style only above Hard
+    assert('Extreme: a timid persona does not lower its ceiling',
+      botBidCap(m,0,'extreme') > botBidCap(m,0,'hard'));
+    // sniping: it creeps by the minimum instead of jumping, so it never overshoots the runner-up
+    m.auction.bid=14; m.auction.highBidder=1;
+    const exBid=botBid(m,0,'extreme');
+    assert('Extreme: raises by the minimum (sniping)', exBid==='pass' || exBid==='bid:15');
+    // and it still walks away — the valuation binds, so it cannot be baited into a bad buy
+    m.auction.bid=400; m.auction.highBidder=1;
+    assert('Extreme: refuses a price above what the share is worth', botBid(m,0,'extreme')==='pass'); }
+  // it judges who is winning by projected finish, not by cash on the table
+  { const m=miniState(); m.year=1853;
+    m.companies.american.onMap=true; m.companies.american.income=30; m.companies.american.treasury=10;
+    m.players[1].money=40; m.players[1].shares=['american'];           // poor now, but owns a monster
+    m.players[2].money=95; m.players[2].shares=[];                     // rich now, owns nothing
+    assert('Extreme: projected finish beats a fat wallet', projectedFinal(m,1,'extreme') > projectedFinal(m,2,'extreme'));
+    assert('Extreme: aims at the seat that is really winning', targetSeat(m,0,'extreme')===1);
+    assert('Hard: still simply watches the cash leader', targetSeat(m,0,'hard')===2); }
+  // routing in dollars: a mountain crossing must cost more than open plains
+  { const m=miniState(); const start=cityHexByName('Cleveland');
+    m.hexes[start]={cubes:['american'],developed:false};
+    const cost=cheapestRoute(m,[start]);
+    const mtn=Object.keys(BOARD).find(id=>BOARD[id].terrain==='mountain' && cost[id]!==undefined);
+    const plainsSameHops=(function(){ const hops=bfsHex([start]);
+      return Object.keys(BOARD).find(id=>BOARD[id].terrain==='plains' && hops[id]===hops[mtn]); })();
+    assert('Extreme: routing prices mountains above plains', !plainsSameHops || cost[mtn] > cost[plainsSameHops]); }
 
   // a full game driven entirely by the bots' own brains (catches crashes in every AI path)
   function playBots(seed, diffs){
