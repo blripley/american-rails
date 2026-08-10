@@ -233,6 +233,17 @@ button.act-redo { border: 1px solid var(--color-accent); }
 .bd-easy { background: #3f7d48; color: #eafbee; }
 .bd-medium { background: #c9a24b; color: #1a1205; }
 .bd-hard { background: #b4382e; color: #fbeae8; }
+.persona-tag { font-size: .58rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  color: var(--color-text-muted); margin-left: 5px; white-space: nowrap; }
+/* live auction status, one per player: who is still in, who is high, who has dropped out */
+.bid-tag { font-size: .58rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em;
+  padding: 1px 6px; border-radius: 9px; margin-left: 5px; white-space: nowrap; border: 1px solid transparent; }
+.bt-high { background: var(--color-accent); color: var(--color-ink); border-color: #f0d489; }
+.bt-turn { background: #2f6fae; color: #eaf3fb; animation: bidpulse 1.1s ease-in-out infinite; }
+.bt-in { background: transparent; color: var(--color-success); border-color: #4d6b3e; }
+.bt-out { background: transparent; color: var(--color-text-muted); border-color: var(--color-border); opacity: .8; }
+.pl-row2.bid-out { opacity: .55; }
+@keyframes bidpulse { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
 /* dividend payout + winner highlights */
 .co-row.paying { background: rgba(201,162,75,.18); box-shadow: inset 3px 0 0 var(--color-accent); border-radius: 6px; }
 .pl-row2.paid { animation: paidPulse 1s ease; }
@@ -5148,7 +5159,12 @@ function createInitialState(config){
     setupQueue:[], auctionStarter:0, setupWinOrder:[], // order players first win a prep auction → sets the opening turn order
     phaseOrder:[], phaseQueue:[], takenRows:{}, picks:{},
     log:[], winner:null, history:[], config, localPlayerId:0,
+    seed: (config.seed!=null ? config.seed : Math.floor(Math.random()*1e9)),  // drives bot "dice" — same seed, same bots
   };
+  // deal each bot a bidding personality, so the auctions play differently every game
+  { const pool=PERSONA_IDS.slice();
+    state.players.forEach((p,i)=>{ if(p.bot){ const k=Math.floor(botNoise(state,i,'persona')*pool.length);
+      p.persona = pool.splice(Math.min(k,pool.length-1),1)[0] || PERSONA_IDS[i%PERSONA_IDS.length]; } }); }
   // 3-player: remove one random company (randomness stored via chosen id)
   if (n===3){ const rid = config.removed || COMPANY_IDS[Math.floor(Math.random()*COMPANY_IDS.length)];
     const c = companies[rid]; c.removed=true; c.cubesInSupply=0; c.sharesInSupply=0; c.sharesRemoved=COMPANIES[rid].shares;
@@ -5414,6 +5430,34 @@ function endGame(s){ s.phase='gameOver'; const max=Math.max(...s.players.map(p=>
 
 /* ============================ 8b. BOTS (Easy / Medium / Hard) ============================ */
 const COMPANY_START = { american:30, national:28, continental:25, majestic:21, liberty:18, republic:16 };
+// Bidding personalities — rolled per bot seat at game start so no two games (and no two
+// bots) haggle the same way. Difficulty still decides how GOOD the valuation is; the
+// persona decides how it behaves with that number.
+//   aggr        multiplier on what it thinks a share is worth
+//   open        opening bid as a fraction of its ceiling (low = creeps in at $10)
+//   jump        how much it raises over the minimum (0 = always the $1 minimum)
+//   concentrate appetite for a 2nd/3rd share of a company it already holds
+//   spend       most of its cash it will sink into a single share
+//   spite       willingness to run the price up on a rival it can't outbid
+const BOT_PERSONAS = {
+  tycoon:     { label:'Tycoon',     aggr:1.30, open:0.60, jump:0.80, concentrate:1.35, spend:0.72, spite:0.25, blurb:'buys control and pays for it' },
+  speculator: { label:'Speculator', aggr:1.06, open:0.42, jump:0.45, concentrate:0.70, spend:0.55, spite:0.15, blurb:'spreads its money over many roads' },
+  banker:     { label:'Banker',     aggr:0.72, open:0.18, jump:0.08, concentrate:0.95, spend:0.34, spite:0.05, blurb:'hoards cash and waits for bargains' },
+  baron:      { label:'Baron',      aggr:1.05, open:0.45, jump:0.45, concentrate:1.15, spend:0.58, spite:0.15, blurb:'steady and opportunistic' },
+  saboteur:   { label:'Saboteur',   aggr:1.12, open:0.30, jump:0.60, concentrate:0.90, spend:0.60, spite:0.85, blurb:'bids to make rivals bleed' },
+};
+const PERSONA_IDS = Object.keys(BOT_PERSONAS);
+function personaOf(s, seat){ const p=s.players[seat];
+  if (!p) return BOT_PERSONAS.baron;
+  if (!p.persona || !BOT_PERSONAS[p.persona]) p.persona = PERSONA_IDS[(seat + (s.seed||0)) % PERSONA_IDS.length]; // late-joining bots get one too
+  return BOT_PERSONAS[p.persona]; }
+// deterministic 0..1 "dice" — same situation always gives the same answer (no flicker on
+// re-render, no host/client drift) but a different game seed changes every decision
+function botNoise(s, seat, salt){
+  let h = ((s&&s.seed)||1) ^ ((seat+1)*2654435761);
+  const str=String(salt); for(let i=0;i<str.length;i++) h = Math.imul(h ^ str.charCodeAt(i), 16777619);
+  h ^= h>>>15; h = Math.imul(h, 2246822507); h ^= h>>>13;
+  return ((h>>>0) % 100000) / 100000; }
 let botSpeed = 850, botTimer = null;                 // ms between bot steps (0 in tests) — slow enough to follow
 function isBotSeat(s, seat){ return !!(s && s.players[seat] && s.players[seat].bot); }
 function botDrivesNow(s){ if (!s || s.phase==='payout' || s.phase==='gameOver' || s.phase==='lobby') return false;
@@ -5435,12 +5479,75 @@ function botFallback(s){ switch(s.turnPhase){
   case 'placeStartCube': { const e=Object.keys(BOARD).find(id=>BOARD[id].city && !(s.hexes[id]&&s.hexes[id].cubes.length)); return 'hex:'+e; }
   default: return null; } }
 function roundsLeft(s){ return Math.max(1, 1858 - (s.year||1851)); }
+// How many more dividends will REALLY be paid? The year track is only one of three ways the
+// game ends — it also stops the moment the last share is sold, or when enough cube/development
+// piles run dry. A bot that only counts years happily pays $20 for a share that pays out twice.
+function horizonRounds(s){
+  const years = roundsLeft(s);                                        // 1858 - year: the hard ceiling
+  const n = s.players.length||4, threshold = n===3?3:(n===4?4:5);
+  const active = activeCompanyIds(s);
+  const sharesLeft = active.reduce((t,id)=>t+s.companies[id].sharesInSupply,0);
+  const shareRounds = sharesLeft<=0 ? 1 : Math.max(1, sharesLeft/0.9); // ~1 share changes hands per round
+  const piles=[];                                                      // rounds until each pile is down to 2
+  for (const id of active){ const c=s.companies[id];
+    const burn = c.onMap ? 1.2 + Math.min(2.2, c.treasury/4) : 0.3;    // cubes it can afford to place per round
+    piles.push(Math.max(0, (c.cubesInSupply-2)/burn)); }
+  piles.push(Math.max(0, (s.developmentSupply-2)/0.7));
+  piles.sort((a,b)=>a-b);
+  const supplyRounds = piles[Math.min(piles.length-1, threshold-1)];   // when the threshold-th pile runs dry
+  return Math.max(1, Math.min(years, shareRounds, supplyRounds)); }
 function cityScore(s, id, diff){ const c=BOARD[id]&&BOARD[id].city; if(!c) return 0; let v=c.full;
   if (diff==='hard'){ if (SPECIALS.has(c.name)) v+=1.5; if (HUBS.has(c.name)) v+=1; } return v; }
-function estShareValue(s, cid){ const c=s.companies[cid];
-  const income = c.income>0 ? c.income : COMPANY_START[cid]*0.25;   // setup: ~starting city income
-  const held = s.players.reduce((n,p)=>n+p.shares.filter(x=>x===cid).length,0);
-  return Math.ceil(income/(held+1)) * Math.min(6, roundsLeft(s)); }
+/* ---- SHARE VALUATION -------------------------------------------------------
+Dividends pay ceil(income / shares held) to EVERY held share. Three consequences the bots
+now reason about, instead of treating all six companies as interchangeable:
+  • Scarce shares are gold. Liberty prints 2 shares, American 5 — the same income split
+    two ways pays each holder far more.
+  • The first share of a company is worth a fortune (an unshared company pays its whole
+    income to you); a share of a company you ALREADY own outright adds almost nothing —
+    same income, split one more way. Its only value is DENIAL: keeping a rival out.
+  • A share only pays until 1857, so late-game shares are worth a fraction of early ones.
+Everything below is measured in dollars of expected dividend, so a bid is only sane when
+it sits comfortably under the value. */
+// the best city a fresh start cube could still claim — this is what an off-map company is worth
+function bestEmptyCityIncome(s){ let best=0;
+  for(const id in BOARD){ const c=BOARD[id].city; if(!c) continue; const hs=s.hexes[id]; if(hs&&hs.cubes.length) continue; if(c.full>best) best=c.full; }
+  return best; }
+// average income per round this company should earn for the rest of the game: what it earns
+// today (or the city a start cube would take) plus what its treasury can still afford to build
+function projectedIncome(s, cid, extraCash, diff){
+  const co=s.companies[cid], rl=horizonRounds(s);
+  const base = co.onMap ? co.income : bestEmptyCityIncome(s);
+  if (diff==='easy') return base;                             // easy bots never look past today's income
+  const cash  = co.treasury + (extraCash||0) + rl*1.6;        // treasury now + the odd Fund $5
+  const cubes = Math.min(co.cubesInSupply, rl*2.2);           // a small company runs out of track
+  const builds = Math.max(0, Math.min(cubes, cash/3.2));      // ~$3.20 a cube once hex crowding is counted
+  return base + builds*0.75*0.45; }                           // ~0.75 income per cube, phased in over the game
+// shares of this company likely to be sold AFTER this one — they dilute everybody's dividend
+function expectedDilution(s, cid, diff){
+  if (diff==='easy') return 0;
+  const supply = Math.max(0, s.companies[cid].sharesInSupply-1);
+  return Math.min(supply, horizonRounds(s)*0.22) * (diff==='hard'?0.65:0.5); }
+// dollars of dividend one more share of cid pays `me` before 1857.
+//   contested — a rival takes it if I don't: I gain one share's dividend at the diluted rate
+//   solo      — nobody else wants it: only the true marginal gain, ~$0 for a company I already own
+function shareWorth(s, me, cid, extraCash, diff){
+  const rl=horizonRounds(s), inc=projectedIncome(s,cid,extraCash,diff);
+  const t=totalHeld(s,cid), m=heldBy(s,cid,me), dil=expectedDilution(s,cid,diff), after=t+1+dil;
+  const now = m>0 ? m*inc/Math.max(1,t+dil) : 0;              // what my existing shares already pay
+  return { contested: (inc/after)*rl,
+           solo: Math.max(0, ((m+1)*inc/after - now)*rl),
+           income: inc }; }
+// blended worth: how likely is it that a rival actually takes this share off me?
+function shareValueToBot(s, me, cid, extraCash, diff){
+  const w = shareWorth(s, me, cid, extraCash, diff);
+  const a = s.auction;
+  let pressure = 0.55;                                        // no auction open: assume it gets contested about half the time
+  if (a && a.companyId===cid){
+    const rivals = a.active.filter(x=>x!==me).length;
+    pressure = (a.highBidder!=null && a.highBidder!==me) ? 1 : Math.min(0.85, rivals*0.3);
+  }
+  return w.solo + (w.contested - w.solo)*pressure; }
 // --- standings & opponent awareness (medium uses it lightly, hard leans on it) ---
 function leaderExcept(s, me){ let best=-Infinity; s.players.forEach((p,i)=>{ if(i!==me && p.money>best) best=p.money; }); return best; }
 function cashRank(s, me){ return s.players.filter((p,i)=> i!==me && p.money > s.players[me].money).length; } // 0 = richest
@@ -5450,12 +5557,26 @@ function oppHeldFrac(s, me, cid){ const t=totalHeld(s,cid); return t? (t-heldBy(
 function botCanWinAuction(s, me){ return cashRank(s, me)===0; }  // richest → confident bidder in any fight
 // can the bot realistically win a share of cid even if not the richest? — it dominates that company (values its
 // dividends most, so it will outbid owners of less) and can afford a competitive price
-function botWinsShare(s, me, cid){
+function botWinsShare(s, me, cid, diff){
   const my=s.players[me].money, richestOpp=Math.max(0,...s.players.map((p,i)=>i===me?0:p.money));
-  if (my>=richestOpp) return true;
+  const price = expectedSharePrice(s, me, cid, diff||'medium');
+  if (my < price) return false;                                    // can't even pay the going rate
+  if (my >= richestOpp) return true;                               // nobody at the table can outbid me
   const frac = totalHeld(s,cid) ? heldBy(s,cid,me)/totalHeld(s,cid) : 0;
-  return frac>=0.5 && my >= Math.min(estShareValue(s,cid), richestOpp*0.85);
+  return (frac>=0.5 || my >= richestOpp*0.8) && my >= price*1.25;  // I want it more, or I'm close enough on cash
 }
+// what a share of cid should actually cost at auction — the floor is the $10 minimum
+function expectedSharePrice(s, me, cid, diff){
+  return Math.max(10, shareValueToBot(s, me, cid, 0, diff)*0.45); }
+// the stiffest bid the bot expects from someone else. Deliberately estimated from what any rival
+// can see (their cash, their holdings) — the bots don't get to peek at each other's personalities.
+function rivalBestCap(s, me, cid, diff){
+  let best=0;
+  s.players.forEach((p,i)=>{ if(i===me) return;
+    const want = shareValueToBot(s, i, cid, 0, diff)*0.5;
+    const cap = Math.min(p.money*0.5, want);
+    if (cap>best) best=cap; });
+  return best; }
 // decide whether to auction and which share to put up. Two motives:
 //  GRAB  — you can win it yourself: take the overall best share (prefer stacking one you already own)
 //  DRAIN — you can't win, but auctioning a share a richer rival wants makes them spend cash (=score),
@@ -5463,18 +5584,31 @@ function botWinsShare(s, me, cid){
 function auctionPlan(s, me, diff){
   const avail=activeCompanyIds(s).filter(id=>s.companies[id].sharesInSupply>0);
   if(!avail.length || diff==='easy') return {value:0, pick:null, mode:null};
-  const best = avail.slice().sort((a,b)=>estShareValue(s,b)-estShareValue(s,a))[0];   // the overall strongest share
-  const late = roundsLeft(s)<=2, ahead = leaderExcept(s,me) - s.players[me].money;
-  // GRAB any share the bot can actually win — richest overall, OR a company it dominates (even if not richest)
-  const winnable = avail.filter(cid=>botWinsShare(s,me,cid));
+  const per=personaOf(s,me), money=s.players[me].money;
+  const worth=cid=>shareValueToBot(s,me,cid,0,diff);
+  const best = avail.slice().sort((a,b)=>worth(b)-worth(a))[0];   // the overall strongest share
+  const late = horizonRounds(s)<=2.2, ahead = leaderExcept(s,me) - s.players[me].money;
+  // GRAB a share the bot can actually win AND would genuinely pay for. Two traps this avoids:
+  //  • putting up a company it already owns outright (a 2nd share of your own road pays you
+  //    nothing — you'd just be inviting a rival in to halve your dividend);
+  //  • opening an auction it then won't bid in, which hands the share to a rival, or gets it
+  //    removed from the game — and a removed share makes the CURRENT holders richer, not you.
+  const myCap = cid=>botBidCap(s, me, diff, {companyId:cid, isSetup:false, highBidder:null});
+  const winnable = avail.filter(cid=> shareWorth(s,me,cid,0,diff).solo > 3
+    && botWinsShare(s,me,cid,diff) && myCap(cid) >= Math.max(10, rivalBestCap(s,me,cid,diff)*0.95));
   if (winnable.length){
-    const score=cid=>estShareValue(s,cid)*(heldBy(s,cid,me)>0?1.25:1) + heldBy(s,cid,me)*4; // stack one you own, else best overall
+    const score=cid=>worth(cid)*(heldBy(s,cid,me)>0?per.concentrate:1) - expectedSharePrice(s,me,cid,diff);
     const pick=winnable.slice().sort((a,b)=>score(b)-score(a))[0];
-    return {value: estShareValue(s,pick)*0.24*(diff==='hard'?1.2:0.9), pick, mode:'grab'};
+    // dividends it should clear, less the price it expects to pay — on the same rough scale as an expansion
+    const profit = Math.max(0, worth(pick) - expectedSharePrice(s,me,pick,diff));
+    return {value: profit*(diff==='hard'?0.85:0.7), pick, mode:'grab'};
   }
   if (diff==='hard' && (late || ahead>6)){   // offensive: force a richer rival to sink money into a share that won't pay off in time
-    const drainW = late?1.3:0.7;
-    return {value: estShareValue(s,best)*0.12*drainW*(ahead>0?1.2:0.7), pick:best, mode:'drain'};
+    const drainW = (late?1.3:0.7) * (0.6+per.spite);
+    // drain with a share that costs YOU least if it lands, and only if a rival will actually pay for it
+    const pick = avail.filter(cid=>heldBy(s,cid,me)===0 && rivalBestCap(s,me,cid,diff)>=12)
+      .sort((a,b)=>worth(b)-worth(a))[0];
+    if (pick) return {value: worth(pick)*0.10*drainW*(ahead>0?1.2:0.7)*(money>12?1:0.5), pick, mode:'drain'};
   }
   return {value:0, pick:null, mode:null};
 }
@@ -5500,6 +5634,11 @@ function blockValue(s, me, id, diff){
   for(const nb of def.adj){ const nhs=s.hexes[nb]; if(nhs){ for(const cid of nhs.cubes){ if(oppHeldFrac(s,me,cid)>0.5) return 1.2; } } }
   return 0;
 }
+// Backing out of an action row un-takes it, so a bot that picks a row it can't complete would
+// pick it again forever. Remember the dead end for the rest of this turn.
+function botAvoidRow(s, me, row){ s.botAvoid=s.botAvoid||{}; const list=s.botAvoid[me]||[];
+  if(!list.includes(row)) list.push(row); s.botAvoid[me]=list; }
+function botAvoided(s, me){ return (s.botAvoid&&s.botAvoid[me])||[]; }
 function botDecide(s){ const me=s.currentPlayer, diff=s.players[me].bot||'easy';
   switch(s.turnPhase){
     case 'bidding': return botBid(s, me, diff);
@@ -5507,22 +5646,65 @@ function botDecide(s){ const me=s.currentPlayer, diff=s.players[me].bot||'easy';
     case 'chooseAction': return 'choose:'+botAction(s, me, diff);
     case 'funding': return 'fund:'+botFundCo(s, me, diff);
     case 'take2choice': return botTake2(s, me, diff);
-    case 'auctionSelect': { const ap=auctionPlan(s, me, diff); return ap.pick?'auc:'+ap.pick:'back'; }
-    case 'developing': { const L=legalDevelopHexes(s); if(!L.length) return 'back';
+    case 'auctionSelect': { const ap=auctionPlan(s, me, diff); if(ap.pick) return 'auc:'+ap.pick;
+      botAvoidRow(s, me, 'auction'); return 'back'; }   // backing out frees the row again — don't re-pick it and spin
+    case 'developing': { const L=legalDevelopHexes(s); if(!L.length){ botAvoidRow(s, me, 'develop'); return 'back'; }
       if(diff==='easy') return 'hex:'+L[Math.floor(Math.random()*L.length)];
       return 'hex:'+L.slice().sort((a,b)=>developValue(s,me,b,diff)-developValue(s,me,a,diff))[0]; }
     case 'expanding': return botExpandStep(s, me, diff);
-    case 'turnDone': return 'done';
+    case 'turnDone': if (s.botAvoid) delete s.botAvoid[me]; return 'done';
     default: return botFallback(s); } }
-function botBid(s, me, diff){ const a=s.auction, cid=a.companyId, minNext=auctionMinNext(s), money=s.players[me].money;
+// The most this bot will pay for the share on the block. This is the number that used to be
+// flat: it was capped at a fixed slice of cash, so every company came out the same price.
+// `ctx` lets a bot ask "what WOULD I pay for that share?" before deciding to put it up for auction
+function botBidCap(s, me, diff, ctx){
+  const a=ctx||s.auction||{}, cid=a.companyId, p=s.players[me], money=p.money, per=personaOf(s,me);
+  if (!cid) return 0;
+  // a winning bid is paid INTO the company treasury, so part of it comes back as track and income
+  const seedCash = Math.min(money*0.5, 20) * (heldBy(s,cid,me)>0 ? 1 : 0.8);
+  let v = shareValueToBot(s, me, cid, seedCash, diff);
+  v *= (diff==='easy'?0.34 : diff==='medium'?0.46 : 0.55);    // never pay full value — the margin is the profit
+  v *= per.aggr;
+  const owned = p.shares.length;
+  v *= [1, 0.86, 0.62, 0.45, 0.34][Math.min(4, owned)];       // your first road is your engine; a fourth share is a luxury
+  if (heldBy(s,cid,me)>0) v *= per.concentrate;               // control-hungry bots stack, spreaders don't
+  // a fixed but unguessable ±18% mood for this particular share, so a bot never bids to the cent
+  v *= 0.82 + 0.36*botNoise(s, me, 'mood'+cid+(a.isSetup?'prep':'r'+(s.round||0)));
+  // cash discipline: money is victory points, and more shares are coming up
+  let spend = per.spend;
+  if (a.isSetup){
+    const left = s.setupQueue.length + 1;                     // prep auctions still to come, including this one
+    if (owned===0){                                           // walking out of the prep round with no share means no income all game
+      v *= left<=1 ? 2.2 : left<=2 ? 1.5 : 1.15;              // so the fewer chances remain, the less choosy it gets
+      spend = left<=1 ? 0.95 : Math.max(spend, 0.60); }
+    else spend *= 0.78;
+  } else if (horizonRounds(s)<=1.6) spend *= 0.35;            // the end is in sight: a share pays once or twice, cash pays forever
+  let cap = Math.min(v, money*spend, money);
+  // SPITE (hard): can't win it outright, so make the leader bleed for it — but never past a
+  // price this bot would be content to be stuck with if the bluff is called
+  if (diff==='hard' && a.highBidder!=null && a.highBidder!==me && per.spite>0.4
+      && s.players[a.highBidder].money > money && money > 15){
+    cap = Math.max(cap, Math.min(v*(1+per.spite*0.45), money*0.45));
+  }
+  return Math.floor(cap); }
+// How much to actually put on the table: an opening bid is an anchor (a strong bot slams the
+// door), later raises creep once the ceiling is close.
+function botBidAmount(s, me, cap, minNext, per){
+  const a=s.auction, r=botNoise(s, me, 'step'+a.companyId+a.bid+(s.round||0));
+  if (a.bid===0){ const open = 10 + Math.round((cap-10) * per.open * (0.6 + 0.8*r));
+    return Math.max(minNext, Math.min(cap, open)); }
+  const room = cap - minNext;
+  let step = 0;
+  if (room > 12) step = Math.round(1 + per.jump*(2 + 6*r));   // lots of headroom — raise properly, don't creep
+  else if (room > 5) step = Math.round(per.jump*(1 + 3*r));
+  else if (r < per.jump*0.5) step = 1;
+  return Math.min(cap, minNext + Math.max(0, step)); }
+function botBid(s, me, diff){ const a=s.auction, minNext=auctionMinNext(s), money=s.players[me].money;
   if (money < minNext) return 'pass';
-  const val = estShareValue(s, cid) * (diff==='easy'?0.6 : diff==='medium'?0.9 : 1.35);
-  const frac = diff==='easy'?0.25 : diff==='medium'?0.38 : 0.62;   // hard is willing to commit more cash to a good share
-  let cap = Math.min(val, money*frac);
-  const own = s.players[me].shares.filter(x=>x===cid).length, ownFrac = totalHeld(s,cid)?own/totalHeld(s,cid):0;
-  if (own>0) cap *= (ownFrac>=0.5 ? (diff==='hard'?1.15:1.0) : (diff==='hard'?0.85:0.6)); // pay up to control a company you dominate; diversify otherwise
-  if (diff==='easy' && Math.random()<0.3) return 'pass';
-  return (minNext<=cap) ? 'bid:'+minNext : 'pass'; }
+  if (diff==='easy' && botNoise(s,me,'nerve'+a.companyId+a.bid) < 0.22) return 'pass';  // easy bots lose their nerve
+  const cap = Math.min(botBidCap(s, me, diff), money);
+  if (minNext > cap) return 'pass';
+  return 'bid:' + botBidAmount(s, me, cap, minNext, personaOf(s, me)); }
 function botStartCity(s, me, diff){ const empties=Object.keys(BOARD).filter(id=>BOARD[id].city && !(s.hexes[id]&&s.hexes[id].cubes.length));
   if (diff==='easy') return empties[Math.floor(Math.random()*empties.length)];
   return empties.sort((a,b)=>cityScore(s,b,diff)-cityScore(s,a,diff))[0]; }
@@ -5547,7 +5729,7 @@ function cityHexByName(name){ return Object.keys(BOARD).find(id=>BOARD[id].city 
 // pick a city to head for: chase the +$10 special connection when it's one link away, else the best-value city (minus cube cost)
 function botExpandTarget(s, me, cid, diff){
   const track=companyTrack(s, cid); if(!track.length) return null;
-  const fromTrack=bfsHex(track), connected=connectedCities(s, cid), trackSet=new Set(track), rl=Math.min(6, roundsLeft(s));
+  const fromTrack=bfsHex(track), connected=connectedCities(s, cid), trackSet=new Set(track), rl=Math.min(6, horizonRounds(s));
   let bonusTarget=null, bonusScore=-1;
   for(const [a,b] of [['Chicago','New York'],['Chicago','Atlanta'],['New York','Atlanta']]){
     const hasA=connected.has(a), hasB=connected.has(b); if(hasA===hasB) continue;      // need exactly one already connected
@@ -5578,15 +5760,16 @@ function botExpandStep(s, me, diff){ const p=s.pending;
       if(key<bestKey){ bestKey=key; best=h; } }
     return 'hex:'+best; }
   return 'hex:'+hexes.slice().sort((a,b)=>cityScore(s,b,diff)-cityScore(s,a,diff))[0]; }
-function botAction(s, me, diff){ const rows=availableActionRows(s), money=s.players[me].money, rl=roundsLeft(s);
+function botAction(s, me, diff){ const rows=availableActionRows(s), money=s.players[me].money, rl=horizonRounds(s);
   const expCos=ownedExpandableCompanies(s, me), devHexes=legalDevelopHexes(s);
   const shareAvail = activeCompanyIds(s).some(id=>s.companies[id].sharesInSupply>0);
-  const behind = leaderExcept(s,me) - money, late = rl<=2;    // trailing the leader? / little time left for income to pay off
+  const behind = leaderExcept(s,me) - money, late = rl<=2.2;  // trailing the leader? / little time left for income to pay off
   // best expansion value: extending track has a base worth plus a city bonus
   let eg=0; for(const cid of expCos){ for(const h of legalExpandHexes(s,me,cid)){ const g=(1.2+cityScore(s,h,diff))*rl*0.3; if(g>eg) eg=g; } }
   // only ADD actions the bot can actually complete (never a dead-end develop/auction)
   const gm = diff==='hard'?1.55 : diff==='medium'?1.0 : 0.8;   // hard is keener to grow income
-  const cand=[]; const add=(r,v)=>{ if (rows.includes(r)) cand.push([r,v]); };
+  const dead = botAvoided(s, me);                              // rows it already backed out of this turn
+  const cand=[]; const add=(r,v)=>{ if (rows.includes(r) && !dead.includes(r)) cand.push([r,v]); };
   add('expand4', eg*1.25*gm);
   add('expand3', eg*gm);
   if (devHexes.length) add('develop', (Math.max(...devHexes.map(h=>cityScore(s,h,diff)))+1)*rl*0.28*gm);
@@ -5604,9 +5787,10 @@ function botAction(s, me, diff){ const rows=availableActionRows(s), money=s.play
   if (late && behind>0 && diff!=='easy') take2v += (diff==='hard'?2.5:1.2); // grabbing cash matters more late when trailing
   add('take2', take2v);
   add('pass', 0.6);
-  if (!cand.length){ return rows.find(r=>r!=='develop'&&r!=='auction') || rows[0]; } // safety
-  // #5 final year: a fresh cube barely earns a dividend before the game ends — pivot to cash
-  if (roundsLeft(s)<=1 && diff!=='easy'){ for(const c of cand){ if(['expand3','expand4','develop','fund5','auction'].includes(c[0])) c[1]*=0.4; else if(c[0]==='take2') c[1]*=1.8; } }
+  if (!cand.length){ return rows.find(r=>r!=='develop'&&r!=='auction'&&!dead.includes(r)) || rows.find(r=>!dead.includes(r)) || rows[0]; } // safety
+  // #5 endgame: a fresh cube barely earns a dividend before the game ends — pivot to cash.
+  // `rl` is the real horizon, so this also fires when the cube/dev piles (not the year) are about to end it.
+  if (rl<=1.6 && diff!=='easy'){ for(const c of cand){ if(['expand3','expand4','develop','fund5','auction'].includes(c[0])) c[1]*=0.4; else if(c[0]==='take2') c[1]*=1.8; } }
   // #1 HARD tempo: the action you pick is your seat next phase (lower row = act first = first pick). Prefer an earlier seat among real actions.
   if (diff==='hard' && (expCos.length||devHexes.length)){ for(const c of cand){ if(c[0]!=='pass') c[1] += (ACTION_ROWS.length-1-ACTION_ROWS.indexOf(c[0]))*0.18; } }
   // #1 HARD denial: grabbing expand4 blocks the next opponent from the biggest build this phase
@@ -5800,9 +5984,17 @@ function renderPanels(s){
   s.players.forEach((p,i)=>{
     const groups={}; p.shares.forEach(x=>groups[x]=(groups[x]||0)+1);
     const fan = Object.keys(groups).length ? Object.entries(groups).map(([cid,cnt])=>miniStack(cid,cnt)).join('') : '<span class="no-shares">— no shares —</span>';
-    const cls = [ (i===s.currentPlayer && s.phase!=='payout' && s.phase!=='gameOver')?'active':'', paidPlayers.has(i)?'paid':'', winnerSet.has(i)?'winner':'' ].filter(Boolean).join(' ');
+    // during an auction every player carries their standing: high bidder, still in, or passed
+    let bidTag='', out=false;
+    if (s.turnPhase==='bidding' && s.auction){ const a=s.auction, live=a.active.includes(i);
+      if (a.highBidder===i) bidTag=`<span class="bid-tag bt-high" title="Current high bid">▲ $${a.bid}</span>`;
+      else if (live && i===s.currentPlayer) bidTag=`<span class="bid-tag bt-turn" title="It's their turn to bid or pass">bidding…</span>`;
+      else if (live) bidTag=`<span class="bid-tag bt-in" title="Still in the auction">in</span>`;
+      else { bidTag=`<span class="bid-tag bt-out" title="Out of this auction">passed</span>`; out=true; } }
+    const persona = p.bot && p.persona && BOT_PERSONAS[p.persona];
+    const cls = [ (i===s.currentPlayer && s.phase!=='payout' && s.phase!=='gameOver')?'active':'', paidPlayers.has(i)?'paid':'', winnerSet.has(i)?'winner':'', out?'bid-out':'' ].filter(Boolean).join(' ');
     ph+=`<div class="pl-row2 ${cls}"><span class="pl-dot" style="background:${PLAYER_COLORS[i]||'#888'}"></span>`
-      +`<div class="pl-main"><div class="pl-head"><span class="pl-name">${winnerSet.has(i)?'🏆 ':''}${p.name}${p.bot?` <span class="bot-badge bd-${p.bot}">🤖 ${p.bot}</span>`:''}${p.disconnected?` <span class="bot-badge" style="background:#8a4a2a">⚠ away</span>`:''}</span><span class="pl-money">$${p.money}</span></div>`
+      +`<div class="pl-main"><div class="pl-head"><span class="pl-name">${winnerSet.has(i)?'🏆 ':''}${p.name}${p.bot?` <span class="bot-badge bd-${p.bot}">🤖 ${p.bot}</span>`:''}${persona?` <span class="persona-tag" title="${persona.label} — ${persona.blurb}">${persona.label}</span>`:''}${p.disconnected?` <span class="bot-badge" style="background:#8a4a2a">⚠ away</span>`:''}${bidTag}</span><span class="pl-money">$${p.money}</span></div>`
       +`<div class="share-fan">${fan}</div></div></div>`; });
   $('#players').innerHTML=ph;
   $('#log').innerHTML = s.log.slice(-14).map(l=>`<div class="log-line">${l}</div>`).join('');
@@ -6178,6 +6370,57 @@ window.__selfTest = function(){
   assert('take2 fromEach: each other player pays $2 to bank', m6.players[1].money===48 && m6.players[2].money===48);
   let m6b=miniState(); m6b.turnPhase='take2choice'; m6b.currentPlayer=0; doTake2(m6b,'take');
   assert('take2 take: actor +2 from bank', m6b.players[0].money===52 && m6b.players[1].money===50);
+
+  /* ---- bot valuation & auction behaviour ---- */
+  // the end of the game is not just the year track — draining the cube piles ends it sooner
+  let m7=miniState(); m7.year=1851;
+  assert('horizon: a fresh 1851 game has a long horizon', horizonRounds(m7)>5);
+  for(const id of COMPANY_IDS){ m7.companies[id].onMap=true; m7.companies[id].cubesInSupply=1; }
+  assert('horizon: collapses when the cube piles run dry', horizonRounds(m7)<=1.01);
+  // scarce shares are worth more: the same income split two ways beats five ways
+  let m9=miniState(); m9.year=1851;
+  assert('valuation: a scarce share beats a crowded one',
+    shareWorth(m9,0,'liberty',0,'hard').contested > shareWorth(m9,0,'american',0,'hard').contested*1.1);
+  // a 2nd share of a company you already own alone pays you nothing extra — only denial is worth paying for
+  let m10=miniState(); m10.companies.liberty.onMap=true; m10.companies.liberty.income=12;
+  m10.companies.liberty.sharesInSupply=1; m10.players[0].shares=['liberty'];
+  const w10=shareWorth(m10,0,'liberty',0,'hard');
+  assert('valuation: 2nd share of a wholly-owned company adds ~nothing', w10.solo < w10.contested*0.4);
+  // late game: a share that only pays one dividend is not worth an early-game price
+  function capAt(year, income){ const m=miniState(); m.year=year; m.turnPhase='bidding'; m.currentPlayer=0; m.round=1;
+    m.players.forEach(p=>{p.persona='baron';}); m.companies.american.onMap=true; m.companies.american.income=income;
+    m.auction={companyId:'american',isSetup:false,bid:0,highBidder:null,active:[0,1,2],cur:0}; return botBidCap(m,0,'hard'); }
+  assert('bots bid far less for a share in the final year', capAt(1857,10) < capAt(1851,10)*0.5);
+  assert('final-year share is below the $10 minimum — bot passes', capAt(1857,6) < 10);
+
+  // a full game driven entirely by the bots' own brains (catches crashes in every AI path)
+  function playBots(seed, diffs){
+    window.startGame({mode:'local',names:['A','B','C','D'],bots:diffs,seed});
+    let g=0; const prices={};
+    while (gameState.phase!=='gameOver' && g++<8000){
+      if (gameState.phase==='setup' && gameState.turnPhase==='bidding'){ /* watch prep prices */ }
+      let cmd=null; try{ cmd=botDecide(gameState); }catch(e){ cmd=null; }
+      if(!cmd) cmd=botFallback(gameState);
+      if(!cmd) break;
+      const wasSetup = gameState.phase==='setup';
+      applyUi(gameState, cmd);
+      if (wasSetup && gameState.phase!=='setup'){ COMPANY_IDS.forEach(id=>{ if(!gameState.companies[id].removed) prices[id]=gameState.companies[id].treasury; }); }
+    }
+    return { s:gameState, prices, steps:g };
+  }
+  const bg = playBots(4242, ['hard','hard','medium','easy']);
+  assert('bot game: reaches game over', bg.s.phase==='gameOver');
+  assert('bot game: no player ends with negative money', bg.s.players.every(p=>p.money>=0));
+  assert('bot game: every prep share was contested or removed', Object.keys(bg.prices).length>=5);
+  const paid = Object.values(bg.prices).filter(v=>v>0);
+  assert('prep auction: winning bids differ between companies', new Set(paid).size>=3);
+  assert('prep auction: at least one share went above the $10 minimum', paid.some(v=>v>10));
+  // bots do not all march to the same number any more
+  assert('prep auction: price spread is meaningful', (Math.max(...paid)-Math.min(...paid))>=4);
+  const bg2 = playBots(99, ['hard','medium','hard','medium']);
+  assert('bot game (2nd seed): reaches game over', bg2.s.phase==='gameOver');
+  const paid2 = Object.values(bg2.prices).filter(v=>v>0);
+  assert('different seeds give different auction prices', JSON.stringify(paid)!==JSON.stringify(paid2));
 
   render(gameState);
   const passed=results.filter(r=>r.pass).length;
