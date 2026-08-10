@@ -1,8 +1,8 @@
 # American Rails — build progress
 
-**Deliverable:** `american-rails.html` — a single-file, no-build browser game. Double-click to play
+**Deliverable:** `index.html` — a single-file, no-build browser game. Double-click to play
 locally; online play connects friends peer-to-peer with a room code. Dev server for testing:
-`node scripts/serve.mjs` → http://localhost:5177/american-rails.html
+`node scripts/serve.mjs` → http://localhost:5177/
 
 ## Status: FUNCTIONALLY COMPLETE ✅ (design polish still to come)
 
@@ -25,7 +25,7 @@ locally; online play connects friends peer-to-peer with a room code. Dev server 
   directions across tabs.
 
 ## How to play (for Ben)
-1. Double-click `american-rails.html` → opens in your browser.
+1. Double-click `index.html` → opens in your browser.
 2. **Local:** "Local Game", pick players, Start, pass the laptop between turns.
 3. **Online:** one person clicks "Host Online Game" and shares the 4-letter code; others click
    "Join Online Game", enter the code + a name; host clicks Start when everyone's in.

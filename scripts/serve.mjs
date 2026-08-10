@@ -6,7 +6,7 @@ const types = { '.html':'text/html', '.js':'text/javascript', '.css':'text/css',
 http.createServer(async (req,res) => {
   try {
     let p = decodeURIComponent(req.url.split('?')[0]);
-    if (p === '/') p = '/american-rails.html';
+    if (p === '/') p = '/index.html';
     const full = normalize(join(root, p));
     if (!full.startsWith(root)) { res.writeHead(403); return res.end('no'); }
     const data = await readFile(full);
