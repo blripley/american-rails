@@ -5169,6 +5169,7 @@ function createInitialState(config){
     year:1851, round:0, actionPhase:0,
     turnOrder: names.map((_,i)=>i), currentPlayer:0,
     turnPhase:'bidding', pending:null, auction:null, pendingStartCube:null,
+    startCubeUndo:null, startCubeHex:null,   // the placed-but-not-yet-confirmed first cube
     setupQueue:[], auctionStarter:0, setupWinOrder:[], // order players first win a prep auction → sets the opening turn order
     phaseOrder:[], phaseQueue:[], takenRows:{}, picks:{},
     log:[], winner:null, history:[], config, localPlayerId:0,
@@ -5242,14 +5243,33 @@ function resolveAuction(s){
   if (!co.onMap){ s.pendingStartCube = { companyId:cid, playerId:a.highBidder }; s.turnPhase='placeStartCube'; s.currentPlayer=a.highBidder; s.auction=null; return; }
   finishAuction(s, a.highBidder);
 }
+// Winning a share puts your company's FIRST cube on the map, which fixes its income for the rest of
+// the game — too important to lose to a misclick. The cube goes down so you can see it in place, then
+// waits on Confirm; Back restores the moment before you clicked and lets you choose again.
 function placeStartingCube(s, hexId){
   const ps=s.pendingStartCube; if (!ps) return false; const def=BOARD[hexId]; if (!def || !def.city) return false;
   const hs=s.hexes[hexId]; if (hs && hs.cubes.length) return false;
+  const undo = snapStartCube(s);                       // captured BEFORE the cube lands
   ensureHex(s,hexId).cubes.push(ps.companyId);
   const co=s.companies[ps.companyId]; co.cubesInSupply--; co.onMap=true; co.income=def.city.full;
   applySpecialConnections(s, ps.companyId);
+  s.startCubeUndo = undo; s.startCubeHex = hexId; s.turnPhase='confirmStartCube';
+  return true;
+}
+function snapStartCube(s){ const {startCubeUndo, turnSnapshot, ...rest}=s; return JSON.stringify(rest); }
+function confirmStartCube(s){
+  if (s.turnPhase!=='confirmStartCube') return false;
+  const ps=s.pendingStartCube, def=BOARD[s.startCubeHex];
   pushLog(s, `${COMPANIES[ps.companyId].name} starts at ${def.city.name} (income ${def.city.full}).`);
-  const seat=ps.playerId; s.pendingStartCube=null; finishAuction(s, seat); return true;
+  const seat=ps.playerId;
+  s.pendingStartCube=null; s.startCubeUndo=null; s.startCubeHex=null;
+  finishAuction(s, seat); return true;
+}
+function undoStartCube(s){
+  if (s.turnPhase!=='confirmStartCube' || !s.startCubeUndo) return false;
+  const snap=JSON.parse(s.startCubeUndo);
+  for (const k of Object.keys(snap)) s[k]=snap[k];
+  s.startCubeUndo=null; s.startCubeHex=null; s.turnPhase='placeStartCube'; return true;
 }
 function finishAuction(s, winnerSeat){
   s.auction=null;
@@ -5518,6 +5538,7 @@ function botFallback(s){ switch(s.turnPhase){
   case 'expanding': return 'endexpand';
   case 'turnDone': return 'done';
   case 'placeStartCube': { const e=Object.keys(BOARD).find(id=>BOARD[id].city && !(s.hexes[id]&&s.hexes[id].cubes.length)); return 'hex:'+e; }
+  case 'confirmStartCube': return 'startok';
   default: return null; } }
 function roundsLeft(s){ return Math.max(1, 1858 - (s.year||1851)); }
 // How many more dividends will REALLY be paid? The year track is only one of three ways the
@@ -5794,6 +5815,7 @@ function botDecide(s){ const me=s.currentPlayer, diff=s.players[me].bot||'easy';
   switch(s.turnPhase){
     case 'bidding': return botBid(s, me, diff);
     case 'placeStartCube': return 'hex:'+botStartCity(s, me, diff);
+    case 'confirmStartCube': return 'startok';                 // a bot picked it deliberately — nothing to reconsider
     case 'chooseAction': return 'choose:'+botAction(s, me, diff);
     case 'funding': return 'fund:'+botFundCo(s, me, diff);
     case 'take2choice': return botTake2(s, me, diff);
@@ -6027,6 +6049,7 @@ function show(screen){ $('#lobby').style.display = screen==='lobby'?'':'none'; $
 function highlightSet(s){
   if (!s || s.mode!=='local' && s.localPlayerId!==s.currentPlayer) return new Set();
   if (s.turnPhase==='placeStartCube'){ return new Set(Object.keys(BOARD).filter(id=>{ const d=BOARD[id]; const hs=s.hexes[id]; return d.city && (!hs||hs.cubes.length===0); })); }
+  if (s.turnPhase==='confirmStartCube') return new Set(s.startCubeHex?[s.startCubeHex]:[]);  // ring the cube awaiting confirmation
   if (s.turnPhase==='developing') return new Set(legalDevelopHexes(s));
   if (s.turnPhase==='expanding' && s.pending && s.pending.companyId) return new Set(legalExpandHexes(s, s.currentPlayer, s.pending.companyId));
   return new Set();
@@ -6259,6 +6282,9 @@ function renderActions(s){
   const tp=s.turnPhase;
   if (tp==='placeStartCube'){ const ps=s.pendingStartCube;
     h=`<span class="prompt"><b>${cur.name}</b>: place ${coName(ps.companyId)}'s first cube — click an empty city on the map.</span>`;
+  } else if (tp==='confirmStartCube'){ const ps=s.pendingStartCube, c=BOARD[s.startCubeHex].city;
+    h=`<span class="prompt">${coName(ps.companyId)} starts at <b>${c.name}</b> — income <b>$${c.full}</b>. Happy with that?</span>`
+      +btn('✓ Confirm','startok')+btn('Back','startback','class="ghost"');
   } else if (tp==='chooseAction'){
     h=`<span class="prompt"><b>${cur.name}</b>: choose your action (phase ${s.actionPhase+1}).</span>`;
     for (const row of availableActionRows(s))
@@ -6358,6 +6384,8 @@ function applyUi(s, cmd){
   else if (k==='pass') passBid(s);
   else if (k==='done') doneTurn(s);
   else if (k==='redo') redoTurn(s);
+  else if (k==='startok') confirmStartCube(s);
+  else if (k==='startback') undoStartCube(s);
   else if (k==='hex') clickHex(s, v);
 }
 function clickHex(s, id){
@@ -6563,7 +6591,9 @@ const net = {
 };
 // In online mode, guests receive a view; host has full state. For this game there is no
 // hidden info, so the "view" is essentially the full state (money/shares are public).
-function makeView(s, seat){ const v=JSON.parse(JSON.stringify(s)); v.localPlayerId=seat; return v; }
+function makeView(s, seat){ const v=JSON.parse(JSON.stringify(s)); v.localPlayerId=seat;
+  v.startCubeUndo=null;   // the host's undo buffer is a whole serialised state — no need to ship it
+  return v; }
 
 /* ---- save / resume: local games auto-save so an accidental refresh doesn't lose the night ---- */
 const SAVE_KEY='ar-save-v1';
@@ -6587,10 +6617,11 @@ window.__selfTest = function(){
   const results=[]; const assert=(name,cond)=>results.push({name,pass:!!cond});
   const cityIds=['2,1','16,3','6,12','1,6','18,1','11,0','0,17','8,15','10,3','6,5','3,9','4,14','11,9','6,1'];
   function st(){ return JSON.parse(window.render_game_to_text()); }
-  function driveSetup(s){ let g=0; while(s.phase==='setup'&&g++<120){ if(s.turnPhase==='bidding'){ (s.auction.bid===0 && s.players[s.currentPlayer].money>=10)?applyUi(gameState,'bid:10'):applyUi(gameState,'pass'); } else { const occ=Object.keys(st().cubesOnBoard||{}); applyUi(gameState,'hex:'+cityIds.find(c=>!occ.includes(c))); } s=st(); } return s; }
+  function driveSetup(s){ let g=0; while(s.phase==='setup'&&g++<200){ if(s.turnPhase==='bidding'){ (s.auction.bid===0 && s.players[s.currentPlayer].money>=10)?applyUi(gameState,'bid:10'):applyUi(gameState,'pass'); } else if(s.turnPhase==='confirmStartCube'){ applyUi(gameState,'startok'); } else { const occ=Object.keys(st().cubesOnBoard||{}); applyUi(gameState,'hex:'+cityIds.find(c=>!occ.includes(c))); } s=st(); } return s; }
   function playToEnd(s){ let g=0; while(s.phase!=='gameOver'&&g++<4000){ const tp=s.turnPhase;
     if(tp==='bidding'){ (s.auction.bid===0 && s.players[s.currentPlayer].money>=10) ? applyUi(gameState,'bid:10') : applyUi(gameState,'pass'); }
     else if(tp==='placeStartCube'){ const occ=Object.keys(st().cubesOnBoard||{}); applyUi(gameState,'hex:'+cityIds.find(c=>!occ.includes(c))); }
+    else if(tp==='confirmStartCube'){ applyUi(gameState,'startok'); }
     else if(tp==='chooseAction'){ applyUi(gameState,'choose:'+s.availableRows[0]); }
     else if(tp==='take2choice'){ applyUi(gameState,'take2:take'); }
     else if(tp==='funding'){ applyUi(gameState,'fund:'+activeCompanyIds(gameState)[0]); }
@@ -6722,6 +6753,35 @@ window.__selfTest = function(){
     assert('endgame: no tilt while there is still time', endgameTilt(early,0,'hard')===0);
     assert('endgame: medium bots do not play the clock', endgameTilt(m,0,'medium')===0); }
 
+  /* ---- start cube: confirm / back ---- */
+  { window.startGame({mode:'local',names:['A','B','C'],removed:'liberty'});
+    bid(gameState,10); passBid(gameState); passBid(gameState);       // A wins the first share
+    const winner=gameState.currentPlayer, paid=gameState.players[winner].money, shares=gameState.players[winner].shares.length;
+    assert('start cube: winner is asked to place', gameState.turnPhase==='placeStartCube');
+    const cid=gameState.pendingStartCube.companyId;
+    const chicago=cityHexByName('Chicago');
+    applyUi(gameState,'hex:'+chicago);
+    assert('start cube: placing asks to confirm rather than locking it in', gameState.turnPhase==='confirmStartCube');
+    assert('start cube: the cube is on the board while you decide', (gameState.hexes[chicago]||{cubes:[]}).cubes.includes(cid));
+    assert('start cube: income previewed on the company', gameState.companies[cid].income===BOARD[chicago].city.full);
+    // Back puts the board back exactly as it was — but must NOT undo the auction itself
+    applyUi(gameState,'startback');
+    assert('start cube Back: returns to placing', gameState.turnPhase==='placeStartCube');
+    assert('start cube Back: cube removed from the map', !(gameState.hexes[chicago]&&gameState.hexes[chicago].cubes.length));
+    assert('start cube Back: company off the map again', gameState.companies[cid].onMap===false && gameState.companies[cid].income===0);
+    assert('start cube Back: cube returned to supply', gameState.companies[cid].cubesInSupply===COMPANIES[cid].cubes);
+    assert('start cube Back: the share and the money paid are NOT refunded',
+      gameState.players[winner].money===paid && gameState.players[winner].shares.length===shares+0);
+    assert('start cube Back: nothing logged about a start that never happened',
+      !gameState.log.some(l=>/starts at Chicago/.test(l)));
+    // now place somewhere else and confirm
+    const stlouis=cityHexByName('St. Louis');
+    applyUi(gameState,'hex:'+stlouis); applyUi(gameState,'startok');
+    assert('start cube Confirm: company is on the map at the second choice',
+      gameState.companies[cid].onMap===true && gameState.hexes[stlouis].cubes.includes(cid));
+    assert('start cube Confirm: income set from that city', gameState.companies[cid].income===BOARD[stlouis].city.full);
+    assert('start cube Confirm: the auction moves on', gameState.turnPhase!=='confirmStartCube'); }
+
   /* ---- Extreme tier ---- */
   { const m=miniState(); m.year=1853; m.turnPhase='bidding'; m.currentPlayer=0; m.round=2;
     m.companies.american.onMap=true; m.companies.american.income=12; m.companies.american.treasury=6;
@@ -6796,6 +6856,7 @@ window.render_game_to_text = function(){ if (!gameState) return JSON.stringify({
     turnPhase:s.turnPhase, currentPlayer:s.currentPlayer,
     auction: s.auction? { company:s.auction.companyId, bid:s.auction.bid, high:s.auction.highBidder, active:s.auction.active }:null,
     pendingStartCube: s.pendingStartCube||null,
+    startCubeHex: s.startCubeHex||null,
     pending: s.pending||null,
     availableRows: s.turnPhase==='chooseAction'?availableActionRows(s):[],
     developSupply:s.developmentSupply,
