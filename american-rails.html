@@ -5612,20 +5612,89 @@ function auctionPlan(s, me, diff){
   }
   return {value:0, pick:null, mode:null};
 }
-// hard only: entering a city currently held by a lone rival company knocks that company's income full->shared
-function stealValue(s, me, cityId, diff){
-  if(diff!=='hard') return 0;
-  const hs=s.hexes[cityId]; if(!hs||!hs.cubes.length) return 0;
-  const occ=[...new Set(hs.cubes)]; if(occ.length!==1) return 0;                       // only a solo occupant can be demoted
-  const victim=occ[0]; if(s.players[me].shares.includes(victim) && oppHeldFrac(s,me,victim)<0.5) return 0; // don't gut a company that's mostly yours
-  const c=BOARD[cityId].city; return (c.full-c.shared) * oppHeldFrac(s,me,victim) * Math.min(6,roundsLeft(s)) * 0.12;
+/* ---- EVERY ACTION, PRICED IN DOLLARS ---------------------------------------
+The bots used to score actions on a private scale where "develop" was worth the whole
+value of the city it touched, and an expansion was worth the same whether the bot owned
+all of that company or a fifth of it. Both are wrong, and both are now measured the same
+honest way: the dividends the action is expected to put in MY pocket before the game ends.
+The two rules that drive everything:
+  • dividends split by shares held, so growing a company a rival dominates pays the RIVAL;
+  • a rival losing $1 is worth as much as me gaining $1, because most money wins. */
+function incomeSlice(s, me, cid){ const t=totalHeld(s,cid); return t? heldBy(s,cid,me)/t : 0; }
+// income a cube adds by landing on `hexId`, plus the income it knocks off a rival there
+function cubeCityGain(s, me, cid, hexId, diff){
+  const c=BOARD[hexId]&&BOARD[hexId].city; if(!c) return {inc:0, steal:0};
+  const hs=s.hexes[hexId], occ=hs?[...new Set(hs.cubes)]:[];
+  if (occ.includes(cid)) return {inc:0, steal:0};
+  const solo = occ.length===0;
+  let inc = solo ? c.full : c.shared;                       // an empty city pays full; joining a crowd pays shared
+  if (hs && hs.developed) inc += solo?2:1;
+  let steal=0;                                              // arriving demotes a lone incumbent from full to shared
+  if (diff==='hard' && occ.length===1){ const v=occ[0];
+    if (!(heldBy(s,v,me)>0 && oppHeldFrac(s,me,v)<0.5)) steal = (c.full-c.shared)*oppHeldFrac(s,me,v); }
+  return {inc, steal};
 }
-// value of developing city `id` to the bot: its own share of the +2 (solo) / +1 (shared) income; hard also subtracts what opponents gain
-function developValue(s, me, id, diff){
-  const hs=s.hexes[id]; if(!hs) return 0; const cos=[...new Set(hs.cubes)]; const bonus = cos.length>=2?1:2;
+const SPECIAL_PAIRS = [['Chicago','New York'],['Chicago','Atlanta'],['New York','Atlanta']];
+// hop distances from each special city, cached — the board never changes
+let _specialDist=null;
+function specialDist(){ if(!_specialDist){ _specialDist={};
+    for (const n of SPECIALS){ const h=cityHexByName(n); _specialDist[n] = h?bfsHex([h]):{}; } }
+  return _specialDist; }
+// What reaching this city is worth in connection income. Completing a pair is +$10 now (and the
+// third special city completes two at once). Reaching your FIRST special city pays nothing yet —
+// but it is the only way to ever earn one, so it carries option value. Without that, no bot ever
+// builds toward the first city, so no bot ever collects a bonus at all.
+function connectionGain(s, cid, hexId, conn, diff){
+  const c=BOARD[hexId]&&BOARD[hexId].city; if(!c||!SPECIALS.has(c.name)||!conn||conn.has(c.name)) return 0;
+  const co=s.companies[cid], SD=specialDist(), reach=horizonRounds(s)*3;
+  let realized=0, option=0;
+  for (const [a,b] of SPECIAL_PAIRS){
+    if (co.bonuses.includes(a+'-'+b)) continue;
+    const other = a===c.name?b : (b===c.name?a : null); if(!other) continue;
+    if (conn.has(other)) realized += 10;
+    else { const d=(SD[other]||{})[hexId];                 // could this company still bridge to the other end?
+      if (d!==undefined && d<=reach) option += 10*0.30*Math.min(1, reach/(d*1.6)); }
+  }
+  return realized + option*(diff==='hard'?1:0.5);
+}
+// The best a turn of `cubes` cubes can do for this company: which city to head for, and what
+// reaching it is worth to me. Distance matters (a city 4 hops away needs Expand 4, not Expand 2)
+// and so does the treasury — track you cannot pay for is not track.
+function bestExpansion(s, me, cid, cubes, diff){
+  const co=s.companies[cid], track=companyTrack(s,cid);
+  if(!track.length || !legalExpandHexes(s,me,cid).length) return {value:0, target:null};
+  const slice=incomeSlice(s,me,cid), rl=horizonRounds(s), dist=bfsHex(track), trackSet=new Set(track);
+  const conn = diff==='easy' ? null : connectedCities(s, cid);   // hoisted: this is a BFS, not a lookup
+  let best=0, target=null;
+  for (const id in BOARD){
+    if (!BOARD[id].city || trackSet.has(id)) continue;
+    const d=dist[id]; if (d===undefined || d<1) continue;
+    const g=cubeCityGain(s,me,cid,id,diff);
+    const income = g.inc + (diff==='easy'?0:connectionGain(s,cid,id,conn,diff));
+    const mine = income*slice + g.steal;                    // what actually reaches me, plus what a rival drops
+    if (mine<=0) continue;
+    const afford = Math.min(1, 0.15 + co.treasury/(d*2.8));  // can the treasury pay for the whole route?
+    const reach  = d<=cubes ? 1 : (cubes/d)*0.55;            // arrive now, or bank progress toward it
+    const v = mine*rl*reach*afford - d*0.35;
+    if (v>best){ best=v; target=id; }
+  }
+  return {value:best, target};
+}
+// developing a city adds +$2 (sole occupant) or +$1 (shared) to each company there — my slice of that
+function developGain(s, me, id, diff){
+  const hs=s.hexes[id]; if(!hs) return 0; const cos=[...new Set(hs.cubes)], bonus = cos.length>=2?1:2;
   let mine=0, theirs=0;
-  for(const cid of cos){ const t=totalHeld(s,cid)||1, f=heldBy(s,cid,me)/t; mine+=f*bonus; theirs+=(1-f)*bonus; }
-  return cityScore(s,id,diff)*0.25 + mine*3 - (diff==='hard'?theirs*0.9:0);
+  for(const cid of cos){ const f=incomeSlice(s,me,cid); mine+=f*bonus; theirs+=(1-f)*bonus; }
+  return (mine - (diff==='hard'?theirs*0.35:0)) * horizonRounds(s);
+}
+function developValue(s, me, id, diff){ return developGain(s, me, id, diff); }
+// HARD, near the end: a leader wants the game OVER before rivals' income compounds, and drains the
+// cube piles and share supply to trigger it; a trailer wants the clock to run and stops helping.
+function endgameTilt(s, me, diff){
+  if (diff!=='hard') return 0;
+  if (horizonRounds(s) > 3.2) return 0;
+  const lead = s.players[me].money - leaderExcept(s, me);
+  return lead>8 ? 1 : (lead<-8 ? -1 : 0);
 }
 // HARD: occupying an empty single-cube chokepoint (forest/mountain) beside an opponent's track denies them that route
 function blockValue(s, me, id, diff){
@@ -5726,37 +5795,29 @@ function bfsHex(starts){ const dist={}, q=[]; (Array.isArray(starts)?starts:[sta
   return dist; }
 function companyTrack(s, cid){ return Object.keys(s.hexes).filter(id=>s.hexes[id].cubes.includes(cid)); }
 function cityHexByName(name){ return Object.keys(BOARD).find(id=>BOARD[id].city && BOARD[id].city.name===name); }
-// pick a city to head for: chase the +$10 special connection when it's one link away, else the best-value city (minus cube cost)
-function botExpandTarget(s, me, cid, diff){
-  const track=companyTrack(s, cid); if(!track.length) return null;
-  const fromTrack=bfsHex(track), connected=connectedCities(s, cid), trackSet=new Set(track), rl=Math.min(6, horizonRounds(s));
-  let bonusTarget=null, bonusScore=-1;
-  for(const [a,b] of [['Chicago','New York'],['Chicago','Atlanta'],['New York','Atlanta']]){
-    const hasA=connected.has(a), hasB=connected.has(b); if(hasA===hasB) continue;      // need exactly one already connected
-    const need=hasA?b:a, nhex=cityHexByName(need); if(!nhex) continue; const d=fromTrack[nhex]; if(d===undefined) continue;
-    const w=(diff==='hard'?1.0:0.85);
-    const sc = 10*rl*0.16*w - d*(diff==='hard'?0.5:0.7);                                // +$10 income over rounds, minus cube cost
-    if(sc>bonusScore){ bonusScore=sc; bonusTarget=nhex; }
-  }
-  let cityTarget=null, cityV=-1;
-  for(const id in BOARD){ const c=BOARD[id].city; if(!c||trackSet.has(id)) continue; const d=fromTrack[id]; if(d===undefined) continue;
-    const v = cityScore(s,id,diff) - d*(diff==='hard'?0.5:0.7) + stealValue(s,me,id,diff); if(v>cityV){ cityV=v; cityTarget=id; } }
-  if(bonusTarget && bonusScore >= cityV*(diff==='hard'?0.7:0.8)) return bonusTarget;
-  return cityTarget || bonusTarget;
+// The city this company should be heading for — the same dollar valuation the action chooser
+// uses, so the bot builds toward the thing it decided was worth doing.
+function botExpandTarget(s, me, cid, diff, cubes){
+  return bestExpansion(s, me, cid, cubes||4, diff).target;
 }
 function botExpandStep(s, me, diff){ const p=s.pending;
+  const cubes = (p && p.remaining) || 4;
   if (!p.companyId){ const cos=ownedExpandableCompanies(s, me); if(!cos.length) return 'endexpand';
-    let bestCo=cos[0], best=-1; for(const cid of cos){ const t=botExpandTarget(s, me, cid, diff); const hs=legalExpandHexes(s,me,cid);
-      const dom = totalHeld(s,cid)? heldBy(s,cid,me)/totalHeld(s,cid):1;               // #4 grow companies you dominate (income → your dividends)
-      const sc = ((diff!=='easy' && t) ? cityScore(s,t,diff)+(SPECIALS.has(BOARD[t].city.name)?4:0) : (hs.length?Math.max(...hs.map(h=>cityScore(s,h,diff))):0)) + (diff!=='easy'?dom*3:0);
-      if(sc>best){best=sc;bestCo=cid;} }
+    if (diff==='easy') return 'exco:'+cos[0];
+    // spend the cubes wherever they earn ME the most — a company a rival dominates pays the rival
+    let bestCo=cos[0], best=-1;
+    for(const cid of cos){ const v=bestExpansion(s, me, cid, cubes, diff).value; if(v>best){ best=v; bestCo=cid; } }
     return 'exco:'+bestCo; }
   const cid=p.companyId, hexes=legalExpandHexes(s, me, cid); if(!hexes.length) return 'endexpand';
   if (diff==='easy') return 'hex:'+hexes[Math.floor(Math.random()*hexes.length)];   // easy stays greedy/wasteful
-  const target=botExpandTarget(s, me, cid, diff);
+  const target=botExpandTarget(s, me, cid, diff, cubes);
   if(target){ const toTarget=bfsHex([target]); let best=hexes[0], bestKey=Infinity;
+    const conn=connectedCities(s,cid), slice=incomeSlice(s,me,cid);
     for(const h of hexes){ const d = toTarget[h]!==undefined?toTarget[h]:999;
-      const key = d - (BOARD[h].city?1.5:0) - cityScore(s,h,diff)*0.05 - blockValue(s,me,h,diff); // step toward target; grab a city; (hard) grab a blocking chokepoint
+      const g = cubeCityGain(s,me,cid,h,diff);
+      // step toward the target, but never walk past a city that pays on the way
+      const key = d - (g.inc*slice+g.steal)*0.35 - connectionGain(s,cid,h,conn,diff)*0.25
+                    - blockValue(s,me,h,diff) + expandCost(s,h)*0.08;
       if(key<bestKey){ bestKey=key; best=h; } }
     return 'hex:'+best; }
   return 'hex:'+hexes.slice().sort((a,b)=>cityScore(s,b,diff)-cityScore(s,a,diff))[0]; }
@@ -5764,41 +5825,54 @@ function botAction(s, me, diff){ const rows=availableActionRows(s), money=s.play
   const expCos=ownedExpandableCompanies(s, me), devHexes=legalDevelopHexes(s);
   const shareAvail = activeCompanyIds(s).some(id=>s.companies[id].sharesInSupply>0);
   const behind = leaderExcept(s,me) - money, late = rl<=2.2;  // trailing the leader? / little time left for income to pay off
-  // best expansion value: extending track has a base worth plus a city bonus
-  let eg=0; for(const cid of expCos){ for(const h of legalExpandHexes(s,me,cid)){ const g=(1.2+cityScore(s,h,diff))*rl*0.3; if(g>eg) eg=g; } }
+  // what a turn of N cubes is worth, on the best company available — distance to the next city
+  // is what separates Expand 4 from Expand 2, so each is costed separately
+  const expValue = n => { let best=0; for(const cid of expCos){ const v=bestExpansion(s,me,cid,n,diff).value; if(v>best) best=v; } return best; };
+  const e4=expValue(4), e3=expValue(3), e2=expValue(2);
   // only ADD actions the bot can actually complete (never a dead-end develop/auction)
-  const gm = diff==='hard'?1.55 : diff==='medium'?1.0 : 0.8;   // hard is keener to grow income
+  const gm = diff==='hard'?1.15 : diff==='medium'?1.0 : 0.8;   // hard is keener to grow income
   const dead = botAvoided(s, me);                              // rows it already backed out of this turn
   const cand=[]; const add=(r,v)=>{ if (rows.includes(r) && !dead.includes(r)) cand.push([r,v]); };
-  add('expand4', eg*1.25*gm);
-  add('expand3', eg*gm);
-  if (devHexes.length) add('develop', (Math.max(...devHexes.map(h=>cityScore(s,h,diff)))+1)*rl*0.28*gm);
+  add('expand4', e4*gm);
+  add('expand3', e3*gm);
+  if (devHexes.length) add('develop', Math.max(...devHexes.map(h=>developGain(s,me,h,diff))));
   // auction with intent: GRAB the best share when you can win it, or (hard) DRAIN a richer rival late game
   if (shareAvail){ const ap=auctionPlan(s,me,diff);
     if (ap.pick && (ap.mode==='drain' || money>=12)) add('auction', ap.value); }
-  // fund is worth more when a company you own is too poor to build what you want (hard funds proactively)
-  let fundNeed=1.2;
+  // Fund $5 is $5 of bank money turned into track — worth my slice of the income it buys, and worth
+  // much more when it is the only thing standing between a company and a city it can reach.
+  let fundV=0.8;
   for(const cid of [...new Set(s.players[me].shares)]){ const co=s.companies[cid]; if(!co.onMap||isRemoved(co)) continue;
-    if(co.treasury<3) fundNeed=Math.max(fundNeed, diff==='hard'?5:4);
-    else if(diff==='hard' && co.treasury<8 && legalExpandHexes(s,me,cid).length) fundNeed=Math.max(fundNeed,3.6); }
-  add('fund5', fundNeed);
-  // both take2 options shift you ~+$2 relative to each opponent (take from the bank, or everyone else pays the bank)
-  let take2v = 2.5;
+    const slice=incomeSlice(s,me,cid);
+    let v = 5/2.8*0.8*slice*rl*0.5;                            // ~1.8 cubes of track, part of which lands on cities
+    if (diff!=='easy'){ const plan=bestExpansion(s,me,cid,4,diff);
+      if (plan.target && co.treasury<6) v = Math.max(v, plan.value*0.45); }  // unblocks a build it cannot currently pay for
+    fundV=Math.max(fundV, v); }
+  add('fund5', fundV);
+  // Take $2 also lets 4-5p players place 2 cubes — that is the real value of the row, not the $2
+  let take2v = 2;
   if (late && behind>0 && diff!=='easy') take2v += (diff==='hard'?2.5:1.2); // grabbing cash matters more late when trailing
+  if (s.players.length>=4 && diff!=='easy') take2v = Math.max(take2v, e2*gm);
   add('take2', take2v);
-  add('pass', 0.6);
+  add('pass', 0.4);
   if (!cand.length){ return rows.find(r=>r!=='develop'&&r!=='auction'&&!dead.includes(r)) || rows.find(r=>!dead.includes(r)) || rows[0]; } // safety
   // #5 endgame: a fresh cube barely earns a dividend before the game ends — pivot to cash.
   // `rl` is the real horizon, so this also fires when the cube/dev piles (not the year) are about to end it.
   if (rl<=1.6 && diff!=='easy'){ for(const c of cand){ if(['expand3','expand4','develop','fund5','auction'].includes(c[0])) c[1]*=0.4; else if(c[0]==='take2') c[1]*=1.8; } }
   // #1 HARD tempo: the action you pick is your seat next phase (lower row = act first = first pick). Prefer an earlier seat among real actions.
-  if (diff==='hard' && (expCos.length||devHexes.length)){ for(const c of cand){ if(c[0]!=='pass') c[1] += (ACTION_ROWS.length-1-ACTION_ROWS.indexOf(c[0]))*0.18; } }
+  if (diff==='hard' && (expCos.length||devHexes.length)){ for(const c of cand){ if(c[0]!=='pass') c[1] += (ACTION_ROWS.length-1-ACTION_ROWS.indexOf(c[0]))*0.6; } }
   // #1 HARD denial: grabbing expand4 blocks the next opponent from the biggest build this phase
   if (diff==='hard' && s.phaseQueue.length>1){ const nxt=s.phaseQueue[1];
-    if (nxt!=null && nxt!==me){ let nd=0; for(const c2 of ownedExpandableCompanies(s,nxt)){ for(const h of legalExpandHexes(s,nxt,c2)){ const g=1.2+cityScore(s,h,diff); if(g>nd)nd=g; } }
-      for(const c of cand){ if(c[0]==='expand4') c[1]+= nd*0.3; } } }
+    if (nxt!=null && nxt!==me){ let nd=0; for(const c2 of ownedExpandableCompanies(s,nxt)){ const v=bestExpansion(s,nxt,c2,4,diff).value; if(v>nd) nd=v; }
+      for(const c of cand){ if(c[0]==='expand4') c[1]+= nd*0.22; } } }
+  // HARD endgame control: ahead near the end, spend cubes and sell shares to bring the game to a
+  // close before rivals' income compounds; behind, stop helping the clock run out.
+  const tilt = endgameTilt(s, me, diff);
+  if (tilt!==0){ for(const c of cand){
+    if (c[0]==='expand4'||c[0]==='auction') c[1] *= (tilt>0?1.25:0.8);
+    else if (c[0]==='take2'||c[0]==='pass')  c[1] *= (tilt>0?0.9:1.15); } }
   let bestRow=cand[0][0], bestVal=-Infinity;
-  for (const [r,base] of cand){ const v=base + (diff==='easy'?Math.random()*3 : diff==='medium'?Math.random()*0.6 : 0); if (v>bestVal){ bestVal=v; bestRow=r; } }
+  for (const [r,base] of cand){ const v=base*(diff==='easy'?(0.5+botNoise(s,me,'act'+r+s.actionPhase+s.round)) : diff==='medium'?(0.9+0.2*botNoise(s,me,'act'+r+s.actionPhase+s.round)) : 1); if (v>bestVal){ bestVal=v; bestRow=r; } }
   return bestRow; }
 
 /* ============================ 9. RENDER ============================ */
@@ -6392,6 +6466,42 @@ window.__selfTest = function(){
     m.auction={companyId:'american',isSetup:false,bid:0,highBidder:null,active:[0,1,2],cur:0}; return botBidCap(m,0,'hard'); }
   assert('bots bid far less for a share in the final year', capAt(1857,10) < capAt(1851,10)*0.5);
   assert('final-year share is below the $10 minimum — bot passes', capAt(1857,6) < 10);
+
+  /* ---- bot strategy: expansion, connections, endgame control ---- */
+  function expState(mine, theirs){
+    const m=miniState(); m.year=1852; m.turnPhase='chooseAction'; m.currentPlayer=0;
+    const start=cityHexByName('Cleveland');
+    m.hexes[start]={cubes:['american'],developed:false};
+    const co=m.companies.american; co.onMap=true; co.income=4; co.treasury=20;
+    m.players[0].shares=mine.slice(); m.players[1].shares=theirs.slice(); return m; }
+  const soloOwned = bestExpansion(expState(['american'],[]),0,'american',4,'hard').value;
+  const rivalHeavy = bestExpansion(expState(['american'],['american','american']),0,'american',4,'hard').value;
+  assert('expansion: growing a company rivals dominate is worth less to me', rivalHeavy < soloOwned*0.6);
+  assert('expansion: a wholly-owned company is worth expanding', soloOwned>0);
+  // reach matters: 4 cubes get further than 2, so the row is not worth the same
+  const far4 = bestExpansion(expState(['american'],[]),0,'american',4,'hard').value;
+  const far2 = bestExpansion(expState(['american'],[]),0,'american',2,'hard').value;
+  assert('expansion: Expand 4 is worth at least as much as Expand 2', far4>=far2);
+  // special connections: +$10 when the far end is already on the company's network
+  { const m=miniState(); m.year=1853; const ny=cityHexByName('New York');
+    assert('connection: completing a pair is worth +$10',
+      connectionGain(m,'american',ny,new Set(['Chicago']),'hard') >= 10);
+    assert('connection: reaching the first special city still carries option value',
+      connectionGain(m,'american',ny,new Set(['Cleveland']),'hard') > 0); }
+  // developing pays my slice of +$2, not the whole city
+  { const m=miniState(); const h=cityHexByName('Cleveland'); m.year=1853;
+    m.hexes[h]={cubes:['american'],developed:false}; m.players[0].shares=['american'];
+    const solo=developGain(m,0,h,'hard');
+    m.players[1].shares=['american','american'];
+    assert('develop: worth less when rivals hold most of the company', developGain(m,0,h,'hard') < solo*0.6); }
+  // endgame control: near the end a leader wants it over, a trailer does not
+  { const m=miniState(); m.year=1856; m.players[0].money=90; m.players[1].money=40; m.players[2].money=40;
+    for(const id of COMPANY_IDS){ m.companies[id].onMap=true; m.companies[id].cubesInSupply=3; }
+    assert('endgame: the leader pushes to finish', endgameTilt(m,0,'hard')===1);
+    assert('endgame: a trailing bot stops helping the clock', endgameTilt(m,1,'hard')===-1);
+    const early=miniState(); early.year=1851; early.players[0].money=90;
+    assert('endgame: no tilt while there is still time', endgameTilt(early,0,'hard')===0);
+    assert('endgame: medium bots do not play the clock', endgameTilt(m,0,'medium')===0); }
 
   // a full game driven entirely by the bots' own brains (catches crashes in every AI path)
   function playBots(seed, diffs){
