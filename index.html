@@ -5902,7 +5902,7 @@ function botBidCap(s, me, diff, ctx){
   // a share is worth more than anyone can afford, so the purse binds first. It therefore has to vary
   // as much as the valuation does. When it was a flat fraction, every bot's first-share ceiling was
   // the same figure and every opening share sold for exactly that.
-  let spend = per.spend;
+  let spend = per.spend, prepFloor = Infinity;   // prepFloor = cash it refuses to commit to THIS lot
   if (a.isSetup){
     const left = s.setupQueue.length + 1;                     // prep auctions still to come, including this one
     // OPPORTUNITY COST. The prep round auctions all six companies one after another, so a share is
@@ -5920,13 +5920,29 @@ function botBidCap(s, me, diff, ctx){
     } else if (owned===0){                                    // walking out of the prep round with no share means no income all game
       v *= left<=1 ? 2.2 : left<=2 ? 1.5 : 1.15;              // so the fewer chances remain, the less choosy it gets
       spend = left<=1 ? 0.95 : Math.max(spend, 0.50); }
-    else spend *= 0.78;
+    // Already holding a share, so less desperate — EXCEPT when the lot in front of you is the best
+    // one left in the round. Cutting spending power here regardless was the last thing keeping the
+    // scarce-share companies cheap: they are auctioned last, by which point every bot owned something
+    // and had throttled itself to 78%, so Liberty sold for a quarter of what the bots valued it at.
+    else spend *= (v0 >= best ? 1.0 : 0.78);
     // ALL-IN: back one railroad hard and own it, rather than collecting a share of everything
     if (plan==='allin' && (owned===0 || heldBy(s,cid,me)>0)){ v *= 1.28; spend = Math.min(0.9, spend*1.3); }
+    // BUDGET THE WHOLE ROUND. Discounting this lot because a better one is coming isn't enough on its
+    // own — the money still leaves the purse, and by the time the last lots come up everyone is spent.
+    // That is why Liberty and Republic, the scarce-share companies, went for $12: not because anyone
+    // valued them at $12, but because they are auctioned last. A bot now ring-fences roughly what it
+    // expects to need for the railroads it rates ABOVE this one, and bids only what is left over.
+    if (plan!=='allin'){
+      let reserve = 0;
+      for (const id of s.setupQueue){
+        if (shareValueToBot(s, me, id, seedCash, diff) > v0) reserve += expectedSharePrice(s, me, id, diff);
+      }
+      prepFloor = Math.max(money*0.18, money - Math.min(reserve*0.8, money*0.62));
+    }
   } else if (horizonRounds(s)<=1.6) spend *= 0.35;            // the end is in sight: a share pays once or twice, cash pays forever
   // how deep this bot digs into its purse for THIS share — ±16%, fixed per bot per company
   const purse = money * spend * (0.84 + 0.32*botNoise(s, me, 'purse'+cid+(a.isSetup?'prep':'r'+(s.round||0))));
-  let cap = Math.min(v, purse, money);
+  let cap = Math.min(v, purse, prepFloor, money);
   // A personality-sized impulse. Real players take a fancy to a railroad, and a bot that is always
   // exactly at its calculated number is a bot you can read. Deterministic per bot, company and round,
   // so it is a settled opinion about this share rather than a twitch that changes mid-auction.
@@ -6873,6 +6889,20 @@ window.__selfTest = function(){
       return botBidCap(m,0,'extreme'); };
     assert('prep: a bot pays less when a better railroad is still to be auctioned',
       openCap('american',['liberty','republic']) < openCap('american',[])); }
+  // budgeting across the whole round: the scarce-share companies are auctioned LAST, so a bot that
+  // has already bought must not throttle itself out of the best lot left
+  { const m=miniState(); m.year=1851; m.turnPhase='bidding'; m.currentPlayer=0;
+    m.players.forEach(p=>{p.persona='baron';}); m.players[0].shares=['american'];
+    const capFor=(cid,queue)=>{ m.setupQueue=queue.slice();
+      m.auction={companyId:cid,isSetup:true,bid:0,highBidder:null,active:[0,1,2],cur:0};
+      return botBidCap(m,0,'extreme'); };
+    // liberty last, nothing better to come: a bot holding a share should still bid properly for it
+    const lastLot = capFor('liberty', []);
+    const earlyLot = capFor('majestic', ['liberty']);      // something better still queued
+    assert('prep: the best remaining lot is not throttled by already owning a share', lastLot > earlyLot);
+    // (no head-to-head cap assertion here: with a full purse both lots are capped by cash rather than
+    // worth, so the ceilings are equal by design. The value difference is asserted on shareWorth above.)
+  }
   // a 2nd share of a company you already own alone pays you nothing extra — only denial is worth paying for
   let m10=miniState(); m10.companies.liberty.onMap=true; m10.companies.liberty.income=12;
   m10.companies.liberty.sharesInSupply=1; m10.players[0].shares=['liberty'];
