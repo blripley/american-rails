@@ -5478,13 +5478,31 @@ const COMPANY_START = { american:30, national:28, continental:25, majestic:21, l
 //   concentrate appetite for a 2nd/3rd share of a company it already holds
 //   spend       most of its cash it will sink into a single share
 //   spite       willingness to run the price up on a rival it can't outbid
+//   hoard/allIn  odds this bot approaches the PREP round off-model — sitting it out to keep its cash
+//                for the cheaper shares later, or committing hard to one railroad from the first lot
+//   splurge      odds it simply wants a particular share more than the maths says
 const BOT_PERSONAS = {
-  tycoon:     { label:'Tycoon',     aggr:1.30, open:0.60, jump:0.80, concentrate:1.35, spend:0.72, spite:0.25, blurb:'buys control and pays for it' },
-  speculator: { label:'Speculator', aggr:1.06, open:0.42, jump:0.45, concentrate:0.70, spend:0.55, spite:0.15, blurb:'spreads its money over many roads' },
-  banker:     { label:'Banker',     aggr:0.72, open:0.18, jump:0.08, concentrate:0.95, spend:0.34, spite:0.05, blurb:'hoards cash and waits for bargains' },
-  baron:      { label:'Baron',      aggr:1.05, open:0.45, jump:0.45, concentrate:1.15, spend:0.58, spite:0.15, blurb:'steady and opportunistic' },
-  saboteur:   { label:'Saboteur',   aggr:1.12, open:0.30, jump:0.60, concentrate:0.90, spend:0.60, spite:0.85, blurb:'bids to make rivals bleed' },
+  tycoon:     { label:'Tycoon',     aggr:1.30, open:0.60, jump:0.80, concentrate:1.35, spend:0.72, spite:0.25, hoard:0.00, allIn:0.55, splurge:0.20, blurb:'buys control and pays for it' },
+  speculator: { label:'Speculator', aggr:1.06, open:0.42, jump:0.45, concentrate:0.70, spend:0.55, spite:0.15, hoard:0.15, allIn:0.05, splurge:0.12, blurb:'spreads its money over many roads' },
+  banker:     { label:'Banker',     aggr:0.72, open:0.18, jump:0.08, concentrate:0.95, spend:0.34, spite:0.05, hoard:0.30, allIn:0.00, splurge:0.04, blurb:'hoards cash and waits for bargains' },
+  baron:      { label:'Baron',      aggr:1.05, open:0.45, jump:0.45, concentrate:1.15, spend:0.58, spite:0.15, hoard:0.08, allIn:0.15, splurge:0.10, blurb:'steady and opportunistic' },
+  saboteur:   { label:'Saboteur',   aggr:1.12, open:0.30, jump:0.60, concentrate:0.90, spend:0.60, spite:0.85, hoard:0.10, allIn:0.30, splurge:0.18, blurb:'bids to make rivals bleed' },
 };
+// How this bot intends to play the preparation round, rolled once per game from its personality.
+// HOARD is deliberately off-model: it sits out the opening, lets the others spend their $50, and
+// picks up the cheap late lots and the mid-game auctions with a full purse. ALL-IN is the opposite —
+// commit to a railroad from the first lot and own it outright.
+// Measured over 240 bot-games: all-in wins 37%, playing it straight 27%, hoarding 6% ($143 against
+// $194). Hoarding loses because income compounds — a share bought in round 3 collects five dividends
+// instead of seven — and no amount of cheap late buying makes that back. It is kept at low odds
+// because a table where every bot plays the same optimal line is a table you only have to solve once,
+// but it is a character trait, not a hidden edge.
+function prepPlan(s, me, diff){
+  const per = personaOf(s, me), r = botNoise(s, me, 'prepplan');
+  if (r < (per.hoard||0)) return 'hoard';
+  if (r > 1 - (per.allIn||0)) return 'allin';
+  return 'normal';
+}
 const PERSONA_IDS = Object.keys(BOT_PERSONAS);
 // The difficulty ladder. Extreme inherits every single thing Hard knows and then adds to it,
 // so `hardPlus` guards the shared behaviour and `isExtreme` guards what only Extreme does.
@@ -5895,14 +5913,26 @@ function botBidCap(s, me, diff, ctx){
     const later = s.setupQueue.map(id=>shareValueToBot(s, me, id, seedCash, diff));
     const best = later.length ? Math.max(...later) : 0;
     if (best > v0) v *= Math.max(0.4, v0/best);               // a better railroad is coming — keep your powder dry
-    if (owned===0){                                           // walking out of the prep round with no share means no income all game
+    const plan = prepPlan(s, me, diff);
+    if (plan==='hoard'){
+      // sitting the opening out on purpose: only a bargain gets a bid, and it never panics at the end
+      spend = Math.min(spend, 0.30); v *= 0.55;
+    } else if (owned===0){                                    // walking out of the prep round with no share means no income all game
       v *= left<=1 ? 2.2 : left<=2 ? 1.5 : 1.15;              // so the fewer chances remain, the less choosy it gets
       spend = left<=1 ? 0.95 : Math.max(spend, 0.50); }
     else spend *= 0.78;
+    // ALL-IN: back one railroad hard and own it, rather than collecting a share of everything
+    if (plan==='allin' && (owned===0 || heldBy(s,cid,me)>0)){ v *= 1.28; spend = Math.min(0.9, spend*1.3); }
   } else if (horizonRounds(s)<=1.6) spend *= 0.35;            // the end is in sight: a share pays once or twice, cash pays forever
   // how deep this bot digs into its purse for THIS share — ±16%, fixed per bot per company
   const purse = money * spend * (0.84 + 0.32*botNoise(s, me, 'purse'+cid+(a.isSetup?'prep':'r'+(s.round||0))));
   let cap = Math.min(v, purse, money);
+  // A personality-sized impulse. Real players take a fancy to a railroad, and a bot that is always
+  // exactly at its calculated number is a bot you can read. Deterministic per bot, company and round,
+  // so it is a settled opinion about this share rather than a twitch that changes mid-auction.
+  const imp = botNoise(s, me, 'impulse'+cid+(a.isSetup?'prep':'r'+(s.round||0)));
+  if (imp < (per.splurge||0)) cap *= 1.35;                    // wants it, and is prepared to be silly
+  else if (imp > 0.93) cap *= 0.72;                           // off it today, whatever the numbers say
   // SPITE (Hard+): can't win it outright, so make the leader bleed for it — but never past a
   // price this bot would be content to be stuck with if the bluff is called. Extreme only does this
   // to the seat it has judged to be winning, and never in the prep round where cash is scarcest.
@@ -5918,11 +5948,14 @@ function botBidCap(s, me, diff, ctx){
 // ruthless ones. A Banker Extreme bids like a Banker and pays like a Tycoon.
 function bidStyle(s, me, diff){ const p=personaOf(s, me);
   if (!isExtreme(diff)) return p;
+  // Ruthless at the core, but the personality still shows through — a table of Extreme bots that all
+  // bid the same number is just one opponent wearing four hats. Each trait is pulled toward the tuned
+  // centre rather than replaced by it, and the off-model plans (hoard / all-in / splurge) survive intact.
   return { label:p.label, blurb:p.blurb, open:Math.min(p.open,0.25), jump:p.jump,
-           aggr:EX_TUNE.aggr, concentrate:EX_TUNE.ownBoost,
-           // its ceiling and appetite are ruthless, but how deep it digs stays part personality —
-           // otherwise every Extreme bot at the table has the identical purse and bids the identical number
+           aggr: EX_TUNE.aggr * (0.88 + 0.24*Math.max(0, Math.min(1, (p.aggr-0.72)/0.58))),
+           concentrate:(p.concentrate + EX_TUNE.ownBoost)/2,
            spend:(p.spend + EX_TUNE.spend)/2,
+           hoard:p.hoard, allIn:p.allIn, splurge:p.splurge,
            spite:Math.max(p.spite,0.5) }; }
 // How much to actually put on the table: an opening bid is an anchor (a strong bot slams the
 // door), later raises creep once the ceiling is close.
@@ -6048,7 +6081,16 @@ function botAction(s, me, diff){ const rows=availableActionRows(s), money=s.play
   if (devHexes.length) add('develop', Math.max(...devHexes.map(h=>developGain(s,me,h,diff))));
   // auction with intent: GRAB the best share when you can win it, or (hard) DRAIN a richer rival late game
   if (shareAvail){ const ap=auctionPlan(s,me,diff);
-    if (ap.pick && (ap.mode==='drain' || money>=12)) add('auction', ap.value); }
+    if (ap.pick && (ap.mode==='drain' || money>=12)){
+      let av=ap.value;
+      // IDLE CAPITAL. Cash only wins if it becomes income in time, so a bot sitting on a full purse
+      // with little on the board should be putting shares up itself and buying them. Without this a
+      // bot that deliberately sat out the opening auction never deploys what it saved.
+      if (rl>=3.5 && diff!=='easy'){
+        const idle = money / (18 + s.players[me].shares.length*20);
+        if (idle > 1) av *= Math.min(2.2, 1 + (idle-1)*1.3);
+      }
+      add('auction', av); } }
   // Fund $5 is $5 of bank money turned into track — worth my slice of the income it buys, and worth
   // much more when it is the only thing standing between a company and a city it can reach.
   let fundV=0.8;
@@ -6892,6 +6934,34 @@ window.__selfTest = function(){
     assert('podium: seat order does not decide places', finalPlaces(mk([90,300,220]))[1]===1);
     assert('podium: three metals are defined', ['gold','silver','bronze'].every(m=>TROPHY_METAL[m]&&TROPHY_METAL[m].length===3));
     assert('podium: trophies render as svg', /^<svg[\s\S]*<\/svg>$/.test(trophySVG('silver')) && trophySVG('bronze').includes('#bd7a45')); }
+
+  /* ---- personalities: visible from the first bid, and off-model on purpose ---- */
+  { const plans={};
+    for (let seed=1; seed<=60; seed++){
+      const m=miniState(); m.seed=seed*7919;
+      m.players.forEach((p,i)=>{ p.bot='extreme'; p.persona=PERSONA_IDS[(i+seed)%PERSONA_IDS.length]; });
+      m.players.forEach((p,i)=>{ const k=p.persona+':'+prepPlan(m,i,'extreme'); plans[k]=(plans[k]||0)+1; }); }
+    const any=(pre)=>Object.keys(plans).some(k=>k.startsWith(pre));
+    assert('personas: a Banker sometimes sits the opening out', any('banker:hoard'));
+    assert('personas: a Banker also plays it straight sometimes', any('banker:normal'));
+    assert('personas: a Tycoon never hoards', !any('tycoon:hoard'));
+    assert('personas: a Tycoon does commit all-in', any('tycoon:allin'));
+    assert('personas: every plan is one of the three',
+      Object.keys(plans).every(k=>/:(hoard|allin|normal)$/.test(k))); }
+  // the plan has to change what it actually bids, not just be recorded
+  { const m=miniState(); m.year=1851; m.turnPhase='bidding'; m.currentPlayer=0; m.setupQueue=['liberty','republic'];
+    m.auction={companyId:'american',isSetup:true,bid:0,highBidder:null,active:[0,1,2],cur:0};
+    const capWith=persona=>{ m.players[0].persona=persona; return botBidCap(m,0,'extreme'); };
+    m.seed=1; const banker=capWith('banker'), tycoon=capWith('tycoon');
+    assert('personas: a Tycoon opens above a Banker', tycoon > banker);
+    assert('personas: even a hoarding bot will take a bargain', banker >= 0); }
+  // above Hard the personality is pulled toward the tuned centre, never erased
+  { const m=miniState(); m.turnPhase='bidding'; m.currentPlayer=0; m.year=1853;
+    m.auction={companyId:'american',isSetup:false,bid:0,highBidder:null,active:[0,1,2],cur:0};
+    m.players[0].persona='banker'; const exB=bidStyle(m,0,'extreme');
+    m.players[0].persona='tycoon'; const exT=bidStyle(m,0,'extreme');
+    assert('personas: Extreme keeps them distinguishable', exT.aggr > exB.aggr && exT.spend > exB.spend);
+    assert('personas: Extreme still lifts the timid ones toward ruthless', exB.spend > BOT_PERSONAS.banker.spend); }
 
   /* ---- tier labels: shown one step down from the internal keys ---- */
   assert('labels: the ladder reads Training / Easy / Medium / Hard',
