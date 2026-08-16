@@ -5503,9 +5503,13 @@ const EX_TUNE = {
   // purpose: a share is also the RIGHT TO EXPAND that company, and a player holding four roads has
   // four times the choices every turn — an option the dividend forecast doesn't price. Because it
   // creeps by the minimum it almost never pays this, but the ceiling still binds, so it cannot be
-  // baited into a genuinely bad buy. (Simulation: 0.75 -> 54% wins, 0.95 -> 76%, 1.35 -> 78%. Past
-  // this point only the cash cap binds and the valuation stops meaning anything.)
-  valueFrac: 1.15,
+  // baited into a genuinely bad buy.
+  // Lowered from 1.15 after play against a human: at 1.15 the purse cap bound instead of the
+  // valuation, so every opening share went for a flat 60%-of-cash $30 and the bots entered the game
+  // broke. Bot-vs-bot simulation liked that (95% wins) because the opposition was equally broke — a
+  // human who simply bids less then buys whatever they like for the rest of the game. 0.85 keeps
+  // 80% against three Hard bots while leaving the valuation, not the purse, in charge of the price.
+  valueFrac: 0.85,
   aggr: 1.0,
   spend: 0.6,        // THE key discipline: never more than 60% of its cash on one share
   appetite: [1, 0.95, 0.9, 0.85, 0.8],    // shares are underpriced in this game, so it keeps buying
@@ -5603,10 +5607,18 @@ function projectedIncome(s, cid, extraCash, diff){
   const builds = Math.max(0, Math.min(cubes, cash/3.13));
   return base + builds*1.0*0.55; }                            // 0.55: growth ramps in, so the AVERAGE is what matters
 // shares of this company likely to be sold AFTER this one — they dilute everybody's dividend
+// How many MORE of this company's shares will be in players' hands by the end, on top of the one being
+// bought. This is what separates a 5-share company from a 2-share one, and it used to be capped at a
+// flat ~1.5 for everybody — so American and Continental came out identically valued, and a bot would
+// pay the same for a fifth of a railroad as for a half of one. It now scales with the shares actually
+// left in the supply. Calibrated against real games: about 62% of a company's shares find a buyer
+// before 1857 (American 3.3 of 5, Liberty 1.6 of 2), and because they sell gradually the early
+// dividends are undiluted, so the average divisor over a whole game is lower than the final one.
 function expectedDilution(s, cid, diff){
   if (diff==='easy') return 0;
   const supply = Math.max(0, s.companies[cid].sharesInSupply-1);
-  return Math.min(supply, horizonRounds(s)*0.22) * (hardPlus(diff)?0.65:0.5); }
+  const sellThrough = Math.min(0.75, horizonRounds(s)*0.11);   // less time left, fewer of them sell
+  return supply * sellThrough * 0.62 * (hardPlus(diff)?1:0.85); }
 // dollars of dividend one more share of cid pays `me` before 1857.
 //   contested — a rival takes it if I don't: I gain one share's dividend at the diluted rate
 //   solo      — nobody else wants it: only the true marginal gain, ~$0 for a company I already own
@@ -5848,6 +5860,7 @@ function botBidCap(s, me, diff, ctx){
   // a winning bid is paid INTO the company treasury, so part of it comes back as track and income
   const seedCash = Math.min(money*0.5, 20) * (heldBy(s,cid,me)>0 ? 1 : 0.8);
   let v = shareValueToBot(s, me, cid, seedCash, diff);
+  const v0 = v;                                               // untouched worth, for comparing against the shares still to come
   // Extreme raises its ceiling because it never pays it: it creeps by the minimum and walks the
   // moment the price passes the share's worth, so a high ceiling costs it nothing.
   v *= (diff==='easy'?0.34 : diff==='medium'?0.46 : isExtreme(diff)?EX_TUNE.valueFrac : 0.55);
@@ -5866,16 +5879,30 @@ function botBidCap(s, me, diff, ctx){
   }
   // a fixed but unguessable ±18% mood for this particular share, so a bot never bids to the cent
   v *= 0.82 + 0.36*botNoise(s, me, 'mood'+cid+(a.isSetup?'prep':'r'+(s.round||0)));
-  // cash discipline: money is victory points, and more shares are coming up
+  // Cash discipline: money is victory points, and more shares are coming up.
+  // NOTE this is usually the number that decides an opening bid, not the valuation above — early on,
+  // a share is worth more than anyone can afford, so the purse binds first. It therefore has to vary
+  // as much as the valuation does. When it was a flat fraction, every bot's first-share ceiling was
+  // the same figure and every opening share sold for exactly that.
   let spend = per.spend;
   if (a.isSetup){
     const left = s.setupQueue.length + 1;                     // prep auctions still to come, including this one
+    // OPPORTUNITY COST. The prep round auctions all six companies one after another, so a share is
+    // not competing with cash — it is competing with the five still to come. Spending your stack on
+    // the first railroad up is only right if nothing better follows. Without this the price simply
+    // tracked the running order: everyone was flush for American and broke by Liberty, so the
+    // 5-share company went for $30 and the 2-share one for $12, which is backwards.
+    const later = s.setupQueue.map(id=>shareValueToBot(s, me, id, seedCash, diff));
+    const best = later.length ? Math.max(...later) : 0;
+    if (best > v0) v *= Math.max(0.4, v0/best);               // a better railroad is coming — keep your powder dry
     if (owned===0){                                           // walking out of the prep round with no share means no income all game
       v *= left<=1 ? 2.2 : left<=2 ? 1.5 : 1.15;              // so the fewer chances remain, the less choosy it gets
-      spend = left<=1 ? 0.95 : Math.max(spend, 0.60); }
+      spend = left<=1 ? 0.95 : Math.max(spend, 0.50); }
     else spend *= 0.78;
   } else if (horizonRounds(s)<=1.6) spend *= 0.35;            // the end is in sight: a share pays once or twice, cash pays forever
-  let cap = Math.min(v, money*spend, money);
+  // how deep this bot digs into its purse for THIS share — ±16%, fixed per bot per company
+  const purse = money * spend * (0.84 + 0.32*botNoise(s, me, 'purse'+cid+(a.isSetup?'prep':'r'+(s.round||0))));
+  let cap = Math.min(v, purse, money);
   // SPITE (Hard+): can't win it outright, so make the leader bleed for it — but never past a
   // price this bot would be content to be stuck with if the bluff is called. Extreme only does this
   // to the seat it has judged to be winning, and never in the prep round where cash is scarcest.
@@ -5892,7 +5919,10 @@ function botBidCap(s, me, diff, ctx){
 function bidStyle(s, me, diff){ const p=personaOf(s, me);
   if (!isExtreme(diff)) return p;
   return { label:p.label, blurb:p.blurb, open:Math.min(p.open,0.25), jump:p.jump,
-           aggr:EX_TUNE.aggr, concentrate:EX_TUNE.ownBoost, spend:EX_TUNE.spend,
+           aggr:EX_TUNE.aggr, concentrate:EX_TUNE.ownBoost,
+           // its ceiling and appetite are ruthless, but how deep it digs stays part personality —
+           // otherwise every Extreme bot at the table has the identical purse and bids the identical number
+           spend:(p.spend + EX_TUNE.spend)/2,
            spite:Math.max(p.spite,0.5) }; }
 // How much to actually put on the table: an opening bid is an anchor (a strong bot slams the
 // door), later raises creep once the ceiling is close.
@@ -6786,6 +6816,21 @@ window.__selfTest = function(){
   let m9=miniState(); m9.year=1851;
   assert('valuation: a scarce share beats a crowded one',
     shareWorth(m9,0,'liberty',0,'hard').contested > shareWorth(m9,0,'american',0,'hard').contested*1.1);
+  // the printed share count has to drive the price, not just tip it — a fifth of a railroad is
+  // worth far less than a half of one, and these used to come out identical
+  { const dil=id=>expectedDilution(m9,id,'extreme');
+    assert('valuation: dilution scales with the shares actually printed',
+      dil('american') > dil('national') && dil('national') > dil('continental') && dil('continental') > dil('liberty'));
+    const w=id=>shareWorth(m9,0,id,0,'extreme').contested;
+    assert('valuation: a 2-share company is worth well over a 5-share one', w('liberty') > w('american')*1.6);
+    assert('valuation: 3-share beats 5-share', w('continental') > w('american')*1.15); }
+  // in the prep round every company is auctioned in turn, so a share competes with the ones still to come
+  { const m=miniState(); m.year=1851; m.turnPhase='bidding'; m.currentPlayer=0; m.players.forEach(p=>{p.persona='baron';});
+    const openCap=(cid,queue)=>{ m.setupQueue=queue.slice();
+      m.auction={companyId:cid,isSetup:true,bid:0,highBidder:null,active:[0,1,2],cur:0};
+      return botBidCap(m,0,'extreme'); };
+    assert('prep: a bot pays less when a better railroad is still to be auctioned',
+      openCap('american',['liberty','republic']) < openCap('american',[])); }
   // a 2nd share of a company you already own alone pays you nothing extra — only denial is worth paying for
   let m10=miniState(); m10.companies.liberty.onMap=true; m10.companies.liberty.income=12;
   m10.companies.liberty.sharesInSupply=1; m10.players[0].shares=['liberty'];
