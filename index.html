@@ -5529,12 +5529,16 @@ const EX_TUNE = {
   // broke. Bot-vs-bot simulation liked that (95% wins) because the opposition was equally broke — a
   // human who simply bids less then buys whatever they like for the rest of the game. 0.85 keeps
   // 80% against three Hard bots while leaving the valuation, not the purse, in charge of the price.
-  valueFrac: 0.85,
+  // Lowered again to 0.75 after watching a human bid the bots up and drop out: paying everything a
+  // share is worth leaves no profit, and against a rival who keeps bidding they were paying ~$21 for
+  // shares that settle at ~$16 bot-against-bot. The gap below 1 IS the profit, and it is what makes
+  // them walk away with cash rather than be milked.
+  valueFrac: 0.75,
+  denial: 0.9,       // weight on what a RIVAL loses when this share is taken off them
   aggr: 1.0,
   spend: 0.6,        // THE key discipline: never more than 60% of its cash on one share
   appetite: [1, 0.95, 0.9, 0.85, 0.8],    // shares are underpriced in this game, so it keeps buying
   ownBoost: 1.2,     // wanting more of a company it already holds
-  rivalHeld: 0.5,    // wanting a minority stake in a company a rival dominates
   // How far it will divert a cube to wall the leader out. Deliberately small: blocking measurably
   // BACKFIRES when it costs real track (simulation: weight 2.2 -> 80% wins, 0.3 -> 90%), because a
   // cube spent on a wall is a cube not earning income. At 0.3 it only takes the gate when the gate
@@ -5659,6 +5663,17 @@ function shareValueToBot(s, me, cid, extraCash, diff){
     pressure = (a.highBidder!=null && a.highBidder!==me) ? 1 : Math.min(0.85, rivals*0.3);
   }
   return w.solo + (w.contested - w.solo)*pressure; }
+// DENIAL. Taking a share does two things: it pays you a dividend, and it splits the company's income
+// one more way, so every share a rival holds pays them less. In a game scored on cash, money they
+// don't get counts as money you do. This is the whole reason to contest the last share of a small
+// company: letting a rival hold both Liberty shares hands them the full income every round, and the
+// old code actively DISCOUNTED such shares on the reasoning that buying in "funds a rival's company".
+// It doesn't — dividends come from the bank, so buying in earns you income and dilutes them at once.
+function denialValue(s, me, cid, diff){
+  const t=totalHeld(s,cid); if (t<=0) return 0;
+  const theirs = t - heldBy(s,cid,me); if (theirs<=0) return 0;
+  const inc = projectedIncome(s, cid, 0, diff), rl = horizonRounds(s);
+  return theirs * (inc/t - inc/(t+1)) * rl; }
 // --- standings & opponent awareness (medium uses it lightly, hard leans on it) ---
 function leaderExcept(s, me){ let best=-Infinity; s.players.forEach((p,i)=>{ if(i!==me && p.money>best) best=p.money; }); return best; }
 function cashRank(s, me){ return s.players.filter((p,i)=> i!==me && p.money > s.players[me].money).length; } // 0 = richest
@@ -5787,7 +5802,7 @@ function bestExpansion(s, me, cid, cubes, diff){
   const conn = diff==='easy' ? null : connectedCities(s, cid);   // hoisted: this is a BFS, not a lookup
   // Extreme prices routes in dollars rather than hexes, so it stops marching companies through
   // $5 mountain chains when a $2 plains detour of the same length was there all along.
-  const cost = isExtreme(diff) ? cheapestRoute(s, track) : null;
+  const cost = hardPlus(diff) ? cheapestRoute(s, track) : null;   // Medium up: price routes in dollars, not hexes
   let best=0, target=null;
   for (const id in BOARD){
     if (!BOARD[id].city || trackSet.has(id)) continue;
@@ -5880,18 +5895,20 @@ function botBidCap(s, me, diff, ctx){
   // a winning bid is paid INTO the company treasury, so part of it comes back as track and income
   const seedCash = Math.min(money*0.5, 20) * (heldBy(s,cid,me)>0 ? 1 : 0.8);
   let v = shareValueToBot(s, me, cid, seedCash, diff);
+  // What a rival loses by not getting it counts too. Full weight at the top tier, half at Medium.
+  const den = hardPlus(diff) ? denialValue(s, me, cid, diff) * (isExtreme(diff) ? EX_TUNE.denial : 0.45) : 0;
+  v += den;
   const v0 = v;                                               // untouched worth, for comparing against the shares still to come
-  // Extreme raises its ceiling because it never pays it: it creeps by the minimum and walks the
-  // moment the price passes the share's worth, so a high ceiling costs it nothing.
+  // The margin is the point. A bot that will pay everything a share is worth makes nothing on the
+  // deal, and a human can drag it all the way there simply by bidding against it and dropping out.
+  // Requiring a profit means it walks away with cash instead of being milked.
   v *= (diff==='easy'?0.34 : diff==='medium'?0.46 : isExtreme(diff)?EX_TUNE.valueFrac : 0.55);
   v *= per.aggr;
   const owned = p.shares.length;
   if (isExtreme(diff)){
-    // MONOPOLY DISCIPLINE. A company nobody else holds pays you its whole income every round —
-    // the strongest position on the board. So: consolidate what you already hold, and never buy a
-    // minority stake in a rival's company, where your money funds THEIR dividend.
-    const mine=heldBy(s,cid,me), theirs=totalHeld(s,cid)-mine;
-    v *= theirs>mine ? EX_TUNE.rivalHeld : (mine>0 ? EX_TUNE.ownBoost : 1.0);
+    // Consolidate a company you already hold. There is deliberately NO penalty for buying into one a
+    // rival dominates: dividends come from the bank, so joining earns you income AND cuts theirs.
+    v *= (heldBy(s,cid,me)>0 ? EX_TUNE.ownBoost : 1.0);
     v *= EX_TUNE.appetite[Math.min(4, owned)];
   } else {
     v *= [1, 0.86, 0.62, 0.45, 0.34][Math.min(4, owned)];     // your first road is your engine; a fourth share is a luxury
@@ -5942,6 +5959,9 @@ function botBidCap(s, me, diff, ctx){
       prepFloor = Math.max(money*0.18, money - Math.min(reserve*0.8, money*0.62));
     }
   } else if (horizonRounds(s)<=1.6) spend *= 0.35;            // the end is in sight: a share pays once or twice, cash pays forever
+  // Stopping a rival cornering a railroad is worth digging deeper than the usual purse limit — that
+  // is the one purchase where being outbid costs you every round for the rest of the game.
+  if (den > 0 && den > v0*0.35) spend = Math.min(0.85, spend*1.35);
   // how deep this bot digs into its purse for THIS share — ±16%, fixed per bot per company
   const purse = money * spend * (0.84 + 0.32*botNoise(s, me, 'purse'+cid+(a.isSetup?'prep':'r'+(s.round||0))));
   let cap = Math.min(v, purse, prepFloor, money);
@@ -5982,8 +6002,10 @@ function botBidAmount(s, me, cap, minNext, per, diff){
   // SNIPING. In an ascending auction the winner pays one step above the runner-up either way, so
   // raising in big jumps only ever overshoots what it needed to spend. Extreme therefore creeps by
   // the minimum every time and lets its ceiling — not its temperament — decide when to stop.
-  if (isExtreme(diff)) return a.bid===0 ? Math.min(cap, minNext + (per.open>0.2 && r<0.4 ? 1 : 0))
-                                        : Math.min(cap, minNext);
+  // Medium gets this too: it is strictly better play and costs nothing, and it is the clearest
+  // difference a player feels between the middle and lower rungs — the bot stops overpaying.
+  if (hardPlus(diff)) return a.bid===0 ? Math.min(cap, minNext + (per.open>0.2 && r<0.4 ? 1 : 0))
+                                       : Math.min(cap, minNext);
   if (a.bid===0){ const open = 10 + Math.round((cap-10) * per.open * (0.6 + 0.8*r));
     return Math.max(minNext, Math.min(cap, open)); }
   const room = cap - minNext;
@@ -6007,8 +6029,17 @@ function botFundCo(s, me, diff){ const owned=[...new Set(s.players[me].shares)].
   // fund companies you DOMINATE (the treasury mostly benefits you) and that actually need it to build
   const score=cid=>{ const co=s.companies[cid], dom= totalHeld(s,cid)? heldBy(s,cid,me)/totalHeld(s,cid):1;
     const need=(co.treasury<8?1:0.3)*(legalExpandHexes(s,me,cid).length?1:0.4);
-    return dom*2 + need + (10-Math.min(10,co.treasury))*0.08; };
+    // a treasury it can never spend is money that does nothing: no cubes left, nowhere legal to build,
+    // or already holding more than the remaining cubes could possibly cost
+    const stuck = co.cubesInSupply<=0 || !legalExpandHexes(s,me,cid).length
+      || co.treasury > co.cubesInSupply*4 + 4;
+    return (dom*2 + need + (10-Math.min(10,co.treasury))*0.08) * (stuck ? 0.05 : 1); };
   return owned.slice().sort((a,b)=>score(b)-score(a))[0]; }
+// is funding worth an action at all, or is every company this bot holds already flush?
+function fundIsUseful(s, me){
+  return [...new Set(s.players[me].shares)].some(cid=>{ const co=s.companies[cid];
+    return co.onMap && !isRemoved(co) && co.cubesInSupply>0 && legalExpandHexes(s,me,cid).length
+      && co.treasury <= co.cubesInSupply*4 + 4; }); }
 function botTake2(s, me, diff){ if (s.players.length>=4 && diff!=='easy' && ownedExpandableCompanies(s,me).length) return 'take2expand';
   // 'fromEach' now sends others' $2 to the BANK (you gain nothing) — only a grind to drag the field down; else just take the $2
   if (hardPlus(diff) && s.players.length>=4 && leaderExcept(s,me) > s.players[me].money) return 'take2:fromEach';
@@ -6118,6 +6149,9 @@ function botAction(s, me, diff){ const rows=availableActionRows(s), money=s.play
     if (diff!=='easy'){ const plan=bestExpansion(s,me,cid,4,diff);
       if (plan.target && co.treasury<6) v = Math.max(v, plan.value*0.45); }  // unblocks a build it cannot currently pay for
     fundV=Math.max(fundV, v); }
+  // $5 into a treasury with no cubes left, nowhere legal to build, or more cash than it could ever
+  // spend is an action thrown away — it costs nothing but it buys nothing either
+  if (diff!=='easy' && !fundIsUseful(s,me)) fundV=0.15;
   add('fund5', fundV);
   // Take $2 also lets 4-5p players place 2 cubes — that is the real value of the row, not the $2
   let take2v = 2;
@@ -7092,6 +7126,39 @@ window.__selfTest = function(){
       gameState.companies[cid].onMap===true && gameState.hexes[stlouis].cubes.includes(cid));
     assert('start cube Confirm: income set from that city', gameState.companies[cid].income===BOARD[stlouis].city.full);
     assert('start cube Confirm: the auction moves on', gameState.turnPhase!=='confirmStartCube'); }
+
+  /* ---- denial: contesting a share a rival is about to corner ---- */
+  { const m=miniState(); m.year=1854; m.round=3; m.turnPhase='bidding'; m.currentPlayer=0;
+    m.players.forEach(p=>{p.persona='baron'; p.money=60;});
+    m.companies.liberty.onMap=true; m.companies.liberty.income=26; m.companies.liberty.sharesInSupply=1;
+    m.players[1].shares=['liberty'];                       // a rival holds the other of only two
+    m.auction={companyId:'liberty',isSetup:false,bid:0,highBidder:null,active:[0,1,2],cur:0};
+    assert('denial: worth something when a rival holds shares', denialValue(m,0,'liberty','extreme') > 20);
+    const contested = botBidCap(m,0,'extreme');
+    const mid = botBidCap(m,0,'hard');
+    const low = botBidCap(m,0,'medium');
+    m.players[1].shares=[];                                // identical share, nobody else holding
+    const uncontested = botBidCap(m,0,'extreme');
+    assert('denial: pays MORE for the share that stops a rival cornering a railroad', contested > uncontested);
+    assert('denial: no rival holding means no denial premium', denialValue(m,0,'liberty','extreme')===0);
+    assert('denial: Medium gets some of it, Hard gets more', mid > low && contested > mid);
+    // the old behaviour was the exact opposite — a rival holding it made the bot want it LESS
+    assert('denial: a rival holding a share never makes the bot want it less', contested >= uncontested); }
+  // funding a treasury that cannot be spent is a wasted action
+  { const m=miniState(); m.players[0].shares=['american'];
+    m.companies.american.onMap=true; m.companies.american.treasury=40; m.companies.american.cubesInSupply=1;
+    assert('fund: pointless when the treasury already exceeds what the cubes could cost', !fundIsUseful(m,0));
+    m.companies.american.treasury=2; m.companies.american.cubesInSupply=10;
+    m.hexes[cityHexByName('Chicago')]={cubes:['american'],developed:false};
+    assert('fund: useful when the company is poor and has somewhere to build', fundIsUseful(m,0)); }
+  // sniping moved down a rung
+  { const m=miniState(); m.turnPhase='bidding'; m.currentPlayer=0; m.round=2;
+    m.players.forEach(p=>{p.persona='tycoon';});
+    m.companies.american.onMap=true; m.companies.american.income=20;
+    m.auction={companyId:'american',isSetup:false,bid:14,highBidder:1,active:[0,1,2],cur:0};
+    const per=bidStyle(m,0,'hard');
+    assert('Medium now creeps by the minimum too, instead of jumping',
+      botBidAmount(m,0,60,15,per,'hard')===15); }
 
   /* ---- Extreme tier ---- */
   { const m=miniState(); m.year=1853; m.turnPhase='bidding'; m.currentPlayer=0; m.round=2;
