@@ -1,0 +1,52 @@
+{
+  "_note": "Terrain grid for the Canadian Rails 1851 map. 22 rows x 26 cols, pointy-top odd-r (odd rows shifted right), hex radius 34 rather than the American board's 41 — the smaller tile buys 44% more cells inside the same 1700x1400 frame, which is what pulls the crowded Lake Erie and Lake Ontario shores apart. Legend: O = off-map (ocean, lake, or panel space), P = plains, F = forest, M = mountain, C = city (the city itself comes from cities.json, which must place a city on every C). Two areas are deliberately empty: the top-left (rows 0-4, cols 0-11) is the Shield cut back to a rim, and now carries the title cartouche; rows 15-21 carry the year track, terrain legend and house supply, with the Atlantic corner (cols 19-25, rows 12+) carrying the action table.",
+  "legend": {
+    "O": "off-map",
+    "P": "plains",
+    "F": "forest",
+    "M": "mountain",
+    "C": "city"
+  },
+  "grid": [
+    "OOOOOOOOOOOOOOOOOOFMCMOOOO",
+    "OOOOOOOOOOOMFCOOOFMMFFOOOO",
+    "OOOOOOOOOOOOMFOFCMCFFMOOOO",
+    "OOOOOOOOOOOMMFOFMFFCFFOOOO",
+    "OOOOOOOOOFFMMFFFMFFCFFOOOO",
+    "CFFFFFFFFPPMFCFFMFFFFFOOOO",
+    "OCFFFMFFFFPCFPFMFPCPCOCOFC",
+    "OOFFMMFCFPPCFFFFMMPPCMCFMO",
+    "OOOFMFFFFCPCFCMMPPCCOOCFOO",
+    "OOOCPCPMCFPPMMFFOOOOFCFFFO",
+    "OOOPPPCCCOOMFFFOOOOFFFOOOO",
+    "OPPPPCCOOOOOOFCOOOCOOOOOOO",
+    "OOPPCCCPOOOOOOOOOOOOOOOOOO",
+    "OOCCPCPOOOOOOOOOOOOOOOOOOO",
+    "OCCCPPOOOOOOOOOOOOOOOOOOOO",
+    "OOPPPOOOOOOOOOOOOOOOOOOOOO",
+    "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+    "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+    "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+    "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+    "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+    "OOOOOOOOOOOOOOOOOOOOOOOOOO"
+  ],
+  "regions": {
+    "_note": "Why each area is the terrain it is. Purely documentation — the generator reads only `grid`.",
+    "Canadian Shield": "Rows 0-6, cols 1-9. Mountain. Settlement in Canada West had run up against the Shield in exactly 1851; the government began surveying the Ottawa-Huron Tract that decade. This is the northern wall.",
+    "Laurentians / north shore": "Rows 1-4, cols 9-12. Mountain. The Shield comes right down to the St Lawrence below Québec — the reason the Côte-Nord was never settled.",
+    "Ottawa Valley": "Rows 3-7, cols 6-8. Forest. The great square-timber pineries that made Bytown.",
+    "St Lawrence Lowlands": "Rows 5-9, cols 6-11. Plains. The seigneurial farmland and the one cheap corridor between the two barriers — the trunk route.",
+    "Ontario peninsula": "Rows 9-12, cols 1-5. Plains and cities. The best farmland in British North America and the densest town network; the Great Western's battleground.",
+    "Frontenac Axis": "(6,8) and (7,8), mountain, immediately north of Kingston. The Shield reaches the St Lawrence here — a genuine narrows in the corridor.",
+    "Notre-Dame Mountains": "Rows 2-5, cols 13-14 and rows 7-9, cols 11-12. Mountain. The Appalachian chain along the south shore, continuing into the Eastern Townships as the Sutton range.",
+    "Matapédia gap": "(14,3) and (14,4), mountain, between Campbellton and the lower St Lawrence. The only land route from Canada East into New Brunswick, and the line Major Robinson recommended in 1849.",
+    "New Brunswick Highlands": "Rows 5-8, cols 12-13. Mountain and forest. The interior barrier between the Saint John valley and the Miramichi.",
+    "Maritime Plain": "(16,6) and (16,7). Plains. The low ground from Fredericton through The Bend to the Northumberland shore.",
+    "Chignecto Isthmus": "The Bend (17,6) to Amherst (17,7). The 24 km neck that is the only land connection into Nova Scotia.",
+    "Cobequid Hills": "(18,6), mountain, between Amherst and Pictou. The ridge the Nova Scotia Railway had to work around.",
+    "Annapolis Valley": "(17,8), plains, sheltered between North and South Mountain.",
+    "Cape Breton": "(20,7) mountain highlands, Sydney (21,6) at the coalfield. Attached only across the Strait of Canso at (20,6).",
+    "Prince Edward Island": "Charlottetown (18,5), reachable only from Pictou (19,6) across the Northumberland Strait — the 1851 packet route. A deliberate island prize; see the design brief."
+  }
+}

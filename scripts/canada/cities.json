@@ -1,0 +1,483 @@
+{
+  "_note": "1851 cities for the Canadian Rails map. lat/lon are real modern coordinates for the historical site; name is the name IN USE IN 1851. full/shared are the two printed income values. hub = non-developable port (black square). special = one of the three $10 connection cities. region is for terrain authoring and the research doc only.",
+  "cities": [
+    {
+      "name": "Montréal",
+      "lat": 45.502,
+      "lon": -73.567,
+      "full": 7,
+      "shared": 4,
+      "hub": true,
+      "special": true,
+      "region": "CE",
+      "pop1851": 57715,
+      "note": "Commercial capital of British North America; head of ocean navigation. Lachine Canal 1825; St Lawrence dredging began 1850."
+    },
+    {
+      "name": "Québec",
+      "lat": 46.813,
+      "lon": -71.208,
+      "full": 6,
+      "shared": 4,
+      "hub": true,
+      "region": "CE",
+      "pop1851": 42052,
+      "note": "Great timber port and capital of Canada East; the largest shipbuilding centre in BNA."
+    },
+    {
+      "name": "Toronto",
+      "lat": 43.651,
+      "lon": -79.383,
+      "full": 5,
+      "shared": 3,
+      "hub": true,
+      "special": true,
+      "region": "CW",
+      "pop1851": 30775,
+      "note": "Capital of Canada West; exploded from under 2,000 in 1825."
+    },
+    {
+      "name": "Halifax",
+      "lat": 44.649,
+      "lon": -63.575,
+      "full": 6,
+      "shared": 4,
+      "hub": true,
+      "special": true,
+      "region": "NS",
+      "pop1851": 20749,
+      "note": "Ice-free Atlantic port and Royal Navy North America station. The Intercolonial's whole objective. Printed at 7/5 rather than its ~20,700 population would suggest: it is 1,240 km from Montréal over the New Brunswick Highlands, and the terminus has to pay for the journey or no company will ever build east."
+    },
+    {
+      "name": "Saint John",
+      "lat": 45.273,
+      "lon": -66.063,
+      "full": 5,
+      "shared": 3,
+      "hub": true,
+      "region": "NB",
+      "pop1851": 22745,
+      "note": "Largest city in New Brunswick; timber and shipbuilding. With Portland parish adjoining, ~30,000."
+    },
+    {
+      "name": "Hamilton",
+      "lat": 43.256,
+      "lon": -79.871,
+      "full": 4,
+      "shared": 3,
+      "region": "CW",
+      "pop1851": 14112,
+      "note": "Head of Lake Ontario navigation; the Great Western Railway's home and headquarters.",
+      "nudge": [
+        -1,
+        0
+      ],
+      "nudgeWhy": "shifted so no two cities touch"
+    },
+    {
+      "name": "Kingston",
+      "lat": 44.231,
+      "lon": -76.486,
+      "full": 3,
+      "shared": 2,
+      "region": "CW",
+      "pop1851": 11585,
+      "note": "Fortress town at the foot of Lake Ontario, on the Frontenac Axis. Former capital."
+    },
+    {
+      "name": "Bytown",
+      "lat": 45.421,
+      "lon": -75.697,
+      "full": 3,
+      "shared": 2,
+      "region": "CW",
+      "pop1851": 7760,
+      "note": "Renamed Ottawa in 1855 — Bytown in 1851. Rideau Canal terminus and capital of the Ottawa Valley square-timber trade."
+    },
+    {
+      "name": "London",
+      "lat": 42.984,
+      "lon": -81.245,
+      "full": 3,
+      "shared": 3,
+      "region": "CW",
+      "pop1851": 7035,
+      "note": "Centre of the western peninsula; Great Western Railway on the way.",
+      "nudge": [
+        -1,
+        0
+      ],
+      "nudgeWhy": "shifted so no two cities touch"
+    },
+    {
+      "name": "Trois-Rivières",
+      "lat": 46.343,
+      "lon": -72.549,
+      "full": 3,
+      "shared": 2,
+      "region": "CE",
+      "pop1851": 4936,
+      "note": "Midway between Montréal and Québec; the St Maurice forges, the oldest industry in Canada.",
+      "nudge": [
+        -1,
+        -1
+      ],
+      "nudgeWhy": "shifted so no two cities touch"
+    },
+    {
+      "name": "St. Catharines",
+      "lat": 43.159,
+      "lon": -79.247,
+      "full": 3,
+      "shared": 2,
+      "region": "CW",
+      "pop1851": 4368,
+      "note": "On the Welland Canal — the lock system that bypassed Niagara Falls.",
+      "nudge": [
+        2,
+        0
+      ],
+      "nudgeWhy": "east of Hamilton, on the Niagara peninsula; shifted so no two cities touch"
+    },
+    {
+      "name": "Fredericton",
+      "lat": 45.964,
+      "lon": -66.643,
+      "full": 4,
+      "shared": 3,
+      "region": "NB",
+      "pop1851": 4458,
+      "note": "Capital of New Brunswick, at the head of Saint John River navigation."
+    },
+    {
+      "name": "Portland",
+      "lat": 43.659,
+      "lon": -70.255,
+      "full": 3,
+      "shared": 2,
+      "region": "US",
+      "pop1851": 20815,
+      "note": "Maine. Montréal's ice-free winter port — the entire purpose of the St Lawrence & Atlantic, which agreed on 4 August 1851 to meet the Atlantic & St Lawrence at Island Pond."
+    },
+    {
+      "name": "Sherbrooke",
+      "lat": 45.404,
+      "lon": -71.889,
+      "full": 2,
+      "shared": 1,
+      "region": "CE",
+      "pop1851": 2998,
+      "note": "Capital of the Eastern Townships, on the St Lawrence & Atlantic main line."
+    },
+    {
+      "name": "Belleville",
+      "lat": 44.163,
+      "lon": -77.383,
+      "full": 2,
+      "shared": 1,
+      "region": "CW",
+      "pop1851": 4569,
+      "note": "Bay of Quinte port on the Toronto–Montréal trunk route.",
+      "nudge": [
+        -1,
+        -1
+      ],
+      "nudgeWhy": "shifted so no two cities touch"
+    },
+    {
+      "name": "Pictou",
+      "lat": 45.679,
+      "lon": -62.709,
+      "full": 3,
+      "shared": 2,
+      "region": "NS",
+      "pop1851": 3000,
+      "note": "The Pictou coalfield. The Albion Mines Railway opened 19 September 1839 — Nova Scotia's first railway and the first genuinely effective steam operation in Canada.",
+      "nudge": [
+        1,
+        0
+      ],
+      "nudgeWhy": "shifted so no two cities touch"
+    },
+    {
+      "name": "Yarmouth",
+      "lat": 43.837,
+      "lon": -66.118,
+      "full": 3,
+      "shared": 2,
+      "region": "NS",
+      "pop1851": 3200,
+      "note": "One of the great sailing-ship registries of the age; enormous tonnage for its size."
+    },
+    {
+      "name": "Charlottetown",
+      "lat": 46.238,
+      "lon": -63.131,
+      "full": 3,
+      "shared": 2,
+      "region": "PEI",
+      "pop1851": 3000,
+      "note": "Capital of Prince Edward Island, then a separate colony."
+    },
+    {
+      "name": "Buffalo",
+      "lat": 42.886,
+      "lon": -78.879,
+      "full": 3,
+      "shared": 2,
+      "region": "US",
+      "pop1851": 42261,
+      "note": "New York. Erie Canal terminus; the Great Western was built to bridge Buffalo to Detroit across Canadian soil."
+    },
+    {
+      "name": "Detroit",
+      "lat": 42.331,
+      "lon": -83.046,
+      "full": 3,
+      "shared": 2,
+      "region": "US",
+      "pop1851": 21019,
+      "note": "Michigan. The western end of that same Great Western land bridge."
+    },
+    {
+      "name": "Chatham",
+      "lat": 42.402,
+      "lon": -82.191,
+      "full": 2,
+      "shared": 1,
+      "region": "CW",
+      "pop1851": 2070,
+      "note": "Canada West, on the Thames. (Distinct from Chatham, New Brunswick — see the name-collision note in the research doc.)",
+      "nudge": [
+        2,
+        0
+      ],
+      "nudgeWhy": "east of Windsor on the Thames; shifted so no two cities touch"
+    },
+    {
+      "name": "Windsor",
+      "lat": 42.317,
+      "lon": -83.037,
+      "full": 2,
+      "shared": 1,
+      "region": "CW",
+      "pop1851": 1000,
+      "note": "Facing Detroit across the river; named Windsor in 1836. (Distinct from Windsor, Nova Scotia.)",
+      "nudge": [
+        1,
+        1
+      ],
+      "nudgeWhy": "east of Detroit across the river; shifted so no two cities touch"
+    },
+    {
+      "name": "Sorel",
+      "lat": 46.043,
+      "lon": -73.114,
+      "full": 2,
+      "shared": 1,
+      "region": "CE",
+      "pop1851": 3424,
+      "note": "At the mouth of the Richelieu. Called William Henry 1787–1845, Sorel again by 1851.",
+      "nudge": [
+        -2,
+        0
+      ],
+      "nudgeWhy": "downstream and west of Trois-Rivières, at the Richelieu mouth; shifted so no two cities touch"
+    },
+    {
+      "name": "Saint-Hyacinthe",
+      "lat": 45.63,
+      "lon": -72.957,
+      "full": 1,
+      "shared": 1,
+      "region": "CE",
+      "pop1851": 3113,
+      "note": "Richelieu valley town on the St Lawrence & Atlantic.",
+      "nudge": [
+        -1,
+        2
+      ],
+      "nudgeWhy": "south-east of Montréal, on the Richelieu; shifted so no two cities touch"
+    },
+    {
+      "name": "Newcastle",
+      "lat": 47.006,
+      "lon": -65.571,
+      "full": 2,
+      "shared": 1,
+      "region": "NB",
+      "pop1851": 2000,
+      "note": "On the Miramichi — the great New Brunswick timber river. Named for the town, not the later amalgamated Miramichi."
+    },
+    {
+      "name": "The Bend",
+      "lat": 46.088,
+      "lon": -64.778,
+      "full": 3,
+      "shared": 2,
+      "region": "NB",
+      "pop1851": 1000,
+      "note": "The Bend of Petitcodiac — renamed Moncton only in 1855. Junction of every proposed Intercolonial route; the Saint John–Shediac line opened through here in 1860.",
+      "nudge": [
+        0,
+        -1
+      ],
+      "nudgeWhy": "shifted so no two cities touch"
+    },
+    {
+      "name": "Amherst",
+      "lat": 45.827,
+      "lon": -64.213,
+      "full": 3,
+      "shared": 2,
+      "region": "NS",
+      "pop1851": 1500,
+      "note": "On the Chignecto Isthmus — the 24 km neck that is the only land route into Nova Scotia."
+    },
+    {
+      "name": "Sydney",
+      "lat": 46.136,
+      "lon": -60.194,
+      "full": 2,
+      "shared": 2,
+      "region": "NS",
+      "pop1851": 1500,
+      "note": "Cape Breton. The Sydney coalfield, worked by the General Mining Association. Remote but valuable — hence the unusual 2/2."
+    },
+    {
+      "name": "Barrie",
+      "lat": 44.389,
+      "lon": -79.69,
+      "full": 1,
+      "shared": 1,
+      "region": "CW",
+      "pop1851": 1000,
+      "note": "On Kempenfelt Bay, on the Ontario, Simcoe & Huron (Northern) Railway then under construction toward Georgian Bay.",
+      "nudge": [
+        0,
+        -2
+      ],
+      "nudgeWhy": "inland on Lake Simcoe, north of the lakeshore chain; shifted so no two cities touch"
+    },
+    {
+      "name": "Sault Ste. Marie",
+      "lat": 46.509,
+      "lon": -84.333,
+      "full": 3,
+      "shared": 2,
+      "region": "CW",
+      "pop1851": 500,
+      "note": "The rapids between Lakes Superior and Huron; a fur-trade and portage post at the far edge of settlement. Value reflects remoteness: a long spur has to pay for itself."
+    },
+    {
+      "name": "Bruce Mines",
+      "lat": 46.294,
+      "lon": -83.795,
+      "full": 2,
+      "shared": 1,
+      "region": "CW",
+      "pop1851": 400,
+      "note": "Canada's first copper mine, opened by the Montreal Mining Company in 1847 and worked by Cornish miners; about 250 people by 1848. Value reflects remoteness: a long spur has to pay for itself.",
+      "nudge": [
+        1,
+        0
+      ],
+      "nudgeWhy": "shifted so no two cities touch"
+    },
+    {
+      "name": "Chicoutimi",
+      "lat": 48.428,
+      "lon": -71.058,
+      "full": 3,
+      "shared": 2,
+      "region": "CE",
+      "pop1851": 800,
+      "note": "Saguenay lumber settlement, founded 1842 — the northern frontier of settlement in Canada East. Value reflects remoteness: a long spur has to pay for itself."
+    },
+    {
+      "name": "Rimouski",
+      "lat": 48.449,
+      "lon": -68.523,
+      "full": 2,
+      "shared": 1,
+      "region": "CE",
+      "pop1851": 1100,
+      "note": "Lower St Lawrence; last substantial settlement before the Matapédia wilderness. Value reflects remoteness: a long spur has to pay for itself.",
+      "nudge": [
+        0,
+        1
+      ],
+      "nudgeWhy": "south bank of the estuary; latitude alone cannot say which bank"
+    },
+    {
+      "name": "Gaspé",
+      "lat": 48.831,
+      "lon": -64.482,
+      "full": 3,
+      "shared": 2,
+      "region": "CE",
+      "pop1851": 1000,
+      "note": "Fishing station at the tip of the peninsula, effectively cut off by land. Value reflects remoteness: a long spur has to pay for itself."
+    },
+    {
+      "name": "Campbellton",
+      "lat": 48.005,
+      "lon": -66.673,
+      "full": 2,
+      "shared": 1,
+      "region": "NB",
+      "pop1851": 700,
+      "note": "At the Matapédia gap on Chaleur Bay — the single land corridor between Canada East and New Brunswick, and the route Major Robinson recommended in 1849. Value reflects remoteness: a long spur has to pay for itself."
+    },
+    {
+      "name": "Bathurst",
+      "lat": 47.62,
+      "lon": -65.651,
+      "full": 2,
+      "shared": 1,
+      "region": "NB",
+      "pop1851": 1200,
+      "note": "Chaleur Bay timber port on Robinson's surveyed line. Value reflects remoteness: a long spur has to pay for itself.",
+      "nudge": [
+        1,
+        0
+      ],
+      "nudgeWhy": "shifted so no two cities touch"
+    },
+    {
+      "name": "St. Andrews",
+      "lat": 45.073,
+      "lon": -67.053,
+      "full": 2,
+      "shared": 1,
+      "region": "NB",
+      "pop1851": 2000,
+      "note": "Passamaquoddy Bay. The St Andrews & Quebec Railway's locomotive Pioneer landed here in March 1851 — then a strike, a storm and politics stalled the line. Value reflects remoteness: a long spur has to pay for itself.",
+      "nudge": [
+        -1,
+        0
+      ],
+      "nudgeWhy": "shifted so no two cities touch"
+    },
+    {
+      "name": "Pembroke",
+      "lat": 45.826,
+      "lon": -77.111,
+      "full": 2,
+      "shared": 1,
+      "region": "CW",
+      "pop1851": 1500,
+      "note": "Upper Ottawa Valley square-timber town, settled 1828 — the far end of the pineries. Value reflects remoteness: a long spur has to pay for itself."
+    },
+    {
+      "name": "Owen Sound",
+      "lat": 44.567,
+      "lon": -80.943,
+      "full": 2,
+      "shared": 1,
+      "region": "CW",
+      "pop1851": 1500,
+      "note": "Georgian Bay harbour, laid out 1840s as the Toronto–Lake Huron portage terminus. Value reflects remoteness: a long spur has to pay for itself."
+    }
+  ]
+}
