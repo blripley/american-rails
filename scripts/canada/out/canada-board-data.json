@@ -28,9 +28,9 @@
     "OOOOOOOOOOOOOOOOOOFMCMOOOO",
     "OOOOOOOOOOOMFCOOOFMMFFOOOO",
     "OOOOOOOOOOOOMFOFCMCFFMOOOO",
-    "OOOOOOOOOOOMMFOFMFFCFFOOOO",
+    "OOOOOOOOOOOMMFFFMFFCFFOOOO",
     "OOOOOOOOOFFMMFFFMFFCFFOOOO",
-    "CFFFFFFFFPPMFCFFMFFFFFOOOO",
+    "CFFFFFFFFPPMFCFFMFFFFPOOOO",
     "OCFFFMFFFFPCFPFMFPCPCOCOFC",
     "OOFFMMFCFPPCFFFFMMPPCMCFMO",
     "OOOFMFFFFCPCFCMMPPCCOOCFOO",
@@ -194,9 +194,9 @@
       "y": 186,
       "terrain": "city",
       "city": "Rimouski",
-      "value": "2/1",
-      "full": 2,
-      "shared": 1
+      "value": "3/2",
+      "full": 3,
+      "shared": 2
     },
     {
       "col": 17,
@@ -257,6 +257,17 @@
       "x": 894,
       "y": 237,
       "terrain": "forest"
+    },
+    {
+      "col": 14,
+      "row": 3,
+      "x": 952.9,
+      "y": 237,
+      "terrain": "city",
+      "city": "Fraserville",
+      "value": "4/2",
+      "full": 4,
+      "shared": 2
     },
     {
       "col": 15,
@@ -413,8 +424,8 @@
       "y": 339,
       "terrain": "city",
       "city": "Sault Ste. Marie",
-      "value": "3/2",
-      "full": 3,
+      "value": "4/2",
+      "full": 4,
       "shared": 2
     },
     {
@@ -512,8 +523,8 @@
       "y": 339,
       "terrain": "city",
       "city": "Québec",
-      "value": "6/4",
-      "full": 6,
+      "value": "5/4",
+      "full": 5,
       "shared": 4,
       "port": true
     },
@@ -575,7 +586,7 @@
       "row": 5,
       "x": 1365.1,
       "y": 339,
-      "terrain": "forest"
+      "terrain": "plains"
     },
     {
       "col": 1,
@@ -591,9 +602,9 @@
       "y": 390,
       "terrain": "city",
       "city": "Bruce Mines",
-      "value": "2/1",
-      "full": 2,
-      "shared": 1
+      "value": "4/2",
+      "full": 4,
+      "shared": 2
     },
     {
       "col": 3,
@@ -832,8 +843,8 @@
       "y": 441,
       "terrain": "city",
       "city": "Montréal",
-      "value": "7/4",
-      "full": 7,
+      "value": "6/4",
+      "full": 6,
       "shared": 4,
       "port": true,
       "start": true
@@ -1098,9 +1109,9 @@
       "y": 543,
       "terrain": "city",
       "city": "Owen Sound",
-      "value": "2/1",
-      "full": 2,
-      "shared": 1
+      "value": "4/2",
+      "full": 4,
+      "shared": 2
     },
     {
       "col": 4,
@@ -1365,8 +1376,8 @@
       "y": 645,
       "terrain": "city",
       "city": "Toronto",
-      "value": "5/3",
-      "full": 5,
+      "value": "4/3",
+      "full": 4,
       "shared": 3,
       "port": true,
       "start": true
@@ -1574,13 +1585,13 @@
       "name": "Montréal",
       "lat": 45.502,
       "lon": -73.567,
-      "full": 7,
+      "full": 6,
       "shared": 4,
       "hub": true,
       "special": true,
       "region": "CE",
       "pop1851": 57715,
-      "note": "Commercial capital of British North America; head of ocean navigation. Lachine Canal 1825; St Lawrence dredging began 1850.",
+      "note": "Commercial capital of British North America; head of ocean navigation. Lachine Canal 1825; St Lawrence dredging began 1850. Trimmed a point (was 7) to help fund raising the lower-St-Lawrence and Huron-shore towns — the trunk corridor was carrying the board's income almost alone.",
       "col": 11,
       "row": 7
     },
@@ -1588,12 +1599,12 @@
       "name": "Québec",
       "lat": 46.813,
       "lon": -71.208,
-      "full": 6,
+      "full": 5,
       "shared": 4,
       "hub": true,
       "region": "CE",
       "pop1851": 42052,
-      "note": "Great timber port and capital of Canada East; the largest shipbuilding centre in BNA.",
+      "note": "Great timber port and capital of Canada East; the largest shipbuilding centre in BNA. Trimmed a point (was 6) to help fund raising the lower-St-Lawrence and Huron-shore towns — the trunk corridor was carrying the board's income almost alone.",
       "col": 13,
       "row": 5
     },
@@ -1601,13 +1612,13 @@
       "name": "Toronto",
       "lat": 43.651,
       "lon": -79.383,
-      "full": 5,
+      "full": 4,
       "shared": 3,
       "hub": true,
       "special": true,
       "region": "CW",
       "pop1851": 30775,
-      "note": "Capital of Canada West; exploded from under 2,000 in 1825.",
+      "note": "Capital of Canada West; exploded from under 2,000 in 1825. Trimmed a point (was 5) to help fund raising Owen Sound — the southern Ontario core was pulling every company's track toward itself already.",
       "col": 5,
       "row": 11
     },
@@ -1990,11 +2001,11 @@
       "name": "Sault Ste. Marie",
       "lat": 46.509,
       "lon": -84.333,
-      "full": 3,
+      "full": 4,
       "shared": 2,
       "region": "CW",
       "pop1851": 500,
-      "note": "The rapids between Lakes Superior and Huron; a fur-trade and portage post at the far edge of settlement. Value reflects remoteness: a long spur has to pay for itself.",
+      "note": "The rapids between Lakes Superior and Huron; a fur-trade and portage post at the far edge of settlement. Nudged up slightly — even with Owen Sound now a reliable waypoint, measured play showed nobody continued the extra 5 hexes out here.",
       "col": 0,
       "row": 5
     },
@@ -2002,11 +2013,11 @@
       "name": "Bruce Mines",
       "lat": 46.294,
       "lon": -83.795,
-      "full": 2,
-      "shared": 1,
+      "full": 4,
+      "shared": 2,
       "region": "CW",
       "pop1851": 400,
-      "note": "Canada's first copper mine, opened by the Montreal Mining Company in 1847 and worked by Cornish miners; about 250 people by 1848. Value reflects remoteness: a long spur has to pay for itself.",
+      "note": "Canada's first copper mine, opened by the Montreal Mining Company in 1847 and worked by Cornish miners; about 250 people by 1848. Nudged up slightly — even with Owen Sound now a reliable waypoint, measured play showed nobody continued the extra 3 hexes out here.",
       "nudge": [
         1,
         0
@@ -2031,11 +2042,11 @@
       "name": "Rimouski",
       "lat": 48.449,
       "lon": -68.523,
-      "full": 2,
-      "shared": 1,
+      "full": 3,
+      "shared": 2,
       "region": "CE",
       "pop1851": 1100,
-      "note": "Lower St Lawrence; last substantial settlement before the Matapédia wilderness. Value reflects remoteness: a long spur has to pay for itself.",
+      "note": "Lower St Lawrence; last substantial settlement before the Matapédia wilderness. Bumped a notch above pure population: with Fraserville now anchoring the corridor upriver, this stretch needed to read as a route worth building, not just a remote dead end.",
       "nudge": [
         0,
         1
@@ -2043,6 +2054,23 @@
       "nudgeWhy": "south bank of the estuary; latitude alone cannot say which bank",
       "col": 16,
       "row": 2
+    },
+    {
+      "name": "Fraserville",
+      "lat": 47.827,
+      "lon": -69.542,
+      "full": 4,
+      "shared": 2,
+      "region": "CE",
+      "pop1851": 2986,
+      "note": "1851 name for Rivière-du-Loup (renamed back in the 20th century); the Fraser seigneurial family's village, incorporated 1850. Real population outgrew Chicoutimi, Rimouski and Gaspé combined by 1851 — the Grand Trunk later chose it as a terminus (1859). Added to give the lower St Lawrence corridor a genuine mid-route payoff instead of five remote 2/1 stops in a row.",
+      "nudge": [
+        -1,
+        1
+      ],
+      "nudgeWhy": "shifted so no two cities touch (Rimouski and Chicoutimi)",
+      "col": 14,
+      "row": 3
     },
     {
       "name": "Gaspé",
@@ -2118,11 +2146,11 @@
       "name": "Owen Sound",
       "lat": 44.567,
       "lon": -80.943,
-      "full": 2,
-      "shared": 1,
+      "full": 4,
+      "shared": 2,
       "region": "CW",
       "pop1851": 1500,
-      "note": "Georgian Bay harbour, laid out 1840s as the Toronto–Lake Huron portage terminus. Value reflects remoteness: a long spur has to pay for itself.",
+      "note": "Georgian Bay harbour, laid out 1840s as the Toronto–Lake Huron portage terminus. Measured play showed it (and Bruce Mines/Sault Ste. Marie beyond it) never got built into even at 2-3 hexes from the core network — a pure value problem, not distance. Raised to match its real population (comparable to Pembroke's) plus a bit more, since this is the one hex the whole northwest arm hinges on reaching.",
       "col": 3,
       "row": 9
     }
@@ -2163,12 +2191,12 @@
     1857
   ],
   "summary": {
-    "tiles": 190,
-    "forest": 76,
+    "tiles": 191,
+    "forest": 75,
     "mountain": 30,
-    "city": 39,
-    "plains": 45,
-    "totalFullValue": 115,
-    "totalSharedValue": 74
+    "city": 40,
+    "plains": 46,
+    "totalFullValue": 122,
+    "totalSharedValue": 79
   }
 }
