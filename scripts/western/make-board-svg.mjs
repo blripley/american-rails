@@ -115,8 +115,11 @@ const labels = [
   region('BRITISH COLUMBIA', 300, 210, 17, 5),
   region('THE PRAIRIES', 900, 90, 18, 6),
   region('NORTH-WEST TERRITORIES', 900, 118, 13, 3),
-  water('Pacific Ocean', 90, 700, 15),
-  water('Vancouver Island', 155, 1255, 13),
+  // RESCALE: repositioned for the 24x20 grid -- the coastline (and the
+  // water gap it opens onto) now sits around row 15 (Vancouver's own row),
+  // not row 10ish where the old 40x34 board's fixed coordinates landed.
+  water('Pacific Ocean', 45, 880, 14),
+  water('Vancouver Island', 470, 1210, 13),
   `  <text x="${craigellachiePx.x}" y="${craigellachiePx.y}" text-anchor="middle" font-family="&#39;EB Garamond&#39;,serif" font-style="italic" font-size="10.5" letter-spacing="0.5" fill="#5d4726" opacity=".85">&#10059; Craigellachie</text>`,
 ].join('\n');
 

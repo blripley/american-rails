@@ -6,17 +6,17 @@
   },
   "hexGrid": {
     "orientation": "pointy-top odd-r",
-    "radius": 24,
-    "horizontalSpacing": 41.5692,
-    "rowSpacing": 36,
+    "radius": 40,
+    "horizontalSpacing": 69.282,
+    "rowSpacing": 60,
     "origin": {
       "x": 60,
-      "y": 70
+      "y": 60
     },
-    "cols": 40,
-    "rows": 34,
-    "formula": "x = 60 + col*41.5692 + (row&1)*20.7846 ;  y = 70 + row*36",
-    "note": "Radius 24, not the American board's 41. Pieces and city type scale by 0.5854."
+    "cols": 24,
+    "rows": 20,
+    "formula": "x = 60 + col*69.2820 + (row&1)*34.6410 ;  y = 60 + row*60",
+    "note": "Radius 40, not the American board's 41. Pieces and city type scale by 0.9756."
   },
   "terrainCost": {
     "plains": "$2 + $2 per cube already in the hex",
@@ -25,40 +25,26 @@
     "mountain": "$5, one cube only"
   },
   "grid": [
-    "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
-    "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
-    "OOOOOOOOOOOOOOOFFFOOOOOOOOOOOOOOOOOOOOOO",
-    "OOOOOOOOOOOOOOFCFFFOOOOOOOOOOOOOOOOOOOOO",
-    "OOOOOOOOOOOOOOFFFFFFFOOOFFFOOOOOOOOOOOOO",
-    "OOOOOOOOOOOOOOFFFFFFFFFFFCFOOOOOOOOOOOOO",
-    "OOOOOOOOOOOOOOFFFOFFFFFFFFFFOOOOOOOOOOOO",
-    "OOOOOOOOOOOOOOFFFOOFFFCFFFFOOOOOOOOOOOOO",
-    "OOOOOOOOOOOOOOFFFOOOOFFFOFFFOOOOOOOOOOOO",
-    "OOOOOOOOOOOOOOFFFOOOOOOOOFFFOOOOOOOOOOOO",
-    "OOOOOOOOOOOOOOMMMOOOOOOOOPPPOOOOOOOOOOOO",
-    "OOOOOOOOOOOOOMMMOOOOOOOOOPPPOOOOOOOOOOOO",
-    "OOOOOOOOOOMMMMMMMOOOOOOOOOPPPOOOOOOOOOOO",
-    "OOOOOOOOMMMCMCMMOOOOOOOOOOPPPOOOOOOOOOOO",
-    "OOOOOOOMMMCMMMMMMOOOOOOOOOPPPPPPOOOOOOOO",
-    "OOOOOMMMCMMMCMCMMOOOOOOOOOPPPPCPOOOOOOOO",
-    "OOOOOMMMMMOOMMMMCMOOOOOOOOOPPCPPPOOOOOOP",
-    "OOOOMCMMOOOOOMMMMMMOOOPPPPPPPPCPOOOOPPPC",
-    "OOOOMMMOOOOOOOMMMMMMOPPCPPCPCPPPPPOOPCPP",
-    "OOOPPPOOOOOOOMMMMMMMPPPPPPPPPPPPPPPPPPPP",
-    "OOOOPPPOOOOOOOPPPPPCPCPPOOOOOPPPPPCPCPCP",
-    "OOPPPPOOOOOOOPCPCPPPPPOOOOOOOOOOPPPPPPPP",
-    "OPPPCPOOOOOOOOPPPPOOOOOOOOOOOOOOOOOOOPPP",
-    "PCPPPOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOPPP",
-    "OPPPCPOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOPCP",
-    "PPPPPPOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOPPO",
-    "PCPPPCPOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
-    "PPPOPPOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
-    "PPPOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
-    "FCFOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
-    "OFFFOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
-    "OFCFOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
-    "OOFFOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
-    "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"
+    "OOOOOOOOOOOOOOOOOOOOOOOO",
+    "OOOOOOOOFFFOOOOOOOOOOOOO",
+    "OOOOOOOOFCFFFOOFFOOOOOOO",
+    "OOOOOOOFFFFFFFFCFOOOOOOO",
+    "OOOOOOOOFFFFFFFFFFOOOOOO",
+    "OOOOOOOFFFOFFCFFFOOOOOOO",
+    "OOOOOOOFFFFOOFFFFFOOOOOO",
+    "OOOOOMMCMMOOOOOPPPOOOOOO",
+    "OOOOOMCMMMMOOOOPPPPOOOOO",
+    "OOOMMMMMCMMOOOPCPCPOOOOO",
+    "OOOMMCMMMMCPPPPPPPPPPPOP",
+    "OOMCMMCMMMMPCPPPCPCPCPPC",
+    "OOMMMCMMMMMCPPCPPPPPPPPP",
+    "OMCMPPPCPCPPCPPOOPPPCPCP",
+    "OMMMPOOPPPPOPPOOOOOPPPPP",
+    "PCPCPOOOOOOOOOOOOOOOPPCP",
+    "OPOPOOOOOOOOOOOOOOOOPCPP",
+    "COCOOOOOOOOOOOOOOOOOPPOO",
+    "PPOOOOOOOOOOOOOOOOOOOOOO",
+    "CPCPOOOOOOOOOOOOOOOOOOOO"
   ],
   "gridLegend": {
     "O": "off-map",
@@ -68,49 +54,49 @@
     "C": "city"
   },
   "regions": {
-    "_note": "Why each area is the terrain it is. Purely documentation — the generator reads only `grid`.",
-    "Northern boreal arc": "Rows 0-9. Forest. The Edmonton/Battleford/Prince Albert branch sits up here, off the CPR mainline proper — matching the research doc's note that this band saw very little of the real 1881-87 construction story and should read as sparse, low-value scenery, same choice as the Canadian board's Shield interior.",
-    "Rockies and Selkirks chokepoint": "Roughly cols 8-19, rows 10-19. Mountain. Banff, Field, Golden, Revelstoke and the Kicking Horse/Rogers Pass corridor — the single hardest and most expensive stretch of the whole railway, per the research doc's terrain section.",
-    "Fraser Canyon / BC interior plateau": "Cols 0-8, rows 14-19. Mountain, shading toward plains near Kamloops. Onderdonk's Fraser Canyon contract (Yale) and the drier interior plateau country the Thompson River corridor crosses.",
-    "Lower Mainland / Fraser lowlands": "Cols 0-7, rows 19-25. Plains. Vancouver, Port Moody, New Westminster and Yale's western end — flat lowland delta country opening onto the Strait of Georgia.",
-    "Vancouver Island water gap": "Cols 0-7, rows 24-26 are almost entirely off-map — the Strait of Georgia. A single narrow line of land hexes (col 1-2, rows 24-26) is the only crossing between the mainland cluster and Nanaimo, mirroring how the Canadian board's Charlottetown/Pictou and Sydney/Cape Breton crossings work: mostly a real off-map water gap, with one deliberately narrow, game-abstracted land link so the whole map stays one connected landmass. See the Vancouver Island section of the build report for the reasoning.",
-    "Vancouver Island": "Cols 0-6, rows 25-33. Plains near Nanaimo/Victoria/Esquimalt, forest further south — Victoria, Esquimalt and Nanaimo's own landmass, reached only via the crossing above and, in reality, never by the CPR itself (the Esquimalt & Nanaimo Railway was a separate, independently-owned company in this era).",
-    "Prairie corridor": "Everything else with cols >= 13 roughly (Manitoba, Saskatchewan/Assiniboia, and Alberta east of the foothills). Plains — the flat-to-rolling country that let Van Horne's crews lay 500+ miles in a single season (1882)."
+    "_note": "Why each area is the terrain it is. Purely documentation — the generator/build script reads only `grid`. Re-derived for the 24x22 rescale from where the actual cities in cities.json sit (not resized from the old 40x34 thresholds, and not eyeballed — see gen-terrain.mjs's terrainFor()).",
+    "Northern boreal arc": "Rows 0-6. Forest. Edmonton (9,2), Battleford (13,5) and Prince Albert (15,3) all sit in this band, off the CPR mainline proper — matching the research doc's note that this area saw very little of the real 1881-87 construction story and should read as sparse, low-value scenery, same choice as the Canadian board's Shield interior.",
+    "Rockies and Selkirks chokepoint": "Cols 3-10, rows 7-12. Mountain. Every one of Cochrane (7,7), Field (6,8), Calgary (8,9), Revelstoke (5,10), Gleichen (10,10), Banff (6,11), Kamloops (3,11) and Golden (5,12) lands inside this box — the single hardest and most expensive stretch of the whole railway, per the research doc's terrain section. Fort Macleod and Lethbridge (both row 13) sit deliberately just outside it: prairie/foothills towns, not mountain towns.",
+    "Fraser Canyon": "Cols 0-3, rows 11-14. Mountain, shading toward plains at Kamloops (already in the box above). Onderdonk's Fraser Canyon contract — Yale (2,13) sits right in this band.",
+    "Lower Mainland lowlands": "Cols 0-3, rows 15-17. Plains. Vancouver, Port Moody, New Westminster and the near shore — flat lowland delta country opening onto the Strait of Georgia.",
+    "Vancouver Island water gap": "The Strait of Georgia, hand-carved rather than auto-generated. Row 16 is off-map at every column except (1,16) — a single bridge hex directly adjacent to BOTH Vancouver (1,15) and Nanaimo (0,17), mirroring how the original 40x34 board's Charlottetown/Sydney-style crossings worked, just re-measured for this grid. Column 3 at row 16 carries an unrelated mainland-only connector (Port Moody <-> New Westminster) that does not touch the island. Row 17 is off-map at column 1 and row 18 is off-map at columns 2-3, specifically closing a 'back door' the automatic route-padding first produced (New Westminster reaching Nanaimo's island interior without ever crossing the bridge). Verified by BFS: removing (1,16) alone disconnects exactly the 7-hex island cluster (Nanaimo + Victoria + Esquimalt + their connecting tiles) from the other 196 tiles — a real, load-bearing single point of failure, not just an unused hex. See docs/western-canada-board-rescale-final.md for the full hex-by-hex accounting.",
+    "Vancouver Island": "Cols 0-3, rows 17-19, reached only through the bridge above. Nanaimo sits right at the crossing (row 17); Victoria and Esquimalt sit one row further south (row 19, two columns apart at cols 0 and 2) — the whole island cluster is compressed into 3 rows rather than the mainland-side rows' usual spread, specifically so it stays clear of the printed company-plates strip at the bottom of the frame. Reached, in reality, never by the CPR itself (the Esquimalt & Nanaimo Railway was a separate, independently-owned company in this era).",
+    "Prairie corridor": "Everything else still standing (Manitoba, Saskatchewan/Assiniboia, and Alberta east of the foothills). Plains — the flat-to-rolling country that let Van Horne's crews lay 500+ miles in a single season (1882)."
   },
   "cells": [
     {
-      "col": 15,
+      "col": 8,
+      "row": 1,
+      "x": 648.9,
+      "y": 120,
+      "terrain": "forest"
+    },
+    {
+      "col": 9,
+      "row": 1,
+      "x": 718.2,
+      "y": 120,
+      "terrain": "forest"
+    },
+    {
+      "col": 10,
+      "row": 1,
+      "x": 787.5,
+      "y": 120,
+      "terrain": "forest"
+    },
+    {
+      "col": 8,
+      "row": 2,
+      "x": 614.3,
+      "y": 180,
+      "terrain": "forest"
+    },
+    {
+      "col": 9,
       "row": 2,
       "x": 683.5,
-      "y": 142,
-      "terrain": "forest"
-    },
-    {
-      "col": 16,
-      "row": 2,
-      "x": 725.1,
-      "y": 142,
-      "terrain": "forest"
-    },
-    {
-      "col": 17,
-      "row": 2,
-      "x": 766.7,
-      "y": 142,
-      "terrain": "forest"
-    },
-    {
-      "col": 14,
-      "row": 3,
-      "x": 662.8,
-      "y": 178,
-      "terrain": "forest"
-    },
-    {
-      "col": 15,
-      "row": 3,
-      "x": 704.3,
-      "y": 178,
+      "y": 180,
       "terrain": "city",
       "city": "Edmonton",
       "value": "3/2",
@@ -119,178 +105,101 @@
       "port": true
     },
     {
-      "col": 16,
-      "row": 3,
-      "x": 745.9,
-      "y": 178,
+      "col": 10,
+      "row": 2,
+      "x": 752.8,
+      "y": 180,
       "terrain": "forest"
     },
     {
-      "col": 17,
-      "row": 3,
-      "x": 787.5,
-      "y": 178,
+      "col": 11,
+      "row": 2,
+      "x": 822.1,
+      "y": 180,
       "terrain": "forest"
     },
     {
-      "col": 18,
-      "row": 3,
-      "x": 829,
-      "y": 178,
-      "terrain": "forest"
-    },
-    {
-      "col": 14,
-      "row": 4,
-      "x": 642,
-      "y": 214,
-      "terrain": "forest"
-    },
-    {
-      "col": 15,
-      "row": 4,
-      "x": 683.5,
-      "y": 214,
-      "terrain": "forest"
-    },
-    {
-      "col": 16,
-      "row": 4,
-      "x": 725.1,
-      "y": 214,
-      "terrain": "forest"
-    },
-    {
-      "col": 17,
-      "row": 4,
-      "x": 766.7,
-      "y": 214,
-      "terrain": "forest"
-    },
-    {
-      "col": 18,
-      "row": 4,
-      "x": 808.2,
-      "y": 214,
-      "terrain": "forest"
-    },
-    {
-      "col": 19,
-      "row": 4,
-      "x": 849.8,
-      "y": 214,
-      "terrain": "forest"
-    },
-    {
-      "col": 20,
-      "row": 4,
+      "col": 12,
+      "row": 2,
       "x": 891.4,
-      "y": 214,
-      "terrain": "forest"
-    },
-    {
-      "col": 24,
-      "row": 4,
-      "x": 1057.7,
-      "y": 214,
-      "terrain": "forest"
-    },
-    {
-      "col": 25,
-      "row": 4,
-      "x": 1099.2,
-      "y": 214,
-      "terrain": "forest"
-    },
-    {
-      "col": 26,
-      "row": 4,
-      "x": 1140.8,
-      "y": 214,
-      "terrain": "forest"
-    },
-    {
-      "col": 14,
-      "row": 5,
-      "x": 662.8,
-      "y": 250,
+      "y": 180,
       "terrain": "forest"
     },
     {
       "col": 15,
-      "row": 5,
-      "x": 704.3,
-      "y": 250,
+      "row": 2,
+      "x": 1099.2,
+      "y": 180,
       "terrain": "forest"
     },
     {
       "col": 16,
-      "row": 5,
-      "x": 745.9,
-      "y": 250,
+      "row": 2,
+      "x": 1168.5,
+      "y": 180,
       "terrain": "forest"
     },
     {
-      "col": 17,
-      "row": 5,
+      "col": 7,
+      "row": 3,
+      "x": 579.6,
+      "y": 240,
+      "terrain": "forest"
+    },
+    {
+      "col": 8,
+      "row": 3,
+      "x": 648.9,
+      "y": 240,
+      "terrain": "forest"
+    },
+    {
+      "col": 9,
+      "row": 3,
+      "x": 718.2,
+      "y": 240,
+      "terrain": "forest"
+    },
+    {
+      "col": 10,
+      "row": 3,
       "x": 787.5,
-      "y": 250,
+      "y": 240,
       "terrain": "forest"
     },
     {
-      "col": 18,
-      "row": 5,
-      "x": 829,
-      "y": 250,
+      "col": 11,
+      "row": 3,
+      "x": 856.7,
+      "y": 240,
       "terrain": "forest"
     },
     {
-      "col": 19,
-      "row": 5,
-      "x": 870.6,
-      "y": 250,
+      "col": 12,
+      "row": 3,
+      "x": 926,
+      "y": 240,
       "terrain": "forest"
     },
     {
-      "col": 20,
-      "row": 5,
-      "x": 912.2,
-      "y": 250,
-      "terrain": "forest"
-    },
-    {
-      "col": 21,
-      "row": 5,
-      "x": 953.7,
-      "y": 250,
-      "terrain": "forest"
-    },
-    {
-      "col": 22,
-      "row": 5,
+      "col": 13,
+      "row": 3,
       "x": 995.3,
-      "y": 250,
+      "y": 240,
       "terrain": "forest"
     },
     {
-      "col": 23,
-      "row": 5,
-      "x": 1036.9,
-      "y": 250,
+      "col": 14,
+      "row": 3,
+      "x": 1064.6,
+      "y": 240,
       "terrain": "forest"
     },
     {
-      "col": 24,
-      "row": 5,
-      "x": 1078.4,
-      "y": 250,
-      "terrain": "forest"
-    },
-    {
-      "col": 25,
-      "row": 5,
-      "x": 1120,
-      "y": 250,
+      "col": 15,
+      "row": 3,
+      "x": 1133.9,
+      "y": 240,
       "terrain": "city",
       "city": "Prince Albert",
       "value": "5/3",
@@ -298,150 +207,122 @@
       "shared": 3
     },
     {
-      "col": 26,
-      "row": 5,
-      "x": 1161.6,
-      "y": 250,
+      "col": 16,
+      "row": 3,
+      "x": 1203.2,
+      "y": 240,
       "terrain": "forest"
     },
     {
-      "col": 14,
-      "row": 6,
-      "x": 642,
-      "y": 286,
+      "col": 8,
+      "row": 4,
+      "x": 614.3,
+      "y": 300,
       "terrain": "forest"
     },
     {
-      "col": 15,
-      "row": 6,
+      "col": 9,
+      "row": 4,
       "x": 683.5,
-      "y": 286,
+      "y": 300,
       "terrain": "forest"
     },
     {
-      "col": 16,
-      "row": 6,
-      "x": 725.1,
-      "y": 286,
+      "col": 10,
+      "row": 4,
+      "x": 752.8,
+      "y": 300,
       "terrain": "forest"
     },
     {
-      "col": 18,
-      "row": 6,
-      "x": 808.2,
-      "y": 286,
+      "col": 11,
+      "row": 4,
+      "x": 822.1,
+      "y": 300,
       "terrain": "forest"
     },
     {
-      "col": 19,
-      "row": 6,
-      "x": 849.8,
-      "y": 286,
-      "terrain": "forest"
-    },
-    {
-      "col": 20,
-      "row": 6,
+      "col": 12,
+      "row": 4,
       "x": 891.4,
-      "y": 286,
+      "y": 300,
       "terrain": "forest"
     },
     {
-      "col": 21,
-      "row": 6,
-      "x": 933,
-      "y": 286,
-      "terrain": "forest"
-    },
-    {
-      "col": 22,
-      "row": 6,
-      "x": 974.5,
-      "y": 286,
-      "terrain": "forest"
-    },
-    {
-      "col": 23,
-      "row": 6,
-      "x": 1016.1,
-      "y": 286,
-      "terrain": "forest"
-    },
-    {
-      "col": 24,
-      "row": 6,
-      "x": 1057.7,
-      "y": 286,
-      "terrain": "forest"
-    },
-    {
-      "col": 25,
-      "row": 6,
-      "x": 1099.2,
-      "y": 286,
-      "terrain": "forest"
-    },
-    {
-      "col": 26,
-      "row": 6,
-      "x": 1140.8,
-      "y": 286,
-      "terrain": "forest"
-    },
-    {
-      "col": 27,
-      "row": 6,
-      "x": 1182.4,
-      "y": 286,
+      "col": 13,
+      "row": 4,
+      "x": 960.7,
+      "y": 300,
       "terrain": "forest"
     },
     {
       "col": 14,
-      "row": 7,
-      "x": 662.8,
-      "y": 322,
+      "row": 4,
+      "x": 1029.9,
+      "y": 300,
       "terrain": "forest"
     },
     {
       "col": 15,
-      "row": 7,
-      "x": 704.3,
-      "y": 322,
+      "row": 4,
+      "x": 1099.2,
+      "y": 300,
       "terrain": "forest"
     },
     {
       "col": 16,
-      "row": 7,
-      "x": 745.9,
-      "y": 322,
+      "row": 4,
+      "x": 1168.5,
+      "y": 300,
       "terrain": "forest"
     },
     {
-      "col": 19,
-      "row": 7,
-      "x": 870.6,
-      "y": 322,
+      "col": 17,
+      "row": 4,
+      "x": 1237.8,
+      "y": 300,
       "terrain": "forest"
     },
     {
-      "col": 20,
-      "row": 7,
-      "x": 912.2,
-      "y": 322,
+      "col": 7,
+      "row": 5,
+      "x": 579.6,
+      "y": 360,
       "terrain": "forest"
     },
     {
-      "col": 21,
-      "row": 7,
-      "x": 953.7,
-      "y": 322,
+      "col": 8,
+      "row": 5,
+      "x": 648.9,
+      "y": 360,
       "terrain": "forest"
     },
     {
-      "col": 22,
-      "row": 7,
+      "col": 9,
+      "row": 5,
+      "x": 718.2,
+      "y": 360,
+      "terrain": "forest"
+    },
+    {
+      "col": 11,
+      "row": 5,
+      "x": 856.7,
+      "y": 360,
+      "terrain": "forest"
+    },
+    {
+      "col": 12,
+      "row": 5,
+      "x": 926,
+      "y": 360,
+      "terrain": "forest"
+    },
+    {
+      "col": 13,
+      "row": 5,
       "x": 995.3,
-      "y": 322,
+      "y": 360,
       "terrain": "city",
       "city": "Battleford",
       "value": "4/3",
@@ -449,336 +330,108 @@
       "shared": 3
     },
     {
-      "col": 23,
-      "row": 7,
-      "x": 1036.9,
-      "y": 322,
-      "terrain": "forest"
-    },
-    {
-      "col": 24,
-      "row": 7,
-      "x": 1078.4,
-      "y": 322,
-      "terrain": "forest"
-    },
-    {
-      "col": 25,
-      "row": 7,
-      "x": 1120,
-      "y": 322,
-      "terrain": "forest"
-    },
-    {
-      "col": 26,
-      "row": 7,
-      "x": 1161.6,
-      "y": 322,
-      "terrain": "forest"
-    },
-    {
       "col": 14,
-      "row": 8,
-      "x": 642,
-      "y": 358,
+      "row": 5,
+      "x": 1064.6,
+      "y": 360,
       "terrain": "forest"
     },
     {
       "col": 15,
-      "row": 8,
-      "x": 683.5,
-      "y": 358,
+      "row": 5,
+      "x": 1133.9,
+      "y": 360,
       "terrain": "forest"
     },
     {
       "col": 16,
-      "row": 8,
-      "x": 725.1,
-      "y": 358,
-      "terrain": "forest"
-    },
-    {
-      "col": 21,
-      "row": 8,
-      "x": 933,
-      "y": 358,
-      "terrain": "forest"
-    },
-    {
-      "col": 22,
-      "row": 8,
-      "x": 974.5,
-      "y": 358,
-      "terrain": "forest"
-    },
-    {
-      "col": 23,
-      "row": 8,
-      "x": 1016.1,
-      "y": 358,
-      "terrain": "forest"
-    },
-    {
-      "col": 25,
-      "row": 8,
-      "x": 1099.2,
-      "y": 358,
-      "terrain": "forest"
-    },
-    {
-      "col": 26,
-      "row": 8,
-      "x": 1140.8,
-      "y": 358,
-      "terrain": "forest"
-    },
-    {
-      "col": 27,
-      "row": 8,
-      "x": 1182.4,
-      "y": 358,
-      "terrain": "forest"
-    },
-    {
-      "col": 14,
-      "row": 9,
-      "x": 662.8,
-      "y": 394,
-      "terrain": "forest"
-    },
-    {
-      "col": 15,
-      "row": 9,
-      "x": 704.3,
-      "y": 394,
-      "terrain": "forest"
-    },
-    {
-      "col": 16,
-      "row": 9,
-      "x": 745.9,
-      "y": 394,
-      "terrain": "forest"
-    },
-    {
-      "col": 25,
-      "row": 9,
-      "x": 1120,
-      "y": 394,
-      "terrain": "forest"
-    },
-    {
-      "col": 26,
-      "row": 9,
-      "x": 1161.6,
-      "y": 394,
-      "terrain": "forest"
-    },
-    {
-      "col": 27,
-      "row": 9,
+      "row": 5,
       "x": 1203.2,
-      "y": 394,
+      "y": 360,
       "terrain": "forest"
     },
     {
-      "col": 14,
-      "row": 10,
-      "x": 642,
-      "y": 430,
-      "terrain": "mountain"
-    },
-    {
-      "col": 15,
-      "row": 10,
-      "x": 683.5,
-      "y": 430,
-      "terrain": "mountain"
-    },
-    {
-      "col": 16,
-      "row": 10,
-      "x": 725.1,
-      "y": 430,
-      "terrain": "mountain"
-    },
-    {
-      "col": 25,
-      "row": 10,
-      "x": 1099.2,
-      "y": 430,
-      "terrain": "plains"
-    },
-    {
-      "col": 26,
-      "row": 10,
-      "x": 1140.8,
-      "y": 430,
-      "terrain": "plains"
-    },
-    {
-      "col": 27,
-      "row": 10,
-      "x": 1182.4,
-      "y": 430,
-      "terrain": "plains"
-    },
-    {
-      "col": 13,
-      "row": 11,
-      "x": 621.2,
-      "y": 466,
-      "terrain": "mountain"
-    },
-    {
-      "col": 14,
-      "row": 11,
-      "x": 662.8,
-      "y": 466,
-      "terrain": "mountain"
-    },
-    {
-      "col": 15,
-      "row": 11,
-      "x": 704.3,
-      "y": 466,
-      "terrain": "mountain"
-    },
-    {
-      "col": 25,
-      "row": 11,
-      "x": 1120,
-      "y": 466,
-      "terrain": "plains"
-    },
-    {
-      "col": 26,
-      "row": 11,
-      "x": 1161.6,
-      "y": 466,
-      "terrain": "plains"
-    },
-    {
-      "col": 27,
-      "row": 11,
-      "x": 1203.2,
-      "y": 466,
-      "terrain": "plains"
-    },
-    {
-      "col": 10,
-      "row": 12,
-      "x": 475.7,
-      "y": 502,
-      "terrain": "mountain"
-    },
-    {
-      "col": 11,
-      "row": 12,
-      "x": 517.3,
-      "y": 502,
-      "terrain": "mountain"
-    },
-    {
-      "col": 12,
-      "row": 12,
-      "x": 558.8,
-      "y": 502,
-      "terrain": "mountain"
-    },
-    {
-      "col": 13,
-      "row": 12,
-      "x": 600.4,
-      "y": 502,
-      "terrain": "mountain"
-    },
-    {
-      "col": 14,
-      "row": 12,
-      "x": 642,
-      "y": 502,
-      "terrain": "mountain"
-    },
-    {
-      "col": 15,
-      "row": 12,
-      "x": 683.5,
-      "y": 502,
-      "terrain": "mountain"
-    },
-    {
-      "col": 16,
-      "row": 12,
-      "x": 725.1,
-      "y": 502,
-      "terrain": "mountain"
-    },
-    {
-      "col": 26,
-      "row": 12,
-      "x": 1140.8,
-      "y": 502,
-      "terrain": "plains"
-    },
-    {
-      "col": 27,
-      "row": 12,
-      "x": 1182.4,
-      "y": 502,
-      "terrain": "plains"
-    },
-    {
-      "col": 28,
-      "row": 12,
-      "x": 1223.9,
-      "y": 502,
-      "terrain": "plains"
+      "col": 7,
+      "row": 6,
+      "x": 545,
+      "y": 420,
+      "terrain": "forest"
     },
     {
       "col": 8,
-      "row": 13,
-      "x": 413.3,
-      "y": 538,
-      "terrain": "mountain"
+      "row": 6,
+      "x": 614.3,
+      "y": 420,
+      "terrain": "forest"
     },
     {
       "col": 9,
-      "row": 13,
-      "x": 454.9,
-      "y": 538,
-      "terrain": "mountain"
+      "row": 6,
+      "x": 683.5,
+      "y": 420,
+      "terrain": "forest"
     },
     {
       "col": 10,
-      "row": 13,
-      "x": 496.5,
-      "y": 538,
-      "terrain": "mountain"
-    },
-    {
-      "col": 11,
-      "row": 13,
-      "x": 538,
-      "y": 538,
-      "terrain": "city",
-      "city": "Field",
-      "value": "2/1",
-      "full": 2,
-      "shared": 1
-    },
-    {
-      "col": 12,
-      "row": 13,
-      "x": 579.6,
-      "y": 538,
-      "terrain": "mountain"
+      "row": 6,
+      "x": 752.8,
+      "y": 420,
+      "terrain": "forest"
     },
     {
       "col": 13,
-      "row": 13,
-      "x": 621.2,
-      "y": 538,
+      "row": 6,
+      "x": 960.7,
+      "y": 420,
+      "terrain": "forest"
+    },
+    {
+      "col": 14,
+      "row": 6,
+      "x": 1029.9,
+      "y": 420,
+      "terrain": "forest"
+    },
+    {
+      "col": 15,
+      "row": 6,
+      "x": 1099.2,
+      "y": 420,
+      "terrain": "forest"
+    },
+    {
+      "col": 16,
+      "row": 6,
+      "x": 1168.5,
+      "y": 420,
+      "terrain": "forest"
+    },
+    {
+      "col": 17,
+      "row": 6,
+      "x": 1237.8,
+      "y": 420,
+      "terrain": "forest"
+    },
+    {
+      "col": 5,
+      "row": 7,
+      "x": 441.1,
+      "y": 480,
+      "terrain": "mountain"
+    },
+    {
+      "col": 6,
+      "row": 7,
+      "x": 510.3,
+      "y": 480,
+      "terrain": "mountain"
+    },
+    {
+      "col": 7,
+      "row": 7,
+      "x": 579.6,
+      "y": 480,
       "terrain": "city",
       "city": "Cochrane",
       "value": "2/1",
@@ -786,232 +439,154 @@
       "shared": 1
     },
     {
-      "col": 14,
-      "row": 13,
-      "x": 662.8,
-      "y": 538,
-      "terrain": "mountain"
-    },
-    {
-      "col": 15,
-      "row": 13,
-      "x": 704.3,
-      "y": 538,
-      "terrain": "mountain"
-    },
-    {
-      "col": 26,
-      "row": 13,
-      "x": 1161.6,
-      "y": 538,
-      "terrain": "plains"
-    },
-    {
-      "col": 27,
-      "row": 13,
-      "x": 1203.2,
-      "y": 538,
-      "terrain": "plains"
-    },
-    {
-      "col": 28,
-      "row": 13,
-      "x": 1244.7,
-      "y": 538,
-      "terrain": "plains"
-    },
-    {
-      "col": 7,
-      "row": 14,
-      "x": 351,
-      "y": 574,
-      "terrain": "mountain"
-    },
-    {
       "col": 8,
-      "row": 14,
-      "x": 392.6,
-      "y": 574,
+      "row": 7,
+      "x": 648.9,
+      "y": 480,
       "terrain": "mountain"
     },
     {
       "col": 9,
-      "row": 14,
-      "x": 434.1,
-      "y": 574,
-      "terrain": "mountain"
-    },
-    {
-      "col": 10,
-      "row": 14,
-      "x": 475.7,
-      "y": 574,
-      "terrain": "city",
-      "city": "Golden",
-      "value": "2/1",
-      "full": 2,
-      "shared": 1
-    },
-    {
-      "col": 11,
-      "row": 14,
-      "x": 517.3,
-      "y": 574,
-      "terrain": "mountain"
-    },
-    {
-      "col": 12,
-      "row": 14,
-      "x": 558.8,
-      "y": 574,
-      "terrain": "mountain"
-    },
-    {
-      "col": 13,
-      "row": 14,
-      "x": 600.4,
-      "y": 574,
-      "terrain": "mountain"
-    },
-    {
-      "col": 14,
-      "row": 14,
-      "x": 642,
-      "y": 574,
+      "row": 7,
+      "x": 718.2,
+      "y": 480,
       "terrain": "mountain"
     },
     {
       "col": 15,
-      "row": 14,
-      "x": 683.5,
-      "y": 574,
-      "terrain": "mountain"
+      "row": 7,
+      "x": 1133.9,
+      "y": 480,
+      "terrain": "plains"
     },
     {
       "col": 16,
-      "row": 14,
-      "x": 725.1,
-      "y": 574,
-      "terrain": "mountain"
-    },
-    {
-      "col": 26,
-      "row": 14,
-      "x": 1140.8,
-      "y": 574,
+      "row": 7,
+      "x": 1203.2,
+      "y": 480,
       "terrain": "plains"
     },
     {
-      "col": 27,
-      "row": 14,
-      "x": 1182.4,
-      "y": 574,
-      "terrain": "plains"
-    },
-    {
-      "col": 28,
-      "row": 14,
-      "x": 1223.9,
-      "y": 574,
-      "terrain": "plains"
-    },
-    {
-      "col": 29,
-      "row": 14,
-      "x": 1265.5,
-      "y": 574,
-      "terrain": "plains"
-    },
-    {
-      "col": 30,
-      "row": 14,
-      "x": 1307.1,
-      "y": 574,
-      "terrain": "plains"
-    },
-    {
-      "col": 31,
-      "row": 14,
-      "x": 1348.6,
-      "y": 574,
+      "col": 17,
+      "row": 7,
+      "x": 1272.4,
+      "y": 480,
       "terrain": "plains"
     },
     {
       "col": 5,
-      "row": 15,
-      "x": 288.6,
-      "y": 610,
+      "row": 8,
+      "x": 406.4,
+      "y": 540,
       "terrain": "mountain"
     },
     {
       "col": 6,
-      "row": 15,
-      "x": 330.2,
-      "y": 610,
-      "terrain": "mountain"
+      "row": 8,
+      "x": 475.7,
+      "y": 540,
+      "terrain": "city",
+      "city": "Field",
+      "value": "2/1",
+      "full": 2,
+      "shared": 1
     },
     {
       "col": 7,
-      "row": 15,
-      "x": 371.8,
-      "y": 610,
+      "row": 8,
+      "x": 545,
+      "y": 540,
       "terrain": "mountain"
     },
     {
       "col": 8,
-      "row": 15,
-      "x": 413.3,
-      "y": 610,
-      "terrain": "city",
-      "city": "Revelstoke",
-      "value": "2/1",
-      "full": 2,
-      "shared": 1
+      "row": 8,
+      "x": 614.3,
+      "y": 540,
+      "terrain": "mountain"
     },
     {
       "col": 9,
-      "row": 15,
-      "x": 454.9,
-      "y": 610,
+      "row": 8,
+      "x": 683.5,
+      "y": 540,
       "terrain": "mountain"
     },
     {
       "col": 10,
-      "row": 15,
-      "x": 496.5,
-      "y": 610,
+      "row": 8,
+      "x": 752.8,
+      "y": 540,
       "terrain": "mountain"
     },
     {
-      "col": 11,
-      "row": 15,
-      "x": 538,
-      "y": 610,
+      "col": 15,
+      "row": 8,
+      "x": 1099.2,
+      "y": 540,
+      "terrain": "plains"
+    },
+    {
+      "col": 16,
+      "row": 8,
+      "x": 1168.5,
+      "y": 540,
+      "terrain": "plains"
+    },
+    {
+      "col": 17,
+      "row": 8,
+      "x": 1237.8,
+      "y": 540,
+      "terrain": "plains"
+    },
+    {
+      "col": 18,
+      "row": 8,
+      "x": 1307.1,
+      "y": 540,
+      "terrain": "plains"
+    },
+    {
+      "col": 3,
+      "row": 9,
+      "x": 302.5,
+      "y": 600,
       "terrain": "mountain"
     },
     {
-      "col": 12,
-      "row": 15,
+      "col": 4,
+      "row": 9,
+      "x": 371.8,
+      "y": 600,
+      "terrain": "mountain"
+    },
+    {
+      "col": 5,
+      "row": 9,
+      "x": 441.1,
+      "y": 600,
+      "terrain": "mountain"
+    },
+    {
+      "col": 6,
+      "row": 9,
+      "x": 510.3,
+      "y": 600,
+      "terrain": "mountain"
+    },
+    {
+      "col": 7,
+      "row": 9,
       "x": 579.6,
-      "y": 610,
-      "terrain": "city",
-      "city": "Banff",
-      "value": "2/1",
-      "full": 2,
-      "shared": 1
-    },
-    {
-      "col": 13,
-      "row": 15,
-      "x": 621.2,
-      "y": 610,
+      "y": 600,
       "terrain": "mountain"
     },
     {
-      "col": 14,
-      "row": 15,
-      "x": 662.8,
-      "y": 610,
+      "col": 8,
+      "row": 9,
+      "x": 648.9,
+      "y": 600,
       "terrain": "city",
       "city": "Calgary",
       "value": "6/4",
@@ -1021,52 +596,31 @@
       "start": true
     },
     {
+      "col": 9,
+      "row": 9,
+      "x": 718.2,
+      "y": 600,
+      "terrain": "mountain"
+    },
+    {
+      "col": 10,
+      "row": 9,
+      "x": 787.5,
+      "y": 600,
+      "terrain": "mountain"
+    },
+    {
+      "col": 14,
+      "row": 9,
+      "x": 1064.6,
+      "y": 600,
+      "terrain": "plains"
+    },
+    {
       "col": 15,
-      "row": 15,
-      "x": 704.3,
-      "y": 610,
-      "terrain": "mountain"
-    },
-    {
-      "col": 16,
-      "row": 15,
-      "x": 745.9,
-      "y": 610,
-      "terrain": "mountain"
-    },
-    {
-      "col": 26,
-      "row": 15,
-      "x": 1161.6,
-      "y": 610,
-      "terrain": "plains"
-    },
-    {
-      "col": 27,
-      "row": 15,
-      "x": 1203.2,
-      "y": 610,
-      "terrain": "plains"
-    },
-    {
-      "col": 28,
-      "row": 15,
-      "x": 1244.7,
-      "y": 610,
-      "terrain": "plains"
-    },
-    {
-      "col": 29,
-      "row": 15,
-      "x": 1286.3,
-      "y": 610,
-      "terrain": "plains"
-    },
-    {
-      "col": 30,
-      "row": 15,
-      "x": 1327.9,
-      "y": 610,
+      "row": 9,
+      "x": 1133.9,
+      "y": 600,
       "terrain": "city",
       "city": "Qu'Appelle Station",
       "value": "2/1",
@@ -1074,112 +628,17 @@
       "shared": 1
     },
     {
-      "col": 31,
-      "row": 15,
-      "x": 1369.4,
-      "y": 610,
-      "terrain": "plains"
-    },
-    {
-      "col": 5,
-      "row": 16,
-      "x": 267.8,
-      "y": 646,
-      "terrain": "mountain"
-    },
-    {
-      "col": 6,
-      "row": 16,
-      "x": 309.4,
-      "y": 646,
-      "terrain": "mountain"
-    },
-    {
-      "col": 7,
-      "row": 16,
-      "x": 351,
-      "y": 646,
-      "terrain": "mountain"
-    },
-    {
-      "col": 8,
-      "row": 16,
-      "x": 392.6,
-      "y": 646,
-      "terrain": "mountain"
-    },
-    {
-      "col": 9,
-      "row": 16,
-      "x": 434.1,
-      "y": 646,
-      "terrain": "mountain"
-    },
-    {
-      "col": 12,
-      "row": 16,
-      "x": 558.8,
-      "y": 646,
-      "terrain": "mountain"
-    },
-    {
-      "col": 13,
-      "row": 16,
-      "x": 600.4,
-      "y": 646,
-      "terrain": "mountain"
-    },
-    {
-      "col": 14,
-      "row": 16,
-      "x": 642,
-      "y": 646,
-      "terrain": "mountain"
-    },
-    {
-      "col": 15,
-      "row": 16,
-      "x": 683.5,
-      "y": 646,
-      "terrain": "mountain"
-    },
-    {
       "col": 16,
-      "row": 16,
-      "x": 725.1,
-      "y": 646,
-      "terrain": "city",
-      "city": "Gleichen",
-      "value": "2/1",
-      "full": 2,
-      "shared": 1
+      "row": 9,
+      "x": 1203.2,
+      "y": 600,
+      "terrain": "plains"
     },
     {
       "col": 17,
-      "row": 16,
-      "x": 766.7,
-      "y": 646,
-      "terrain": "mountain"
-    },
-    {
-      "col": 27,
-      "row": 16,
-      "x": 1182.4,
-      "y": 646,
-      "terrain": "plains"
-    },
-    {
-      "col": 28,
-      "row": 16,
-      "x": 1223.9,
-      "y": 646,
-      "terrain": "plains"
-    },
-    {
-      "col": 29,
-      "row": 16,
-      "x": 1265.5,
-      "y": 646,
+      "row": 9,
+      "x": 1272.4,
+      "y": 600,
       "terrain": "city",
       "city": "Fort Qu'Appelle",
       "value": "2/1",
@@ -1187,45 +646,172 @@
       "shared": 1
     },
     {
-      "col": 30,
-      "row": 16,
-      "x": 1307.1,
-      "y": 646,
+      "col": 18,
+      "row": 9,
+      "x": 1341.7,
+      "y": 600,
       "terrain": "plains"
     },
     {
-      "col": 31,
-      "row": 16,
-      "x": 1348.6,
-      "y": 646,
-      "terrain": "plains"
-    },
-    {
-      "col": 32,
-      "row": 16,
-      "x": 1390.2,
-      "y": 646,
-      "terrain": "plains"
-    },
-    {
-      "col": 39,
-      "row": 16,
-      "x": 1681.2,
-      "y": 646,
-      "terrain": "plains"
+      "col": 3,
+      "row": 10,
+      "x": 267.8,
+      "y": 660,
+      "terrain": "mountain"
     },
     {
       "col": 4,
-      "row": 17,
-      "x": 247.1,
-      "y": 682,
+      "row": 10,
+      "x": 337.1,
+      "y": 660,
       "terrain": "mountain"
     },
     {
       "col": 5,
-      "row": 17,
-      "x": 288.6,
-      "y": 682,
+      "row": 10,
+      "x": 406.4,
+      "y": 660,
+      "terrain": "city",
+      "city": "Revelstoke",
+      "value": "2/1",
+      "full": 2,
+      "shared": 1
+    },
+    {
+      "col": 6,
+      "row": 10,
+      "x": 475.7,
+      "y": 660,
+      "terrain": "mountain"
+    },
+    {
+      "col": 7,
+      "row": 10,
+      "x": 545,
+      "y": 660,
+      "terrain": "mountain"
+    },
+    {
+      "col": 8,
+      "row": 10,
+      "x": 614.3,
+      "y": 660,
+      "terrain": "mountain"
+    },
+    {
+      "col": 9,
+      "row": 10,
+      "x": 683.5,
+      "y": 660,
+      "terrain": "mountain"
+    },
+    {
+      "col": 10,
+      "row": 10,
+      "x": 752.8,
+      "y": 660,
+      "terrain": "city",
+      "city": "Gleichen",
+      "value": "2/1",
+      "full": 2,
+      "shared": 1
+    },
+    {
+      "col": 11,
+      "row": 10,
+      "x": 822.1,
+      "y": 660,
+      "terrain": "plains"
+    },
+    {
+      "col": 12,
+      "row": 10,
+      "x": 891.4,
+      "y": 660,
+      "terrain": "plains"
+    },
+    {
+      "col": 13,
+      "row": 10,
+      "x": 960.7,
+      "y": 660,
+      "terrain": "plains"
+    },
+    {
+      "col": 14,
+      "row": 10,
+      "x": 1029.9,
+      "y": 660,
+      "terrain": "plains"
+    },
+    {
+      "col": 15,
+      "row": 10,
+      "x": 1099.2,
+      "y": 660,
+      "terrain": "plains"
+    },
+    {
+      "col": 16,
+      "row": 10,
+      "x": 1168.5,
+      "y": 660,
+      "terrain": "plains"
+    },
+    {
+      "col": 17,
+      "row": 10,
+      "x": 1237.8,
+      "y": 660,
+      "terrain": "plains"
+    },
+    {
+      "col": 18,
+      "row": 10,
+      "x": 1307.1,
+      "y": 660,
+      "terrain": "plains"
+    },
+    {
+      "col": 19,
+      "row": 10,
+      "x": 1376.4,
+      "y": 660,
+      "terrain": "plains"
+    },
+    {
+      "col": 20,
+      "row": 10,
+      "x": 1445.6,
+      "y": 660,
+      "terrain": "plains"
+    },
+    {
+      "col": 21,
+      "row": 10,
+      "x": 1514.9,
+      "y": 660,
+      "terrain": "plains"
+    },
+    {
+      "col": 23,
+      "row": 10,
+      "x": 1653.5,
+      "y": 660,
+      "terrain": "plains"
+    },
+    {
+      "col": 2,
+      "row": 11,
+      "x": 233.2,
+      "y": 720,
+      "terrain": "mountain"
+    },
+    {
+      "col": 3,
+      "row": 11,
+      "x": 302.5,
+      "y": 720,
       "terrain": "city",
       "city": "Kamloops",
       "value": "2/1",
@@ -1233,274 +819,70 @@
       "shared": 1
     },
     {
-      "col": 6,
-      "row": 17,
-      "x": 330.2,
-      "y": 682,
-      "terrain": "mountain"
-    },
-    {
-      "col": 7,
-      "row": 17,
-      "x": 371.8,
-      "y": 682,
-      "terrain": "mountain"
-    },
-    {
-      "col": 13,
-      "row": 17,
-      "x": 621.2,
-      "y": 682,
-      "terrain": "mountain"
-    },
-    {
-      "col": 14,
-      "row": 17,
-      "x": 662.8,
-      "y": 682,
-      "terrain": "mountain"
-    },
-    {
-      "col": 15,
-      "row": 17,
-      "x": 704.3,
-      "y": 682,
-      "terrain": "mountain"
-    },
-    {
-      "col": 16,
-      "row": 17,
-      "x": 745.9,
-      "y": 682,
-      "terrain": "mountain"
-    },
-    {
-      "col": 17,
-      "row": 17,
-      "x": 787.5,
-      "y": 682,
-      "terrain": "mountain"
-    },
-    {
-      "col": 18,
-      "row": 17,
-      "x": 829,
-      "y": 682,
-      "terrain": "mountain"
-    },
-    {
-      "col": 22,
-      "row": 17,
-      "x": 995.3,
-      "y": 682,
-      "terrain": "plains"
-    },
-    {
-      "col": 23,
-      "row": 17,
-      "x": 1036.9,
-      "y": 682,
-      "terrain": "plains"
-    },
-    {
-      "col": 24,
-      "row": 17,
-      "x": 1078.4,
-      "y": 682,
-      "terrain": "plains"
-    },
-    {
-      "col": 25,
-      "row": 17,
-      "x": 1120,
-      "y": 682,
-      "terrain": "plains"
-    },
-    {
-      "col": 26,
-      "row": 17,
-      "x": 1161.6,
-      "y": 682,
-      "terrain": "plains"
-    },
-    {
-      "col": 27,
-      "row": 17,
-      "x": 1203.2,
-      "y": 682,
-      "terrain": "plains"
-    },
-    {
-      "col": 28,
-      "row": 17,
-      "x": 1244.7,
-      "y": 682,
-      "terrain": "plains"
-    },
-    {
-      "col": 29,
-      "row": 17,
-      "x": 1286.3,
-      "y": 682,
-      "terrain": "plains"
-    },
-    {
-      "col": 30,
-      "row": 17,
-      "x": 1327.9,
-      "y": 682,
-      "terrain": "city",
-      "city": "Indian Head",
-      "value": "2/1",
-      "full": 2,
-      "shared": 1
-    },
-    {
-      "col": 31,
-      "row": 17,
-      "x": 1369.4,
-      "y": 682,
-      "terrain": "plains"
-    },
-    {
-      "col": 36,
-      "row": 17,
-      "x": 1577.3,
-      "y": 682,
-      "terrain": "plains"
-    },
-    {
-      "col": 37,
-      "row": 17,
-      "x": 1618.8,
-      "y": 682,
-      "terrain": "plains"
-    },
-    {
-      "col": 38,
-      "row": 17,
-      "x": 1660.4,
-      "y": 682,
-      "terrain": "plains"
-    },
-    {
-      "col": 39,
-      "row": 17,
-      "x": 1702,
-      "y": 682,
-      "terrain": "city",
-      "city": "Selkirk",
-      "value": "2/1",
-      "full": 2,
-      "shared": 1
-    },
-    {
       "col": 4,
-      "row": 18,
-      "x": 226.3,
-      "y": 718,
+      "row": 11,
+      "x": 371.8,
+      "y": 720,
       "terrain": "mountain"
     },
     {
       "col": 5,
-      "row": 18,
-      "x": 267.8,
-      "y": 718,
+      "row": 11,
+      "x": 441.1,
+      "y": 720,
       "terrain": "mountain"
     },
     {
       "col": 6,
-      "row": 18,
-      "x": 309.4,
-      "y": 718,
-      "terrain": "mountain"
-    },
-    {
-      "col": 14,
-      "row": 18,
-      "x": 642,
-      "y": 718,
-      "terrain": "mountain"
-    },
-    {
-      "col": 15,
-      "row": 18,
-      "x": 683.5,
-      "y": 718,
-      "terrain": "mountain"
-    },
-    {
-      "col": 16,
-      "row": 18,
-      "x": 725.1,
-      "y": 718,
-      "terrain": "mountain"
-    },
-    {
-      "col": 17,
-      "row": 18,
-      "x": 766.7,
-      "y": 718,
-      "terrain": "mountain"
-    },
-    {
-      "col": 18,
-      "row": 18,
-      "x": 808.2,
-      "y": 718,
-      "terrain": "mountain"
-    },
-    {
-      "col": 19,
-      "row": 18,
-      "x": 849.8,
-      "y": 718,
-      "terrain": "mountain"
-    },
-    {
-      "col": 21,
-      "row": 18,
-      "x": 933,
-      "y": 718,
-      "terrain": "plains"
-    },
-    {
-      "col": 22,
-      "row": 18,
-      "x": 974.5,
-      "y": 718,
-      "terrain": "plains"
-    },
-    {
-      "col": 23,
-      "row": 18,
-      "x": 1016.1,
-      "y": 718,
+      "row": 11,
+      "x": 510.3,
+      "y": 720,
       "terrain": "city",
-      "city": "Swift Current",
+      "city": "Banff",
       "value": "2/1",
       "full": 2,
       "shared": 1
     },
     {
-      "col": 24,
-      "row": 18,
-      "x": 1057.7,
-      "y": 718,
+      "col": 7,
+      "row": 11,
+      "x": 579.6,
+      "y": 720,
+      "terrain": "mountain"
+    },
+    {
+      "col": 8,
+      "row": 11,
+      "x": 648.9,
+      "y": 720,
+      "terrain": "mountain"
+    },
+    {
+      "col": 9,
+      "row": 11,
+      "x": 718.2,
+      "y": 720,
+      "terrain": "mountain"
+    },
+    {
+      "col": 10,
+      "row": 11,
+      "x": 787.5,
+      "y": 720,
+      "terrain": "mountain"
+    },
+    {
+      "col": 11,
+      "row": 11,
+      "x": 856.7,
+      "y": 720,
       "terrain": "plains"
     },
     {
-      "col": 25,
-      "row": 18,
-      "x": 1099.2,
-      "y": 718,
-      "terrain": "plains"
-    },
-    {
-      "col": 26,
-      "row": 18,
-      "x": 1140.8,
-      "y": 718,
+      "col": 12,
+      "row": 11,
+      "x": 926,
+      "y": 720,
       "terrain": "city",
       "city": "Moose Jaw",
       "value": "5/3",
@@ -1508,17 +890,31 @@
       "shared": 3
     },
     {
-      "col": 27,
-      "row": 18,
-      "x": 1182.4,
-      "y": 718,
+      "col": 13,
+      "row": 11,
+      "x": 995.3,
+      "y": 720,
       "terrain": "plains"
     },
     {
-      "col": 28,
-      "row": 18,
-      "x": 1223.9,
-      "y": 718,
+      "col": 14,
+      "row": 11,
+      "x": 1064.6,
+      "y": 720,
+      "terrain": "plains"
+    },
+    {
+      "col": 15,
+      "row": 11,
+      "x": 1133.9,
+      "y": 720,
+      "terrain": "plains"
+    },
+    {
+      "col": 16,
+      "row": 11,
+      "x": 1203.2,
+      "y": 720,
       "terrain": "city",
       "city": "Regina",
       "value": "6/4",
@@ -1527,439 +923,35 @@
       "port": true
     },
     {
-      "col": 29,
-      "row": 18,
-      "x": 1265.5,
-      "y": 718,
+      "col": 17,
+      "row": 11,
+      "x": 1272.4,
+      "y": 720,
       "terrain": "plains"
     },
     {
-      "col": 30,
-      "row": 18,
-      "x": 1307.1,
-      "y": 718,
-      "terrain": "plains"
-    },
-    {
-      "col": 31,
-      "row": 18,
-      "x": 1348.6,
-      "y": 718,
-      "terrain": "plains"
-    },
-    {
-      "col": 32,
-      "row": 18,
-      "x": 1390.2,
-      "y": 718,
-      "terrain": "plains"
-    },
-    {
-      "col": 33,
-      "row": 18,
-      "x": 1431.8,
-      "y": 718,
-      "terrain": "plains"
-    },
-    {
-      "col": 36,
-      "row": 18,
-      "x": 1556.5,
-      "y": 718,
-      "terrain": "plains"
-    },
-    {
-      "col": 37,
-      "row": 18,
-      "x": 1598.1,
-      "y": 718,
+      "col": 18,
+      "row": 11,
+      "x": 1341.7,
+      "y": 720,
       "terrain": "city",
-      "city": "St. Boniface",
+      "city": "Indian Head",
       "value": "2/1",
       "full": 2,
       "shared": 1
     },
     {
-      "col": 38,
-      "row": 18,
-      "x": 1639.6,
-      "y": 718,
-      "terrain": "plains"
-    },
-    {
-      "col": 39,
-      "row": 18,
-      "x": 1681.2,
-      "y": 718,
-      "terrain": "plains"
-    },
-    {
-      "col": 3,
-      "row": 19,
-      "x": 205.5,
-      "y": 754,
-      "terrain": "plains"
-    },
-    {
-      "col": 4,
-      "row": 19,
-      "x": 247.1,
-      "y": 754,
-      "terrain": "plains"
-    },
-    {
-      "col": 5,
-      "row": 19,
-      "x": 288.6,
-      "y": 754,
-      "terrain": "plains"
-    },
-    {
-      "col": 13,
-      "row": 19,
-      "x": 621.2,
-      "y": 754,
-      "terrain": "mountain"
-    },
-    {
-      "col": 14,
-      "row": 19,
-      "x": 662.8,
-      "y": 754,
-      "terrain": "mountain"
-    },
-    {
-      "col": 15,
-      "row": 19,
-      "x": 704.3,
-      "y": 754,
-      "terrain": "mountain"
-    },
-    {
-      "col": 16,
-      "row": 19,
-      "x": 745.9,
-      "y": 754,
-      "terrain": "mountain"
-    },
-    {
-      "col": 17,
-      "row": 19,
-      "x": 787.5,
-      "y": 754,
-      "terrain": "mountain"
-    },
-    {
-      "col": 18,
-      "row": 19,
-      "x": 829,
-      "y": 754,
-      "terrain": "mountain"
-    },
-    {
       "col": 19,
-      "row": 19,
-      "x": 870.6,
-      "y": 754,
-      "terrain": "mountain"
-    },
-    {
-      "col": 20,
-      "row": 19,
-      "x": 912.2,
-      "y": 754,
-      "terrain": "plains"
-    },
-    {
-      "col": 21,
-      "row": 19,
-      "x": 953.7,
-      "y": 754,
-      "terrain": "plains"
-    },
-    {
-      "col": 22,
-      "row": 19,
-      "x": 995.3,
-      "y": 754,
-      "terrain": "plains"
-    },
-    {
-      "col": 23,
-      "row": 19,
-      "x": 1036.9,
-      "y": 754,
-      "terrain": "plains"
-    },
-    {
-      "col": 24,
-      "row": 19,
-      "x": 1078.4,
-      "y": 754,
-      "terrain": "plains"
-    },
-    {
-      "col": 25,
-      "row": 19,
-      "x": 1120,
-      "y": 754,
-      "terrain": "plains"
-    },
-    {
-      "col": 26,
-      "row": 19,
-      "x": 1161.6,
-      "y": 754,
-      "terrain": "plains"
-    },
-    {
-      "col": 27,
-      "row": 19,
-      "x": 1203.2,
-      "y": 754,
-      "terrain": "plains"
-    },
-    {
-      "col": 28,
-      "row": 19,
-      "x": 1244.7,
-      "y": 754,
-      "terrain": "plains"
-    },
-    {
-      "col": 29,
-      "row": 19,
-      "x": 1286.3,
-      "y": 754,
-      "terrain": "plains"
-    },
-    {
-      "col": 30,
-      "row": 19,
-      "x": 1327.9,
-      "y": 754,
-      "terrain": "plains"
-    },
-    {
-      "col": 31,
-      "row": 19,
-      "x": 1369.4,
-      "y": 754,
-      "terrain": "plains"
-    },
-    {
-      "col": 32,
-      "row": 19,
+      "row": 11,
       "x": 1411,
-      "y": 754,
+      "y": 720,
       "terrain": "plains"
-    },
-    {
-      "col": 33,
-      "row": 19,
-      "x": 1452.6,
-      "y": 754,
-      "terrain": "plains"
-    },
-    {
-      "col": 34,
-      "row": 19,
-      "x": 1494.1,
-      "y": 754,
-      "terrain": "plains"
-    },
-    {
-      "col": 35,
-      "row": 19,
-      "x": 1535.7,
-      "y": 754,
-      "terrain": "plains"
-    },
-    {
-      "col": 36,
-      "row": 19,
-      "x": 1577.3,
-      "y": 754,
-      "terrain": "plains"
-    },
-    {
-      "col": 37,
-      "row": 19,
-      "x": 1618.8,
-      "y": 754,
-      "terrain": "plains"
-    },
-    {
-      "col": 38,
-      "row": 19,
-      "x": 1660.4,
-      "y": 754,
-      "terrain": "plains"
-    },
-    {
-      "col": 39,
-      "row": 19,
-      "x": 1702,
-      "y": 754,
-      "terrain": "plains"
-    },
-    {
-      "col": 4,
-      "row": 20,
-      "x": 226.3,
-      "y": 790,
-      "terrain": "plains"
-    },
-    {
-      "col": 5,
-      "row": 20,
-      "x": 267.8,
-      "y": 790,
-      "terrain": "plains"
-    },
-    {
-      "col": 6,
-      "row": 20,
-      "x": 309.4,
-      "y": 790,
-      "terrain": "plains"
-    },
-    {
-      "col": 14,
-      "row": 20,
-      "x": 642,
-      "y": 790,
-      "terrain": "plains"
-    },
-    {
-      "col": 15,
-      "row": 20,
-      "x": 683.5,
-      "y": 790,
-      "terrain": "plains"
-    },
-    {
-      "col": 16,
-      "row": 20,
-      "x": 725.1,
-      "y": 790,
-      "terrain": "plains"
-    },
-    {
-      "col": 17,
-      "row": 20,
-      "x": 766.7,
-      "y": 790,
-      "terrain": "plains"
-    },
-    {
-      "col": 18,
-      "row": 20,
-      "x": 808.2,
-      "y": 790,
-      "terrain": "plains"
-    },
-    {
-      "col": 19,
-      "row": 20,
-      "x": 849.8,
-      "y": 790,
-      "terrain": "city",
-      "city": "Medicine Hat",
-      "value": "4/3",
-      "full": 4,
-      "shared": 3
     },
     {
       "col": 20,
-      "row": 20,
-      "x": 891.4,
-      "y": 790,
-      "terrain": "plains"
-    },
-    {
-      "col": 21,
-      "row": 20,
-      "x": 933,
-      "y": 790,
-      "terrain": "city",
-      "city": "Maple Creek",
-      "value": "2/1",
-      "full": 2,
-      "shared": 1
-    },
-    {
-      "col": 22,
-      "row": 20,
-      "x": 974.5,
-      "y": 790,
-      "terrain": "plains"
-    },
-    {
-      "col": 23,
-      "row": 20,
-      "x": 1016.1,
-      "y": 790,
-      "terrain": "plains"
-    },
-    {
-      "col": 29,
-      "row": 20,
-      "x": 1265.5,
-      "y": 790,
-      "terrain": "plains"
-    },
-    {
-      "col": 30,
-      "row": 20,
-      "x": 1307.1,
-      "y": 790,
-      "terrain": "plains"
-    },
-    {
-      "col": 31,
-      "row": 20,
-      "x": 1348.6,
-      "y": 790,
-      "terrain": "plains"
-    },
-    {
-      "col": 32,
-      "row": 20,
-      "x": 1390.2,
-      "y": 790,
-      "terrain": "plains"
-    },
-    {
-      "col": 33,
-      "row": 20,
-      "x": 1431.8,
-      "y": 790,
-      "terrain": "plains"
-    },
-    {
-      "col": 34,
-      "row": 20,
-      "x": 1473.4,
-      "y": 790,
-      "terrain": "city",
-      "city": "Brandon",
-      "value": "4/3",
-      "full": 4,
-      "shared": 3
-    },
-    {
-      "col": 35,
-      "row": 20,
-      "x": 1514.9,
-      "y": 790,
-      "terrain": "plains"
-    },
-    {
-      "col": 36,
-      "row": 20,
-      "x": 1556.5,
-      "y": 790,
+      "row": 11,
+      "x": 1480.3,
+      "y": 720,
       "terrain": "city",
       "city": "Portage la Prairie",
       "value": "3/2",
@@ -1967,17 +959,354 @@
       "shared": 2
     },
     {
-      "col": 37,
-      "row": 20,
-      "x": 1598.1,
-      "y": 790,
+      "col": 21,
+      "row": 11,
+      "x": 1549.6,
+      "y": 720,
       "terrain": "plains"
     },
     {
-      "col": 38,
-      "row": 20,
-      "x": 1639.6,
-      "y": 790,
+      "col": 22,
+      "row": 11,
+      "x": 1618.8,
+      "y": 720,
+      "terrain": "plains"
+    },
+    {
+      "col": 23,
+      "row": 11,
+      "x": 1688.1,
+      "y": 720,
+      "terrain": "city",
+      "city": "Selkirk",
+      "value": "2/1",
+      "full": 2,
+      "shared": 1
+    },
+    {
+      "col": 2,
+      "row": 12,
+      "x": 198.6,
+      "y": 780,
+      "terrain": "mountain"
+    },
+    {
+      "col": 3,
+      "row": 12,
+      "x": 267.8,
+      "y": 780,
+      "terrain": "mountain"
+    },
+    {
+      "col": 4,
+      "row": 12,
+      "x": 337.1,
+      "y": 780,
+      "terrain": "mountain"
+    },
+    {
+      "col": 5,
+      "row": 12,
+      "x": 406.4,
+      "y": 780,
+      "terrain": "city",
+      "city": "Golden",
+      "value": "2/1",
+      "full": 2,
+      "shared": 1
+    },
+    {
+      "col": 6,
+      "row": 12,
+      "x": 475.7,
+      "y": 780,
+      "terrain": "mountain"
+    },
+    {
+      "col": 7,
+      "row": 12,
+      "x": 545,
+      "y": 780,
+      "terrain": "mountain"
+    },
+    {
+      "col": 8,
+      "row": 12,
+      "x": 614.3,
+      "y": 780,
+      "terrain": "mountain"
+    },
+    {
+      "col": 9,
+      "row": 12,
+      "x": 683.5,
+      "y": 780,
+      "terrain": "mountain"
+    },
+    {
+      "col": 10,
+      "row": 12,
+      "x": 752.8,
+      "y": 780,
+      "terrain": "mountain"
+    },
+    {
+      "col": 11,
+      "row": 12,
+      "x": 822.1,
+      "y": 780,
+      "terrain": "city",
+      "city": "Medicine Hat",
+      "value": "4/3",
+      "full": 4,
+      "shared": 3
+    },
+    {
+      "col": 12,
+      "row": 12,
+      "x": 891.4,
+      "y": 780,
+      "terrain": "plains"
+    },
+    {
+      "col": 13,
+      "row": 12,
+      "x": 960.7,
+      "y": 780,
+      "terrain": "plains"
+    },
+    {
+      "col": 14,
+      "row": 12,
+      "x": 1029.9,
+      "y": 780,
+      "terrain": "city",
+      "city": "Swift Current",
+      "value": "2/1",
+      "full": 2,
+      "shared": 1
+    },
+    {
+      "col": 15,
+      "row": 12,
+      "x": 1099.2,
+      "y": 780,
+      "terrain": "plains"
+    },
+    {
+      "col": 16,
+      "row": 12,
+      "x": 1168.5,
+      "y": 780,
+      "terrain": "plains"
+    },
+    {
+      "col": 17,
+      "row": 12,
+      "x": 1237.8,
+      "y": 780,
+      "terrain": "plains"
+    },
+    {
+      "col": 18,
+      "row": 12,
+      "x": 1307.1,
+      "y": 780,
+      "terrain": "plains"
+    },
+    {
+      "col": 19,
+      "row": 12,
+      "x": 1376.4,
+      "y": 780,
+      "terrain": "plains"
+    },
+    {
+      "col": 20,
+      "row": 12,
+      "x": 1445.6,
+      "y": 780,
+      "terrain": "plains"
+    },
+    {
+      "col": 21,
+      "row": 12,
+      "x": 1514.9,
+      "y": 780,
+      "terrain": "plains"
+    },
+    {
+      "col": 22,
+      "row": 12,
+      "x": 1584.2,
+      "y": 780,
+      "terrain": "plains"
+    },
+    {
+      "col": 23,
+      "row": 12,
+      "x": 1653.5,
+      "y": 780,
+      "terrain": "plains"
+    },
+    {
+      "col": 1,
+      "row": 13,
+      "x": 163.9,
+      "y": 840,
+      "terrain": "mountain"
+    },
+    {
+      "col": 2,
+      "row": 13,
+      "x": 233.2,
+      "y": 840,
+      "terrain": "city",
+      "city": "Yale",
+      "value": "3/3",
+      "full": 3,
+      "shared": 3
+    },
+    {
+      "col": 3,
+      "row": 13,
+      "x": 302.5,
+      "y": 840,
+      "terrain": "mountain"
+    },
+    {
+      "col": 4,
+      "row": 13,
+      "x": 371.8,
+      "y": 840,
+      "terrain": "plains"
+    },
+    {
+      "col": 5,
+      "row": 13,
+      "x": 441.1,
+      "y": 840,
+      "terrain": "plains"
+    },
+    {
+      "col": 6,
+      "row": 13,
+      "x": 510.3,
+      "y": 840,
+      "terrain": "plains"
+    },
+    {
+      "col": 7,
+      "row": 13,
+      "x": 579.6,
+      "y": 840,
+      "terrain": "city",
+      "city": "Fort Macleod",
+      "value": "2/1",
+      "full": 2,
+      "shared": 1
+    },
+    {
+      "col": 8,
+      "row": 13,
+      "x": 648.9,
+      "y": 840,
+      "terrain": "plains"
+    },
+    {
+      "col": 9,
+      "row": 13,
+      "x": 718.2,
+      "y": 840,
+      "terrain": "city",
+      "city": "Lethbridge",
+      "value": "4/3",
+      "full": 4,
+      "shared": 3
+    },
+    {
+      "col": 10,
+      "row": 13,
+      "x": 787.5,
+      "y": 840,
+      "terrain": "plains"
+    },
+    {
+      "col": 11,
+      "row": 13,
+      "x": 856.7,
+      "y": 840,
+      "terrain": "plains"
+    },
+    {
+      "col": 12,
+      "row": 13,
+      "x": 926,
+      "y": 840,
+      "terrain": "city",
+      "city": "Maple Creek",
+      "value": "2/1",
+      "full": 2,
+      "shared": 1
+    },
+    {
+      "col": 13,
+      "row": 13,
+      "x": 995.3,
+      "y": 840,
+      "terrain": "plains"
+    },
+    {
+      "col": 14,
+      "row": 13,
+      "x": 1064.6,
+      "y": 840,
+      "terrain": "plains"
+    },
+    {
+      "col": 17,
+      "row": 13,
+      "x": 1272.4,
+      "y": 840,
+      "terrain": "plains"
+    },
+    {
+      "col": 18,
+      "row": 13,
+      "x": 1341.7,
+      "y": 840,
+      "terrain": "plains"
+    },
+    {
+      "col": 19,
+      "row": 13,
+      "x": 1411,
+      "y": 840,
+      "terrain": "plains"
+    },
+    {
+      "col": 20,
+      "row": 13,
+      "x": 1480.3,
+      "y": 840,
+      "terrain": "city",
+      "city": "Brandon",
+      "value": "4/3",
+      "full": 4,
+      "shared": 3
+    },
+    {
+      "col": 21,
+      "row": 13,
+      "x": 1549.6,
+      "y": 840,
+      "terrain": "plains"
+    },
+    {
+      "col": 22,
+      "row": 13,
+      "x": 1618.8,
+      "y": 840,
       "terrain": "city",
       "city": "Winnipeg",
       "value": "7/5",
@@ -1987,267 +1316,129 @@
       "start": true
     },
     {
-      "col": 39,
-      "row": 20,
-      "x": 1681.2,
-      "y": 790,
+      "col": 23,
+      "row": 13,
+      "x": 1688.1,
+      "y": 840,
       "terrain": "plains"
+    },
+    {
+      "col": 1,
+      "row": 14,
+      "x": 129.3,
+      "y": 900,
+      "terrain": "mountain"
     },
     {
       "col": 2,
-      "row": 21,
-      "x": 163.9,
-      "y": 826,
-      "terrain": "plains"
+      "row": 14,
+      "x": 198.6,
+      "y": 900,
+      "terrain": "mountain"
     },
     {
       "col": 3,
-      "row": 21,
-      "x": 205.5,
-      "y": 826,
-      "terrain": "plains"
+      "row": 14,
+      "x": 267.8,
+      "y": 900,
+      "terrain": "mountain"
     },
     {
       "col": 4,
-      "row": 21,
-      "x": 247.1,
-      "y": 826,
+      "row": 14,
+      "x": 337.1,
+      "y": 900,
       "terrain": "plains"
     },
     {
-      "col": 5,
-      "row": 21,
-      "x": 288.6,
-      "y": 826,
+      "col": 7,
+      "row": 14,
+      "x": 545,
+      "y": 900,
+      "terrain": "plains"
+    },
+    {
+      "col": 8,
+      "row": 14,
+      "x": 614.3,
+      "y": 900,
+      "terrain": "plains"
+    },
+    {
+      "col": 9,
+      "row": 14,
+      "x": 683.5,
+      "y": 900,
+      "terrain": "plains"
+    },
+    {
+      "col": 10,
+      "row": 14,
+      "x": 752.8,
+      "y": 900,
+      "terrain": "plains"
+    },
+    {
+      "col": 12,
+      "row": 14,
+      "x": 891.4,
+      "y": 900,
       "terrain": "plains"
     },
     {
       "col": 13,
-      "row": 21,
-      "x": 621.2,
-      "y": 826,
-      "terrain": "plains"
-    },
-    {
-      "col": 14,
-      "row": 21,
-      "x": 662.8,
-      "y": 826,
-      "terrain": "city",
-      "city": "Fort Macleod",
-      "value": "2/1",
-      "full": 2,
-      "shared": 1
-    },
-    {
-      "col": 15,
-      "row": 21,
-      "x": 704.3,
-      "y": 826,
-      "terrain": "plains"
-    },
-    {
-      "col": 16,
-      "row": 21,
-      "x": 745.9,
-      "y": 826,
-      "terrain": "city",
-      "city": "Lethbridge",
-      "value": "4/3",
-      "full": 4,
-      "shared": 3
-    },
-    {
-      "col": 17,
-      "row": 21,
-      "x": 787.5,
-      "y": 826,
-      "terrain": "plains"
-    },
-    {
-      "col": 18,
-      "row": 21,
-      "x": 829,
-      "y": 826,
+      "row": 14,
+      "x": 960.7,
+      "y": 900,
       "terrain": "plains"
     },
     {
       "col": 19,
-      "row": 21,
-      "x": 870.6,
-      "y": 826,
+      "row": 14,
+      "x": 1376.4,
+      "y": 900,
       "terrain": "plains"
     },
     {
       "col": 20,
-      "row": 21,
-      "x": 912.2,
-      "y": 826,
+      "row": 14,
+      "x": 1445.6,
+      "y": 900,
       "terrain": "plains"
     },
     {
       "col": 21,
-      "row": 21,
-      "x": 953.7,
-      "y": 826,
+      "row": 14,
+      "x": 1514.9,
+      "y": 900,
       "terrain": "plains"
     },
     {
-      "col": 32,
-      "row": 21,
-      "x": 1411,
-      "y": 826,
+      "col": 22,
+      "row": 14,
+      "x": 1584.2,
+      "y": 900,
       "terrain": "plains"
     },
     {
-      "col": 33,
-      "row": 21,
-      "x": 1452.6,
-      "y": 826,
-      "terrain": "plains"
-    },
-    {
-      "col": 34,
-      "row": 21,
-      "x": 1494.1,
-      "y": 826,
-      "terrain": "plains"
-    },
-    {
-      "col": 35,
-      "row": 21,
-      "x": 1535.7,
-      "y": 826,
-      "terrain": "plains"
-    },
-    {
-      "col": 36,
-      "row": 21,
-      "x": 1577.3,
-      "y": 826,
-      "terrain": "plains"
-    },
-    {
-      "col": 37,
-      "row": 21,
-      "x": 1618.8,
-      "y": 826,
-      "terrain": "plains"
-    },
-    {
-      "col": 38,
-      "row": 21,
-      "x": 1660.4,
-      "y": 826,
-      "terrain": "plains"
-    },
-    {
-      "col": 39,
-      "row": 21,
-      "x": 1702,
-      "y": 826,
-      "terrain": "plains"
-    },
-    {
-      "col": 1,
-      "row": 22,
-      "x": 101.6,
-      "y": 862,
-      "terrain": "plains"
-    },
-    {
-      "col": 2,
-      "row": 22,
-      "x": 143.1,
-      "y": 862,
-      "terrain": "plains"
-    },
-    {
-      "col": 3,
-      "row": 22,
-      "x": 184.7,
-      "y": 862,
-      "terrain": "plains"
-    },
-    {
-      "col": 4,
-      "row": 22,
-      "x": 226.3,
-      "y": 862,
-      "terrain": "city",
-      "city": "Yale",
-      "value": "3/3",
-      "full": 3,
-      "shared": 3
-    },
-    {
-      "col": 5,
-      "row": 22,
-      "x": 267.8,
-      "y": 862,
-      "terrain": "plains"
-    },
-    {
-      "col": 14,
-      "row": 22,
-      "x": 642,
-      "y": 862,
-      "terrain": "plains"
-    },
-    {
-      "col": 15,
-      "row": 22,
-      "x": 683.5,
-      "y": 862,
-      "terrain": "plains"
-    },
-    {
-      "col": 16,
-      "row": 22,
-      "x": 725.1,
-      "y": 862,
-      "terrain": "plains"
-    },
-    {
-      "col": 17,
-      "row": 22,
-      "x": 766.7,
-      "y": 862,
-      "terrain": "plains"
-    },
-    {
-      "col": 37,
-      "row": 22,
-      "x": 1598.1,
-      "y": 862,
-      "terrain": "plains"
-    },
-    {
-      "col": 38,
-      "row": 22,
-      "x": 1639.6,
-      "y": 862,
-      "terrain": "plains"
-    },
-    {
-      "col": 39,
-      "row": 22,
-      "x": 1681.2,
-      "y": 862,
+      "col": 23,
+      "row": 14,
+      "x": 1653.5,
+      "y": 900,
       "terrain": "plains"
     },
     {
       "col": 0,
-      "row": 23,
-      "x": 80.8,
-      "y": 898,
+      "row": 15,
+      "x": 94.6,
+      "y": 960,
       "terrain": "plains"
     },
     {
       "col": 1,
-      "row": 23,
-      "x": 122.4,
-      "y": 898,
+      "row": 15,
+      "x": 163.9,
+      "y": 960,
       "terrain": "city",
       "city": "Vancouver",
       "value": "6/4",
@@ -2258,72 +1449,16 @@
     },
     {
       "col": 2,
-      "row": 23,
-      "x": 163.9,
-      "y": 898,
+      "row": 15,
+      "x": 233.2,
+      "y": 960,
       "terrain": "plains"
     },
     {
       "col": 3,
-      "row": 23,
-      "x": 205.5,
-      "y": 898,
-      "terrain": "plains"
-    },
-    {
-      "col": 4,
-      "row": 23,
-      "x": 247.1,
-      "y": 898,
-      "terrain": "plains"
-    },
-    {
-      "col": 37,
-      "row": 23,
-      "x": 1618.8,
-      "y": 898,
-      "terrain": "plains"
-    },
-    {
-      "col": 38,
-      "row": 23,
-      "x": 1660.4,
-      "y": 898,
-      "terrain": "plains"
-    },
-    {
-      "col": 39,
-      "row": 23,
-      "x": 1702,
-      "y": 898,
-      "terrain": "plains"
-    },
-    {
-      "col": 1,
-      "row": 24,
-      "x": 101.6,
-      "y": 934,
-      "terrain": "plains"
-    },
-    {
-      "col": 2,
-      "row": 24,
-      "x": 143.1,
-      "y": 934,
-      "terrain": "plains"
-    },
-    {
-      "col": 3,
-      "row": 24,
-      "x": 184.7,
-      "y": 934,
-      "terrain": "plains"
-    },
-    {
-      "col": 4,
-      "row": 24,
-      "x": 226.3,
-      "y": 934,
+      "row": 15,
+      "x": 302.5,
+      "y": 960,
       "terrain": "city",
       "city": "Port Moody",
       "value": "3/3",
@@ -2331,24 +1466,31 @@
       "shared": 3
     },
     {
-      "col": 5,
-      "row": 24,
-      "x": 267.8,
-      "y": 934,
+      "col": 4,
+      "row": 15,
+      "x": 371.8,
+      "y": 960,
       "terrain": "plains"
     },
     {
-      "col": 37,
-      "row": 24,
-      "x": 1598.1,
-      "y": 934,
+      "col": 20,
+      "row": 15,
+      "x": 1480.3,
+      "y": 960,
       "terrain": "plains"
     },
     {
-      "col": 38,
-      "row": 24,
-      "x": 1639.6,
-      "y": 934,
+      "col": 21,
+      "row": 15,
+      "x": 1549.6,
+      "y": 960,
+      "terrain": "plains"
+    },
+    {
+      "col": 22,
+      "row": 15,
+      "x": 1618.8,
+      "y": 960,
       "terrain": "city",
       "city": "Emerson",
       "value": "2/1",
@@ -2356,80 +1498,63 @@
       "shared": 1
     },
     {
-      "col": 39,
-      "row": 24,
-      "x": 1681.2,
-      "y": 934,
-      "terrain": "plains"
-    },
-    {
-      "col": 0,
-      "row": 25,
-      "x": 80.8,
-      "y": 970,
+      "col": 23,
+      "row": 15,
+      "x": 1688.1,
+      "y": 960,
       "terrain": "plains"
     },
     {
       "col": 1,
-      "row": 25,
-      "x": 122.4,
-      "y": 970,
-      "terrain": "plains"
-    },
-    {
-      "col": 2,
-      "row": 25,
-      "x": 163.9,
-      "y": 970,
+      "row": 16,
+      "x": 129.3,
+      "y": 1020,
       "terrain": "plains"
     },
     {
       "col": 3,
-      "row": 25,
-      "x": 205.5,
-      "y": 970,
+      "row": 16,
+      "x": 267.8,
+      "y": 1020,
       "terrain": "plains"
     },
     {
-      "col": 4,
-      "row": 25,
-      "x": 247.1,
-      "y": 970,
+      "col": 20,
+      "row": 16,
+      "x": 1445.6,
+      "y": 1020,
       "terrain": "plains"
     },
     {
-      "col": 5,
-      "row": 25,
-      "x": 288.6,
-      "y": 970,
+      "col": 21,
+      "row": 16,
+      "x": 1514.9,
+      "y": 1020,
+      "terrain": "city",
+      "city": "St. Boniface",
+      "value": "2/1",
+      "full": 2,
+      "shared": 1
+    },
+    {
+      "col": 22,
+      "row": 16,
+      "x": 1584.2,
+      "y": 1020,
       "terrain": "plains"
     },
     {
-      "col": 37,
-      "row": 25,
-      "x": 1618.8,
-      "y": 970,
-      "terrain": "plains"
-    },
-    {
-      "col": 38,
-      "row": 25,
-      "x": 1660.4,
-      "y": 970,
+      "col": 23,
+      "row": 16,
+      "x": 1653.5,
+      "y": 1020,
       "terrain": "plains"
     },
     {
       "col": 0,
-      "row": 26,
-      "x": 60,
-      "y": 1006,
-      "terrain": "plains"
-    },
-    {
-      "col": 1,
-      "row": 26,
-      "x": 101.6,
-      "y": 1006,
+      "row": 17,
+      "x": 94.6,
+      "y": 1080,
       "terrain": "city",
       "city": "Nanaimo",
       "value": "4/3",
@@ -2438,30 +1563,9 @@
     },
     {
       "col": 2,
-      "row": 26,
-      "x": 143.1,
-      "y": 1006,
-      "terrain": "plains"
-    },
-    {
-      "col": 3,
-      "row": 26,
-      "x": 184.7,
-      "y": 1006,
-      "terrain": "plains"
-    },
-    {
-      "col": 4,
-      "row": 26,
-      "x": 226.3,
-      "y": 1006,
-      "terrain": "plains"
-    },
-    {
-      "col": 5,
-      "row": 26,
-      "x": 267.8,
-      "y": 1006,
+      "row": 17,
+      "x": 233.2,
+      "y": 1080,
       "terrain": "city",
       "city": "New Westminster",
       "value": "5/3",
@@ -2469,80 +1573,38 @@
       "shared": 3
     },
     {
-      "col": 6,
-      "row": 26,
-      "x": 309.4,
-      "y": 1006,
+      "col": 20,
+      "row": 17,
+      "x": 1480.3,
+      "y": 1080,
+      "terrain": "plains"
+    },
+    {
+      "col": 21,
+      "row": 17,
+      "x": 1549.6,
+      "y": 1080,
       "terrain": "plains"
     },
     {
       "col": 0,
-      "row": 27,
-      "x": 80.8,
-      "y": 1042,
-      "terrain": "plains"
-    },
-    {
-      "col": 1,
-      "row": 27,
-      "x": 122.4,
-      "y": 1042,
-      "terrain": "plains"
-    },
-    {
-      "col": 2,
-      "row": 27,
-      "x": 163.9,
-      "y": 1042,
-      "terrain": "plains"
-    },
-    {
-      "col": 4,
-      "row": 27,
-      "x": 247.1,
-      "y": 1042,
-      "terrain": "plains"
-    },
-    {
-      "col": 5,
-      "row": 27,
-      "x": 288.6,
-      "y": 1042,
-      "terrain": "plains"
-    },
-    {
-      "col": 0,
-      "row": 28,
+      "row": 18,
       "x": 60,
-      "y": 1078,
+      "y": 1140,
       "terrain": "plains"
     },
     {
       "col": 1,
-      "row": 28,
-      "x": 101.6,
-      "y": 1078,
-      "terrain": "plains"
-    },
-    {
-      "col": 2,
-      "row": 28,
-      "x": 143.1,
-      "y": 1078,
+      "row": 18,
+      "x": 129.3,
+      "y": 1140,
       "terrain": "plains"
     },
     {
       "col": 0,
-      "row": 29,
-      "x": 80.8,
-      "y": 1114,
-      "terrain": "forest"
-    },
-    {
-      "col": 1,
-      "row": 29,
-      "x": 122.4,
-      "y": 1114,
+      "row": 19,
+      "x": 94.6,
+      "y": 1200,
       "terrain": "city",
       "city": "Victoria",
       "value": "5/3",
@@ -2550,45 +1612,17 @@
       "shared": 3
     },
     {
-      "col": 2,
-      "row": 29,
-      "x": 163.9,
-      "y": 1114,
-      "terrain": "forest"
-    },
-    {
       "col": 1,
-      "row": 30,
-      "x": 101.6,
-      "y": 1150,
-      "terrain": "forest"
-    },
-    {
-      "col": 2,
-      "row": 30,
-      "x": 143.1,
-      "y": 1150,
-      "terrain": "forest"
-    },
-    {
-      "col": 3,
-      "row": 30,
-      "x": 184.7,
-      "y": 1150,
-      "terrain": "forest"
-    },
-    {
-      "col": 1,
-      "row": 31,
-      "x": 122.4,
-      "y": 1186,
-      "terrain": "forest"
-    },
-    {
-      "col": 2,
-      "row": 31,
+      "row": 19,
       "x": 163.9,
-      "y": 1186,
+      "y": 1200,
+      "terrain": "plains"
+    },
+    {
+      "col": 2,
+      "row": 19,
+      "x": 233.2,
+      "y": 1200,
       "terrain": "city",
       "city": "Esquimalt",
       "value": "2/1",
@@ -2597,24 +1631,10 @@
     },
     {
       "col": 3,
-      "row": 31,
-      "x": 205.5,
-      "y": 1186,
-      "terrain": "forest"
-    },
-    {
-      "col": 2,
-      "row": 32,
-      "x": 143.1,
-      "y": 1222,
-      "terrain": "forest"
-    },
-    {
-      "col": 3,
-      "row": 32,
-      "x": 184.7,
-      "y": 1222,
-      "terrain": "forest"
+      "row": 19,
+      "x": 302.5,
+      "y": 1200,
+      "terrain": "plains"
     }
   ],
   "cities": [
@@ -2628,8 +1648,8 @@
       "special": true,
       "region": "MB",
       "note": "7,985 at the 1881 census, up from 241 in 1871; secondary sources cite 20,000+ by 1886 (MEDIUM). CPR's construction HQ and the undisputed hub of the whole build — the highest sourced population figure on this board.",
-      "col": 38,
-      "row": 20
+      "col": 22,
+      "row": 13
     },
     {
       "name": "St. Boniface",
@@ -2641,11 +1661,11 @@
       "note": "French-Catholic/Métis settlement across the Red River from Winnipeg, founded 1818, Louis Riel's birthplace; administratively separate but geographically on top of Winnipeg (no era population figure found — kept low and, as flagged in the research doc, expected to need nudging away from Winnipeg the way Hamilton did on the Canadian board).",
       "nudge": [
         -1,
-        -2
+        3
       ],
-      "nudgeWhy": "projects onto the exact same hex as Winnipeg; shifted so no two cities touch (a bigger nudge than usual — this is the tightest real-world pair on the whole map)",
-      "col": 37,
-      "row": 18
+      "nudgeWhy": "RESCALE: at the compressed 24x22 grid all 6 of Winnipeg's own hex neighbours are already occupied by other cities pushed up against the map's east edge (Selkirk, Portage la Prairie) or by Emerson (unnudged, real-world due south), so the real-world 'just across the river, practically touching' direction (due east) is not available at any distance — the east edge sits right at Winnipeg's own column. Moved south-southwest to the nearest hex that clears every other city (checked by a bearing-constrained nudge solver, not a blind search); a larger nudge than the original board needed, an expected consequence of tripling city density, not a geographic misread",
+      "col": 21,
+      "row": 16
     },
     {
       "name": "Portage la Prairie",
@@ -2655,8 +1675,13 @@
       "shared": 2,
       "region": "MB",
       "note": "Roughly 1,000 population, with a land-boom peak reported at 3,500 by spring 1882 (a speculative bubble figure, not a stable count).",
-      "col": 36,
-      "row": 20
+      "nudge": [
+        -1,
+        -2
+      ],
+      "nudgeWhy": "RESCALE: at 24x22 density this projects adjacent to Winnipeg (via Brandon's own real WNW line toward it); nudged further along that same real-world direction (west + north) until clear of Winnipeg, St. Boniface and Selkirk",
+      "col": 20,
+      "row": 11
     },
     {
       "name": "Brandon",
@@ -2666,8 +1691,8 @@
       "shared": 3,
       "region": "MB",
       "note": "Chosen as a CPR divisional point spring 1881; population ~196 (1881) -> ~500 by year end -> 2,348 (1885); incorporated a city 1882, skipping town status entirely.",
-      "col": 34,
-      "row": 20
+      "col": 20,
+      "row": 13
     },
     {
       "name": "Selkirk",
@@ -2678,12 +1703,12 @@
       "region": "MB",
       "note": "The originally-intended CPR crossing of the Red River (bridge opened June 1881) before the company switched the main line south through Winnipeg instead — a genuine 'what almost happened' story beat; no era population figure found.",
       "nudge": [
-        1,
-        -2
+        0,
+        -1
       ],
-      "nudgeWhy": "shifted so no two cities touch (was adjacent to both Winnipeg and St. Boniface)",
-      "col": 39,
-      "row": 17
+      "nudgeWhy": "RESCALE: real-world Selkirk is NE of Winnipeg; nudged one hex further north along that same line to clear Winnipeg's own hex at 24x22 density",
+      "col": 23,
+      "row": 11
     },
     {
       "name": "Emerson",
@@ -2693,8 +1718,8 @@
       "shared": 1,
       "region": "MB",
       "note": "Border town on the Pembina Branch (1878), the first railway to reach Manitoba, three years before the CPR mainline existed. No era population figure found — not invented.",
-      "col": 38,
-      "row": 24
+      "col": 22,
+      "row": 15
     },
     {
       "name": "Regina",
@@ -2705,8 +1730,8 @@
       "hub": true,
       "region": "SK",
       "note": "Founded 1882 as a CPR townsite on Wascana Creek, chosen by the CPR itself; NWT territorial capital from 1883 (replacing Battleford) and NWMP HQ the same year. No hard in-era population figure exists (2,249 at the 1901 census is the first solid number) — valued for its unmatched administrative weight across the whole non-Manitoba, non-BC map, on par with the other capital-tier hubs.",
-      "col": 28,
-      "row": 18
+      "col": 16,
+      "row": 11
     },
     {
       "name": "Battleford",
@@ -2716,8 +1741,8 @@
       "shared": 3,
       "region": "SK",
       "note": "NWT's first capital 1876-1883, a NWMP fort of about ten buildings by 1880; lost capital status to Regina in 1883 specifically because Regina sat on the CPR main line and Battleford did not. Site of 1885 North-West Rebellion fighting (Fort Battleford). Valued for its displaced-capital political weight, not its garrison size.",
-      "col": 22,
-      "row": 7
+      "col": 13,
+      "row": 5
     },
     {
       "name": "Prince Albert",
@@ -2727,8 +1752,8 @@
       "shared": 3,
       "region": "SK",
       "note": "Founded 1866 as a Presbyterian mission; ~500 people at the mission by end of 1882, 'more than 5,000 in the area'. Capital of the District of Saskatchewan until 1905. Off the CPR main line, historically reachable only via the Qu'Appelle, Long Lake & Saskatchewan Railroad — a branch destination, not a mainline stop.",
-      "col": 25,
-      "row": 5
+      "col": 15,
+      "row": 3
     },
     {
       "name": "Fort Qu'Appelle",
@@ -2738,8 +1763,13 @@
       "shared": 1,
       "region": "SK",
       "note": "Continuously-operated HBC trading post since 1864, became the HBC's district headquarters in 1882 — a real, old, distinct place from the CPR's own Qu'Appelle Station 15 km away. No era population figure found.",
-      "col": 29,
-      "row": 16
+      "nudge": [
+        0,
+        -1
+      ],
+      "nudgeWhy": "RESCALE: real-world Fort Qu'Appelle is north of Regina; at 24x22 density it lands hex-adjacent to Regina and Qu'Appelle Station both, so nudged one further hex north along the same real line",
+      "col": 17,
+      "row": 9
     },
     {
       "name": "Qu'Appelle Station",
@@ -2750,12 +1780,12 @@
       "region": "SK",
       "note": "Post office founded as 'Troy' 1 August 1882, renamed Qu'Appelle Station when the CPR arrived in 1884 (period-name trap: 'Troy' is correct 1882-84, this name 1884-87 — using the post-1884 CPR name per the task brief, matching how the board treats Vancouver/Lethbridge). A fire in 1883 destroyed much of the business district, implying real size before the rename.",
       "nudge": [
-        2,
+        -1,
         -2
       ],
-      "nudgeWhy": "projects onto the same hex as Indian Head, itself adjacent to both Regina and Fort Qu'Appelle; shifted clear of all three",
-      "col": 30,
-      "row": 15
+      "nudgeWhy": "RESCALE: projects onto Regina's own hex at 24x22 density (the whole Qu'Appelle/Indian Head cluster is real-world within ~30km of Regina); nudged north-northwest, the closest direction that clears Regina, Fort Qu'Appelle, Indian Head and Moose Jaw all at once",
+      "col": 15,
+      "row": 9
     },
     {
       "name": "Indian Head",
@@ -2766,12 +1796,12 @@
       "region": "SK",
       "note": "Settlers arrived 1882 just ahead of the CPR; site of the 50,000+ acre 'Bell Farm' model farm — by June 1883 it had ~70 buildings including several stone structures.",
       "nudge": [
-        2,
+        1,
         0
       ],
-      "nudgeWhy": "projects onto the same hex as Qu'Appelle Station, itself adjacent to both Regina and Fort Qu'Appelle; shifted clear of all three",
-      "col": 30,
-      "row": 17
+      "nudgeWhy": "RESCALE: real-world Indian Head is due east of Regina; at 24x22 density it lands hex-adjacent to Regina and Fort Qu'Appelle, so nudged one further hex east along the same real line",
+      "col": 18,
+      "row": 11
     },
     {
       "name": "Moose Jaw",
@@ -2781,8 +1811,13 @@
       "shared": 3,
       "region": "SK",
       "note": "Land speculators arrived 1881 anticipating a CPR divisional point; construction crews reached it 6 September 1882, first scheduled passenger train 1 April 1883. Population fluctuated 2,000-3,000 by May 1883 (a construction-boom figure); incorporated as a town 13 February 1884.",
-      "col": 26,
-      "row": 18
+      "nudge": [
+        -3,
+        0
+      ],
+      "nudgeWhy": "RESCALE: real-world Moose Jaw is due west of Regina; at 24x22 density the direct route west is blocked by Swift Current's own hex footprint, so nudged further west along the same line until clear of both Regina and Swift Current",
+      "col": 12,
+      "row": 11
     },
     {
       "name": "Swift Current",
@@ -2792,8 +1827,8 @@
       "shared": 1,
       "region": "SK",
       "note": "Townsite reserved early 1882 after the 1881 survey reached Swift Current Creek; became a divisional point for its reliable water. No population figure found for the era — genuinely thin.",
-      "col": 23,
-      "row": 18
+      "col": 14,
+      "row": 12
     },
     {
       "name": "Maple Creek",
@@ -2803,8 +1838,8 @@
       "shared": 1,
       "region": "SK",
       "note": "Townsite surveyed August 1883 alongside Calgary, Swift Current and Medicine Hat; became the NWMP's new divisional headquarters in 1883 after Fort Walsh closed. No population figure found.",
-      "col": 21,
-      "row": 20
+      "col": 12,
+      "row": 13
     },
     {
       "name": "Calgary",
@@ -2816,8 +1851,8 @@
       "special": true,
       "region": "AB",
       "note": "Originated as NWMP Fort Calgary (1875); the CPR reached it August 1883, choosing the southerly Kicking Horse Pass route over the assumed Yellowhead/Edmonton route. Incorporated a town 1884; a 'few hundred' settlers in 1883 growing to 3,876 at the 1891 census.",
-      "col": 14,
-      "row": 15
+      "col": 8,
+      "row": 9
     },
     {
       "name": "Edmonton",
@@ -2828,8 +1863,8 @@
       "hub": true,
       "region": "AB",
       "note": "A real, continuously-occupied fur-trade settlement (Fort Edmonton), surveyed 1881 amid a small land rush when the CPR was still expected via the Yellowhead Pass. When the CPR chose the Kicking Horse/Calgary route instead, 'Edmonton's growth tailed off' and it was not reached by any railway until 1891 — after this board's window. Locked as a hub per the design brief despite this thin, deliberately modest value: a hub that pays less than several developable cities is an intentional echo of the real bypass story, flagged for the balance-measurement phase in case it proves unbuildable-into in practice.",
-      "col": 15,
-      "row": 3
+      "col": 9,
+      "row": 2
     },
     {
       "name": "Fort Macleod",
@@ -2840,12 +1875,12 @@
       "region": "AB",
       "note": "First permanent NWMP post in the far west (October 1874), garrison of ~10 officers/140 constables; rebuilt 1884. A garrison, not a settled town, through this era.",
       "nudge": [
-        -1,
+        -2,
         0
       ],
-      "nudgeWhy": "shifted so no two cities touch (was adjacent to Lethbridge)",
-      "col": 14,
-      "row": 21
+      "nudgeWhy": "RESCALE: real-world Fort Macleod is west of Lethbridge; at 24x22 density the immediate hex west is already occupied by the Calgary/mountain cluster's own satellites, so nudged one hex further west along the same real line",
+      "col": 7,
+      "row": 13
     },
     {
       "name": "Lethbridge",
@@ -2855,8 +1890,8 @@
       "shared": 3,
       "region": "AB",
       "note": "Period-name trap: called 'Coalbanks' until October 1885, when it was renamed Lethbridge (after the coal company's president) — 'Lethbridge' is only accurate for the last ~2 years of the board's window. Kept as 'Lethbridge' per the task brief (matches how the board treats Vancouver's own, larger anachronism). North Western Coal and Navigation Company mine from October 1882; population 'over 1,000' by end of 1885.",
-      "col": 16,
-      "row": 21
+      "col": 9,
+      "row": 13
     },
     {
       "name": "Cochrane",
@@ -2868,11 +1903,11 @@
       "note": "Cochrane Ranche, Alberta's first large-scale ranch (1881-88, Senator Matthew Cochrane); represents the ranching economy the CPR's arrival opened up, not a town as such.",
       "nudge": [
         -1,
-        -1
+        -2
       ],
-      "nudgeWhy": "shifted so no two cities touch (was adjacent to Calgary)",
-      "col": 13,
-      "row": 13
+      "nudgeWhy": "RESCALE: real-world Cochrane is NW of Calgary; at 24x22 density it projects onto Calgary's own hex, so nudged along that same NW line until clear",
+      "col": 7,
+      "row": 7
     },
     {
       "name": "Banff",
@@ -2883,12 +1918,12 @@
       "region": "AB",
       "note": "Hot springs discovered by CPR railway workers in 1883; the Banff Hot Springs Reserve was created 25 Nov 1885 to settle a commercial dispute, expanded as Rocky Mountains Park by the 23 June 1887 Act. Essentially no in-era population — a federal reserve, not a town, but excellent story colour worth a low-but-present value rather than exclusion.",
       "nudge": [
-        0,
-        1
+        -1,
+        2
       ],
-      "nudgeWhy": "shifted so no two cities touch (was adjacent to Field)",
-      "col": 12,
-      "row": 15
+      "nudgeWhy": "RESCALE: real-world Banff is NW of Calgary but the direct NW line is boxed in by Field/Golden/Cochrane's own hexes at this density; nudged west and south instead (the next-best available direction) to clear Calgary, Cochrane and Golden all at once",
+      "col": 6,
+      "row": 11
     },
     {
       "name": "Gleichen",
@@ -2898,8 +1933,13 @@
       "shared": 1,
       "region": "AB",
       "note": "Named by the CPR in 1883 (previously 'Twelfth Siding') after Count Gleichen, a CPR financial backer; became a divisional point with a roundhouse. No population figure found.",
-      "col": 16,
-      "row": 16
+      "nudge": [
+        1,
+        0
+      ],
+      "nudgeWhy": "RESCALE: real-world Gleichen is east (and slightly south) of Calgary; at 24x22 density it projects hex-adjacent to Calgary, so nudged one further hex east along that line",
+      "col": 10,
+      "row": 10
     },
     {
       "name": "Medicine Hat",
@@ -2909,8 +1949,8 @@
       "shared": 3,
       "region": "AB",
       "note": "The CPR reached it in 1883 to bridge the South Saskatchewan River; began as a construction tent town and became a CPR divisional point (incorporated only in 1898).",
-      "col": 19,
-      "row": 20
+      "col": 11,
+      "row": 12
     },
     {
       "name": "Vancouver",
@@ -2923,7 +1963,7 @@
       "region": "BC",
       "note": "Period-name trap, the biggest on the board: named 'Granville' (also 'Gastown') for almost this entire window, renamed Vancouver only on incorporation 6 April 1886 at Van Horne's insistence. Kept as 'Vancouver' per the already-locked design decision (accurate only for the last ~18 months of the era). Chosen over Port Moody as the permanent Pacific terminus; the first transcontinental train reached it 23 May 1887.",
       "col": 1,
-      "row": 23
+      "row": 15
     },
     {
       "name": "New Westminster",
@@ -2934,12 +1974,12 @@
       "region": "BC",
       "note": "The real colonial capital of the mainland (1859-1868) before Victoria was chosen; the leading mainland city in the 1880s on salmon canning and lumber, before Vancouver's post-1886 rise eclipsed it. No specific era population figure found — not invented.",
       "nudge": [
-        3,
-        3
+        1,
+        2
       ],
-      "nudgeWhy": "the Lower Mainland cluster (Vancouver/Port Moody/New Westminster) is a genuinely tight real-world triangle (~15-20 km on a side) that collapses onto 1-2 hexes at this scale; shifted upriver/south-east so none of the three touch",
-      "col": 5,
-      "row": 26
+      "nudgeWhy": "RESCALE: the Lower Mainland cluster (Vancouver/Port Moody/New Westminster) is a genuinely tight real-world triangle (~15-20 km on a side) that projects onto Vancouver's own hex at 24x22 density; New Westminster is real-world upriver/south-east of Vancouver, so nudged that direction, clear of Vancouver, Port Moody and Yale",
+      "col": 2,
+      "row": 17
     },
     {
       "name": "Port Moody",
@@ -2951,11 +1991,11 @@
       "note": "Named the CPR's western terminus in 1879; station built 1882; a land boom followed the first construction steel in March 1883. Received the actual first transcontinental passenger train, 4 July 1886 — ten months before Vancouver took over that role. A genuine 'boomed, then bypassed' story.",
       "nudge": [
         2,
-        1
+        0
       ],
-      "nudgeWhy": "the Lower Mainland cluster collapses onto 1-2 hexes at this scale; shifted east of Vancouver (across Burrard Inlet, as in reality) clear of Vancouver, New Westminster and Yale",
-      "col": 4,
-      "row": 24
+      "nudgeWhy": "RESCALE: the Lower Mainland cluster projects onto Vancouver's own hex at 24x22 density; Port Moody is real-world east of Vancouver (across Burrard Inlet), so nudged due east, clear of Vancouver, New Westminster and Yale",
+      "col": 3,
+      "row": 15
     },
     {
       "name": "Yale",
@@ -2965,8 +2005,13 @@
       "shared": 3,
       "region": "BC",
       "note": "Headquarters and supply depot for Andrew Onderdonk's Fraser Canyon contract, 1880-85, coordinating roughly 7,000 workers (many Chinese labourers recruited specifically for this work). Population collapsed sharply once construction finished in 1885 — a boom/bust curve, not a stable count.",
-      "col": 4,
-      "row": 22
+      "nudge": [
+        0,
+        -1
+      ],
+      "nudgeWhy": "RESCALE: at 24x22 density Yale projects hex-adjacent to Vancouver; real-world Yale is upriver (further inland/north-east along the Fraser) from Vancouver, so nudged north to clear it",
+      "col": 2,
+      "row": 13
     },
     {
       "name": "Kamloops",
@@ -2976,8 +2021,8 @@
       "shared": 1,
       "region": "BC",
       "note": "Construction reached it in 1883; through-service from 1885/86. Genuinely small through this whole era — incorporated only in 1893 with a population of roughly 500. Kept explicitly thin rather than padded.",
-      "col": 5,
-      "row": 17
+      "col": 3,
+      "row": 11
     },
     {
       "name": "Revelstoke",
@@ -2987,8 +2032,8 @@
       "shared": 1,
       "region": "BC",
       "note": "Surveyed as 'Farwell' in 1885, renamed Revelstoke in 1886 after Lord Revelstoke, the British financier whose firm helped underwrite CPR construction finance. Barely exists before 1885.",
-      "col": 8,
-      "row": 15
+      "col": 5,
+      "row": 10
     },
     {
       "name": "Golden",
@@ -2998,8 +2043,13 @@
       "shared": 1,
       "region": "BC",
       "note": "Emerged as a construction tent town in 1884-85 at the Kicking Horse/Columbia River junction; was originally intended as the mountain divisional point (a role that went to Revelstoke only in 1899). Tiny population in-era.",
-      "col": 10,
-      "row": 14
+      "nudge": [
+        -1,
+        3
+      ],
+      "nudgeWhy": "RESCALE: real-world Golden is WSW of Field, but at 24x22 density the whole Field-Banff-Cochrane-Revelstoke pileup boxes in every hex within 2 steps of that direct line; nudged further southwest, the nearest hex a bearing-constrained solver found clear of all four neighbours -- a bigger nudge than the rest of this cluster needed, a direct consequence of the mountain corridor's real-world density, not an arbitrary placement",
+      "col": 5,
+      "row": 12
     },
     {
       "name": "Field",
@@ -3009,8 +2059,8 @@
       "shared": 1,
       "region": "BC",
       "note": "CPR station near the base of the Kicking Horse Pass 'Big Hill' grade, established during mid-1880s mountain-section construction.",
-      "col": 11,
-      "row": 13
+      "col": 6,
+      "row": 8
     },
     {
       "name": "Victoria",
@@ -3024,9 +2074,9 @@
         0,
         2
       ],
-      "nudgeWhy": "shifted south down-island, clear of Nanaimo",
-      "col": 1,
-      "row": 29
+      "nudgeWhy": "RESCALE: kept south down-island of Nanaimo, same as the original board, but the rescaled grid's rows 18-21 exist specifically to give this cluster room (see project.mjs) -- Victoria sits 2 hexes south of Nanaimo, mirroring how far down-island it sits in reality relative to the Nanaimo-Vancouver crossing point",
+      "col": 0,
+      "row": 19
     },
     {
       "name": "Esquimalt",
@@ -3037,12 +2087,12 @@
       "region": "BC",
       "note": "Royal Navy's Pacific Station headquarters since 1865; the Esquimalt & Nanaimo Railway reached it in 1886 and the naval dockyard was completed in 1887. No standalone population figure found (folded into greater Victoria in most sources).",
       "nudge": [
-        1,
-        4
+        2,
+        2
       ],
-      "nudgeWhy": "projects onto the same hex as Victoria (they are real, adjoining neighbours, ~5 km apart in reality); shifted further down-island so no two cities touch",
+      "nudgeWhy": "RESCALE: projects onto the same hex as Victoria (they are real, adjoining neighbours, ~5 km apart in reality). A straight south nudge needs 4 rows of clearance at this density and pushes the whole island cluster into the printed company-plates strip at the bottom of the frame, so shifted east instead (2 hexes east, same row as Victoria) -- enough hex distance to clear Victoria and New Westminster both while keeping the whole island within the board's vertical budget",
       "col": 2,
-      "row": 31
+      "row": 19
     },
     {
       "name": "Nanaimo",
@@ -3056,9 +2106,9 @@
         0,
         2
       ],
-      "nudgeWhy": "Vancouver Island is physically separate from the mainland (see terrain.json); shifted south, clear of Vancouver, so the strait between them can be represented as off-map water with a single narrow land crossing rather than direct city-to-city adjacency",
-      "col": 1,
-      "row": 26
+      "nudgeWhy": "RESCALE: Vancouver Island is physically separate from the mainland (see terrain.json's water-gap region). Shifted 2 hexes south of its raw projected position -- which otherwise lands 2 hexes due west of Vancouver at the SAME row, i.e. would read as ordinary adjacent mainland rather than an island across a strait. The 2-hex south shift plus the off-map hexes hand-carved into terrain.json puts exactly one land hex, (1,16), between Nanaimo and Vancouver: a real, single-tile bridge crossing, not a wide land connection -- see docs/western-canada-board-rescale-final.md for the exact hex-by-hex reasoning",
+      "col": 0,
+      "row": 17
     }
   ],
   "hubs": [
@@ -3097,11 +2147,11 @@
     1887
   ],
   "summary": {
-    "tiles": 342,
-    "forest": 76,
+    "tiles": 204,
+    "forest": 45,
     "city": 34,
-    "mountain": 72,
-    "plains": 160,
+    "mountain": 42,
+    "plains": 83,
     "totalFullValue": 111,
     "totalSharedValue": 71
   }
