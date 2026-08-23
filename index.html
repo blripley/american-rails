@@ -8979,6 +8979,12 @@ const COMPANIES = {
   liberty:{name:'Liberty',color:'#b4382e',cubes:19,shares:2}, republic:{name:'Republic',color:'#2f6fae',cubes:17,shares:3},
 };
 const COMPANY_IDS = Object.keys(COMPANIES);
+// A map may rebalance a company's printed share/cube counts (e.g. the Western
+// Canada board's dominant CPR Mainline company) via MAP.companyCounts[id] —
+// falls back to the shared rules values in COMPANIES when a map doesn't
+// override, so the American and Canadian boards are unaffected.
+function companyShares(id){ const o = MAP && MAP.companyCounts && MAP.companyCounts[id]; return (o && o.shares!=null) ? o.shares : COMPANIES[id].shares; }
+function companyCubes(id){ const o = MAP && MAP.companyCounts && MAP.companyCounts[id]; return (o && o.cubes!=null) ? o.cubes : COMPANIES[id].cubes; }
 // per-seat player pieces (design: painted locomotives) — Natural/Purple/Pink/Brown/Orange
 const PLAYER_PIECES = [
   {name:'Natural',face:'#dcc79f',shade:'#ad9367'}, {name:'Purple',face:'#5e2a55',shade:'#3a1633'},
@@ -9031,6 +9037,10 @@ let BOARD;
 // Two boards, one engine. Everything map-specific lives in this table; the
 // rules, the AI and the UI read the bindings below and never name a country.
 // Adding a third map means adding a row here plus its <template> and cell data.
+// Optional per-entry fields: `years:{start,end}` (play-year range, required —
+// see setMap) and `companyCounts:{[companyId]:{shares?,cubes?}}` (rebalances
+// a company's printed share/cube counts for this map only; read via
+// companyShares(id)/companyCubes(id), never COMPANIES[id] directly).
 const MAPS = {
   us: {
     id:'us', label:'American Rails', sub:'The Eastern United States',
@@ -9116,7 +9126,7 @@ function createInitialState(config){
   if (config.mapId) setMap(config.mapId);
   const names = config.names, n = names.length;
   const companies = {};
-  for (const id of COMPANY_IDS) companies[id] = { treasury:0, income:0, sharesInSupply:COMPANIES[id].shares, sharesRemoved:0, cubesInSupply:COMPANIES[id].cubes, onMap:false, bonuses:[], removed:false };
+  for (const id of COMPANY_IDS) companies[id] = { treasury:0, income:0, sharesInSupply:companyShares(id), sharesRemoved:0, cubesInSupply:companyCubes(id), onMap:false, bonuses:[], removed:false };
   const state = {
     phase:'setup', mode: config.mode||'local',
     players: names.map((nm,i)=>({ id:i, name:nm, money:startingMoney(n), shares:[], connected:true, bot:(config.bots&&config.bots[i])||null })),
@@ -9138,7 +9148,7 @@ function createInitialState(config){
       p.persona = pool.splice(Math.min(k,pool.length-1),1)[0] || PERSONA_IDS[i%PERSONA_IDS.length]; } }); }
   // 3-player: remove one random company (randomness stored via chosen id)
   if (n===3){ const rid = config.removed || COMPANY_IDS[Math.floor(Math.random()*COMPANY_IDS.length)];
-    const c = companies[rid]; c.removed=true; c.cubesInSupply=0; c.sharesInSupply=0; c.sharesRemoved=COMPANIES[rid].shares;
+    const c = companies[rid]; c.removed=true; c.cubesInSupply=0; c.sharesInSupply=0; c.sharesRemoved=companyShares(rid);
     pushLog(state, `${COMPANIES[rid].name} removed (3-player game).`); }
   pushLog(state, `Game started — ${n} players.`);
   startPreparationAuction(state);
@@ -10908,7 +10918,7 @@ window.__selfTest = function(){
 
   /* ---- money-math unit checks on controlled mini-states ---- */
   function miniState(){ return { players:[{money:50,shares:[]},{money:50,shares:[]},{money:50,shares:[]}],
-    companies:Object.fromEntries(COMPANY_IDS.map(id=>[id,{treasury:0,income:0,sharesInSupply:COMPANIES[id].shares,sharesRemoved:0,cubesInSupply:COMPANIES[id].cubes,onMap:false,bonuses:[],removed:false}])),
+    companies:Object.fromEntries(COMPANY_IDS.map(id=>[id,{treasury:0,income:0,sharesInSupply:companyShares(id),sharesRemoved:0,cubesInSupply:companyCubes(id),onMap:false,bonuses:[],removed:false}])),
     hexes:{}, developmentSupply:12, year:1854, log:[] }; }
   const H=Object.keys(BOARD).find(id=>{const c=BOARD[id].city; return c && c.developable && c.full>c.shared;});
   const CF=BOARD[H].city.full, CS=BOARD[H].city.shared;
@@ -11308,6 +11318,30 @@ window.__selfTest = function(){
     MAPS.us.years = savedYears;
     setMap(_mapBefore2);
     assert('map years restored after the swap test', YEAR_START===1851 && YEAR_END===1857);
+  }
+
+  /* ---- per-map company share/cube counts (engine capability for a future
+     third map) — confirms a map can rebalance a company's printed share and
+     cube counts (e.g. Western Canada's dominant CPR Mainline company)
+     without touching COMPANIES, the shared rules table both existing
+     boards rely on staying untouched. */
+  {
+    const _mapBefore3 = MAP.id;   // restore to whatever board was active, not always 'us'
+    assert('companyShares/companyCubes fall back to COMPANIES with no override',
+      companyShares('liberty')===COMPANIES.liberty.shares && companyCubes('liberty')===COMPANIES.liberty.cubes);
+    const savedCounts = MAPS.us.companyCounts;
+    MAPS.us.companyCounts = { liberty:{shares:9, cubes:99} };
+    setMap('us');
+    assert('an overridden company reads the map\'s counts', companyShares('liberty')===9 && companyCubes('liberty')===99);
+    assert('a non-overridden company still falls back to COMPANIES', companyShares('american')===COMPANIES.american.shares);
+    const m = createInitialState({mode:'local', names:['A','B','C','D']});
+    assert('createInitialState seeds the overridden supply', m.companies.liberty.sharesInSupply===9 && m.companies.liberty.cubesInSupply===99);
+    assert('createInitialState leaves a non-overridden company alone', m.companies.american.sharesInSupply===COMPANIES.american.shares);
+    const m3 = createInitialState({mode:'local', names:['A','B','C'], removed:'liberty'});
+    assert('3-player removal records the overridden share count', m3.companies.liberty.sharesRemoved===9);
+    MAPS.us.companyCounts = savedCounts;
+    setMap(_mapBefore3);
+    assert('company counts restored after the swap test', companyShares('liberty')===COMPANIES.liberty.shares);
   }
 
   render(gameState);
