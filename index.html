@@ -9083,6 +9083,8 @@ function setMap(id){
   // printed-panel corners (action table / year track / house-supply box) — each
   // map moves these to fit its own land mass; w/h/cell are fixed panel sizes.
   AT = {x:MAP.at.x, y:MAP.at.y, w:384, h:478};
+  // w/cell assume exactly 7 year-cells fit the panel — a map with a different
+  // number of play years would need its own w/cell here too, not just years:{}.
   YT = {x:MAP.yt.x, y:MAP.yt.y, w:536, h:114, cell:74.286};
   HOUSE_SUPPLY = {x:MAP.houseSupply.x, y:MAP.houseSupply.y};
   // the Canadian tile is smaller, so every piece drawn on it scales to match
@@ -9573,7 +9575,7 @@ function roundsLeft(s){ return Math.max(1, (YEAR_END+1) - (s.year||YEAR_START));
 // game ends — it also stops the moment the last share is sold, or when enough cube/development
 // piles run dry. A bot that only counts years happily pays $20 for a share that pays out twice.
 function horizonRounds(s){
-  const years = roundsLeft(s);                                        // 1858 - year: the hard ceiling
+  const years = roundsLeft(s);                                        // (YEAR_END+1) - year: the hard ceiling
   const n = s.players.length||4, threshold = n===3?3:(n===4?4:5);
   const active = activeCompanyIds(s);
   const sharesLeft = active.reduce((t,id)=>t+s.companies[id].sharesInSupply,0);
@@ -10850,7 +10852,7 @@ function gameReport(s){
   L.push('COMPANIES');
   for (const id of COMPANY_IDS){ const c=s.companies[id];
     L.push(`  ${COMPANIES[id].name}: income ${c.income} · treasury $${c.treasury} · ${c.cubesInSupply} cubes left`
-      + ` · ${c.sharesInSupply}/${COMPANIES[id].shares} shares unsold${c.removed?' · REMOVED':''}`); }
+      + ` · ${c.sharesInSupply}/${companyShares(id)} shares unsold${c.removed?' · REMOVED':''}`); }
   L.push('');
   // Spoiler block: how each bot was set up. Kept at the bottom and labelled, since personalities are
   // deliberately hidden during play — it is here so a game can be diagnosed after the fact.
@@ -11128,7 +11130,7 @@ window.__selfTest = function(){
     assert('start cube Back: returns to placing', gameState.turnPhase==='placeStartCube');
     assert('start cube Back: cube removed from the map', !(gameState.hexes[chicago]&&gameState.hexes[chicago].cubes.length));
     assert('start cube Back: company off the map again', gameState.companies[cid].onMap===false && gameState.companies[cid].income===0);
-    assert('start cube Back: cube returned to supply', gameState.companies[cid].cubesInSupply===COMPANIES[cid].cubes);
+    assert('start cube Back: cube returned to supply', gameState.companies[cid].cubesInSupply===companyCubes(cid));
     assert('start cube Back: the share and the money paid are NOT refunded',
       gameState.players[winner].money===paid && gameState.players[winner].shares.length===shares+0);
     assert('start cube Back: nothing logged about a start that never happened',
@@ -11303,6 +11305,7 @@ window.__selfTest = function(){
      1881-1887) works without touching game logic. */
   {
     const _mapBefore2 = MAP.id;   // restore to whatever board was active, not always 'us'
+    const _ysBefore = YEAR_START, _yeBefore = YEAR_END;
     assert('us map declares its play years', MAPS.us.years && MAPS.us.years.start===1851 && MAPS.us.years.end===1857);
     assert('ca map declares its play years', MAPS.ca.years && MAPS.ca.years.start===1851 && MAPS.ca.years.end===1857);
     const savedYears = MAPS.us.years;
@@ -11317,7 +11320,7 @@ window.__selfTest = function(){
     assert('endRound ends the game at its map\'s end year', m.phase==='gameOver');
     MAPS.us.years = savedYears;
     setMap(_mapBefore2);
-    assert('map years restored after the swap test', YEAR_START===1851 && YEAR_END===1857);
+    assert('map years restored after the swap test', YEAR_START===_ysBefore && YEAR_END===_yeBefore);
   }
 
   /* ---- per-map company share/cube counts (engine capability for a future
@@ -11327,8 +11330,10 @@ window.__selfTest = function(){
      boards rely on staying untouched. */
   {
     const _mapBefore3 = MAP.id;   // restore to whatever board was active, not always 'us'
+    setMap('us');   // known board with no companyCounts override, so the fallback check below is meaningful
+    const _libSharesBefore = companyShares('liberty'), _libCubesBefore = companyCubes('liberty');
     assert('companyShares/companyCubes fall back to COMPANIES with no override',
-      companyShares('liberty')===COMPANIES.liberty.shares && companyCubes('liberty')===COMPANIES.liberty.cubes);
+      _libSharesBefore===COMPANIES.liberty.shares && _libCubesBefore===COMPANIES.liberty.cubes);
     const savedCounts = MAPS.us.companyCounts;
     MAPS.us.companyCounts = { liberty:{shares:9, cubes:99} };
     setMap('us');
@@ -11339,9 +11344,9 @@ window.__selfTest = function(){
     assert('createInitialState leaves a non-overridden company alone', m.companies.american.sharesInSupply===COMPANIES.american.shares);
     const m3 = createInitialState({mode:'local', names:['A','B','C'], removed:'liberty'});
     assert('3-player removal records the overridden share count', m3.companies.liberty.sharesRemoved===9);
-    MAPS.us.companyCounts = savedCounts;
+    if (savedCounts) MAPS.us.companyCounts = savedCounts; else delete MAPS.us.companyCounts;
     setMap(_mapBefore3);
-    assert('company counts restored after the swap test', companyShares('liberty')===COMPANIES.liberty.shares);
+    assert('company counts restored after the swap test', companyShares('liberty')===_libSharesBefore && companyCubes('liberty')===_libCubesBefore);
   }
 
   render(gameState);
