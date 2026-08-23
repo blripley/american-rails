@@ -9039,6 +9039,7 @@ const MAPS = {
     specials:['Chicago','New York','Atlanta'],
     hex:41, ox:120, oy:97, names:COMPANY_BASE,
     at:{x:1250,y:556}, yt:{x:1100,y:1046}, houseSupply:{x:1032,y:958},
+    years:{start:1851, end:1857},
   },
   ca: {
     id:'ca', label:'Canadian Rails', sub:'The Province of Canada & the Maritimes',
@@ -9050,10 +9051,11 @@ const MAPS = {
     // see PANELS in scripts/canada/make-board-svg.mjs (action table -> [1230,690],
     // year track -> [560,900], house-supply box -> delta [-438,+139]).
     at:{x:1230,y:690}, yt:{x:560,y:900}, houseSupply:{x:594,y:1097},
+    years:{start:1851, end:1857},
   },
 };
 const MAP_IDS = Object.keys(MAPS).filter(id => MAPS[id].cells);
-let MAP, PDF_CELLS;
+let MAP, PDF_CELLS, YEAR_START, YEAR_END;
 
 function setMap(id){
   MAP = MAPS[id] && MAPS[id].cells ? MAPS[id] : MAPS.us;
@@ -9067,6 +9069,7 @@ function setMap(id){
   SPECIAL_PAIRS = MAP.pairs || [[s[0],s[1]],[s[0],s[2]],[s[1],s[2]]];
   HEX = MAP.hex; OX = MAP.ox; OY = MAP.oy;
   HW = HEX*Math.sqrt(3); RP = HEX*1.5;
+  YEAR_START = MAP.years.start; YEAR_END = MAP.years.end;
   // printed-panel corners (action table / year track / house-supply box) — each
   // map moves these to fit its own land mass; w/h/cell are fixed panel sizes.
   AT = {x:MAP.at.x, y:MAP.at.y, w:384, h:478};
@@ -9118,7 +9121,7 @@ function createInitialState(config){
     phase:'setup', mode: config.mode||'local',
     players: names.map((nm,i)=>({ id:i, name:nm, money:startingMoney(n), shares:[], connected:true, bot:(config.bots&&config.bots[i])||null })),
     companies, hexes:{}, developmentSupply:TOTAL_DEV_MARKERS,
-    year:1851, round:0, actionPhase:0,
+    year:YEAR_START, round:0, actionPhase:0,
     turnOrder: names.map((_,i)=>i), currentPlayer:0,
     turnPhase:'bidding', pending:null, auction:null, pendingStartCube:null,
     startCubeUndo:null, startCubeHex:null,   // the placed-but-not-yet-confirmed first cube
@@ -9317,12 +9320,12 @@ function ownedExpandableCompanies(s, playerId){
 /* ============================ 7. ACTION PHASES ============================ */
 // player train markers on the action track: {phase:-1 turn-order (row=turn-order slot), 0/1/2 action column (row=ACTION_ROWS index)}
 function initMarkers(s){ s.markers={}; s.turnOrder.forEach((seat,i)=>{ s.markers[seat]={phase:-1,row:i}; }); }
-function beginPlayRounds(s){ s.round=1; s.year=1851;
+function beginPlayRounds(s){ s.round=1; s.year=YEAR_START;
   // opening turn order = the order players won prep auctions; anyone who won nothing keeps seating order at the back
   const won=s.setupWinOrder.slice(), rest=s.turnOrder.filter(seat=>!won.includes(seat));
   s.turnOrder = won.concat(rest);
   pushLog(s, `Turn order (by auction wins): ${s.turnOrder.map(i=>s.players[i].name).join(', ')}.`);
-  startActionPhase(s, s.turnOrder.slice()); initMarkers(s); pushLog(s,'Round 1 (1851) begins.'); }
+  startActionPhase(s, s.turnOrder.slice()); initMarkers(s); pushLog(s,`Round 1 (${YEAR_START}) begins.`); }
 function startActionPhase(s, order){ s.phase='action'; s.phaseOrder=order.slice(); s.phaseQueue=order.slice(); s.takenRows={}; s.picks={}; s.turnPhase='chooseAction'; s.currentPlayer=s.phaseQueue[0]; s.pending=null; s.turnSnapshot=null; }
 function availableActionRows(s){ return ACTION_ROWS.filter(r=>!s.takenRows[r]); }
 
@@ -9436,7 +9439,7 @@ function endRound(s){
   s.turnOrder = (s.lastStandings||s.turnOrder).slice();
   const n=s.players.length, threshold = n===3?3:(n===4?4:5);
   const sharesLeft = COMPANY_IDS.reduce((t,id)=> t + s.companies[id].sharesInSupply, 0);
-  if (s.year>=1857 || sharesLeft===0 || suppliesLow(s)>=threshold){ endGame(s); return; }
+  if (s.year>=YEAR_END || sharesLeft===0 || suppliesLow(s)>=threshold){ endGame(s); return; }
   s.round++; s.year++; s.actionPhase=0; startActionPhase(s, s.turnOrder.slice()); initMarkers(s); pushLog(s, `Round ${s.round} (${s.year}).`);
 }
 function endGame(s){ s.phase='gameOver'; const max=Math.max(...s.players.map(p=>p.money));
@@ -9555,7 +9558,7 @@ function botFallback(s){ switch(s.turnPhase){
   case 'placeStartCube': { const e=Object.keys(BOARD).find(id=>BOARD[id].city && !(s.hexes[id]&&s.hexes[id].cubes.length)); return 'hex:'+e; }
   case 'confirmStartCube': return 'startok';
   default: return null; } }
-function roundsLeft(s){ return Math.max(1, 1858 - (s.year||1851)); }
+function roundsLeft(s){ return Math.max(1, (YEAR_END+1) - (s.year||YEAR_START)); }
 // How many more dividends will REALLY be paid? The year track is only one of three ways the
 // game ends — it also stops the moment the last share is sold, or when enough cube/development
 // piles run dry. A bot that only counts years happily pays $20 for a share that pays out twice.
@@ -10239,7 +10242,7 @@ function furnitureOverlay(s){ let ov='';
       const pc=PLAYER_PIECES[(+seat)%PLAYER_PIECES.length];
       ov+=locoSVG(cell.x + n*9 - 3, cell.y, pc.face, pc.shade, 0.42); }); }
   // year marker — black locomotive sitting in the current year's circle
-  const yi=(s.year-1851); if(yi>=0&&yi<7){ const yc=ytCell(yi); ov+=locoSVG(yc.x, yc.y-2, '#23262e', '#0d0f13', 0.36); }
+  const yi=(s.year-YEAR_START); if(yi>=0&&yi<(YEAR_END-YEAR_START+1)){ const yc=ytCell(yi); ov+=locoSVG(yc.x, yc.y-2, '#23262e', '#0d0f13', 0.36); }
   // development houses set out in the supply box (layout follows the cube-style toggle)
   if (typeof s.developmentSupply==='number'){ const n=s.developmentSupply, rng=hexRng(4242,1717);
     const rr = cubeStyle==='tidy' ? 5 : 14;
@@ -11283,6 +11286,28 @@ window.__selfTest = function(){
     setMap(_mapBefore);   // never leave the app on a different board than it started
   }
   assert('map restored after the Canadian tests', MAP.id===_mapBefore);
+
+  /* ---- per-map play-year range (engine capability for a future third map) --
+     Confirms year handling reads MAP.years rather than a hardcoded 1851/1857,
+     so a map with a different play window (the planned Western Canada board,
+     1881-1887) works without touching game logic. */
+  {
+    assert('us map declares its play years', MAPS.us.years && MAPS.us.years.start===1851 && MAPS.us.years.end===1857);
+    assert('ca map declares its play years', MAPS.ca.years && MAPS.ca.years.start===1851 && MAPS.ca.years.end===1857);
+    const savedYears = MAPS.us.years;
+    MAPS.us.years = {start:1900, end:1904};
+    setMap('us');
+    assert('YEAR_START/YEAR_END follow a swapped map.years', YEAR_START===1900 && YEAR_END===1904);
+    const m = createInitialState({mode:'local', names:['A','B','C','D']});
+    assert('a fresh game opens on its map\'s start year', m.year===1900);
+    assert('roundsLeft matches the swapped window', roundsLeft(m)===5);
+    m.year = 1904;
+    endRound(m);
+    assert('endRound ends the game at its map\'s end year', m.phase==='gameOver');
+    MAPS.us.years = savedYears;
+    setMap('us');
+    assert('map years restored after the swap test', YEAR_START===1851 && YEAR_END===1857);
+  }
 
   render(gameState);
   const passed=results.filter(r=>r.pass).length;
