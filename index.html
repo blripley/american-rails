@@ -13012,14 +13012,24 @@ function ensureHex(s,id){ if (!s.hexes[id]) s.hexes[id]={cubes:[],developed:fals
 function isRemoved(c){ return c.removed===true; }
 function activeCompanyIds(s){ return COMPANY_IDS.filter(id=>!isRemoved(s.companies[id])); }
 function rotatedOrder(s, starter){ const n=s.players.length,o=[]; for(let i=0;i<n;i++) o.push((starter+i)%n); return o; }
-// Fisher-Yates. Only ever called once per game, while building the initial state (host-only,
-// then broadcast), so a plain Math.random() here never causes host/guest drift.
-function shuffle(arr){ for (let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+// Deterministic 0..1 "dice" from a raw seed number and an arbitrary salt string — same
+// (seed, salt) always gives the same answer, so a game replays identically from its seed
+// instead of drifting run to run (this keeps a shuffle/pick "host-only, computed once, then
+// broadcast" safe for multiplayer sync, same as the old plain Math.random() did, while also
+// making bot-harness measurements reproducible).
+function noiseFromSeed(seed, salt){
+  let h = (seed||1);
+  const str=String(salt); for(let i=0;i<str.length;i++) h = Math.imul(h ^ str.charCodeAt(i), 16777619);
+  h ^= h>>>15; h = Math.imul(h, 2246822507); h ^= h>>>13;
+  return ((h>>>0) % 100000) / 100000; }
+// Fisher-Yates, seeded so the prep-auction order replays identically from a given seed.
+function seededShuffle(arr, seed, salt){ for (let i=arr.length-1;i>0;i--){ const j=Math.floor(noiseFromSeed(seed, salt+':'+i)*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
 
 function createInitialState(config){
   // Which board this game is on, so a save or a rejoin restores the right one.
   if (config.mapId) setMap(config.mapId);
   const names = config.names, n = names.length;
+  const seed = (config.seed!=null ? config.seed : Math.floor(Math.random()*1e9)); // drives bot "dice" — same seed, same bots
   const companies = {};
   for (const id of COMPANY_IDS) companies[id] = { treasury:0, income:0, sharesInSupply:companyShares(id), sharesRemoved:0, cubesInSupply:companyCubes(id), onMap:false, bonuses:[], removed:false };
   const state = {
@@ -13031,10 +13041,10 @@ function createInitialState(config){
     turnPhase:'bidding', pending:null, auction:null, pendingStartCube:null,
     startCubeUndo:null, startCubeHex:null,   // the placed-but-not-yet-confirmed first cube
     // random seat opens the bidding, not always the host — and the prep auction order is shuffled below
-    setupQueue:[], auctionStarter: Math.floor(Math.random()*n), setupWinOrder:[], // order players first win a prep auction → sets the opening turn order
+    setupQueue:[], auctionStarter: Math.floor(noiseFromSeed(seed,'auctionStarter')*n), setupWinOrder:[], // order players first win a prep auction → sets the opening turn order
     phaseOrder:[], phaseQueue:[], takenRows:{}, picks:{},
     log:[], winner:null, history:[], config, localPlayerId:0,
-    seed: (config.seed!=null ? config.seed : Math.floor(Math.random()*1e9)), // drives bot "dice" — same seed, same bots
+    seed,
     mapId: MAP.id,  // which board; a save or a rejoin restores onto it
   };
   // deal each bot a bidding personality, so the auctions play differently every game
@@ -13042,7 +13052,7 @@ function createInitialState(config){
     state.players.forEach((p,i)=>{ if(p.bot){ const k=Math.floor(botNoise(state,i,'persona')*pool.length);
       p.persona = pool.splice(Math.min(k,pool.length-1),1)[0] || PERSONA_IDS[i%PERSONA_IDS.length]; } }); }
   // 3-player: remove one random company (randomness stored via chosen id)
-  if (n===3){ const rid = config.removed || COMPANY_IDS[Math.floor(Math.random()*COMPANY_IDS.length)];
+  if (n===3){ const rid = config.removed || COMPANY_IDS[Math.floor(noiseFromSeed(seed,'removedCompany')*COMPANY_IDS.length)];
     const c = companies[rid]; c.removed=true; c.cubesInSupply=0; c.sharesInSupply=0; c.sharesRemoved=companyShares(rid);
     pushLog(state, `${COMPANIES[rid].name} removed (3-player game).`); }
   pushLog(state, `Game started — ${n} players.`);
@@ -13053,13 +13063,13 @@ function createInitialState(config){
 /* ============================ 4. AUCTIONS ============================ */
 // The first company up is random (not always the white/American-slot one), and after that the
 // winner of each prep auction picks which company goes up next — see chooseNextAuctionCompany.
-function startPreparationAuction(s){ s.phase='setup'; s.setupQueue = shuffle(activeCompanyIds(s).slice());
+function startPreparationAuction(s){ s.phase='setup'; s.setupQueue = seededShuffle(activeCompanyIds(s).slice(), s.seed, 'setupQueue');
   pushLog(s,'Preparation round: one share of each company is auctioned.');
   openAuction(s, s.setupQueue.shift(), s.auctionStarter, true); }
 // Only used when a prep auction gets no bids at all — there's no winner to hand the pick to, so
 // the game just continues with a random remaining company.
 function nextPreparationAuction(s){ if (s.setupQueue.length===0){ beginPlayRounds(s); return; }
-  const i = Math.floor(Math.random()*s.setupQueue.length);
+  const i = Math.floor(botNoise(s, 0, 'nextPrepAuction:'+s.setupQueue.join(','))*s.setupQueue.length);
   openAuction(s, s.setupQueue.splice(i,1)[0], s.auctionStarter, true); }
 function chooseNextAuctionCompany(s, companyId){
   if (s.turnPhase!=='pickNextAuction') return false;
@@ -13436,11 +13446,7 @@ function personaOf(s, seat){ const p=s.players[seat];
   return BOT_PERSONAS[p.persona]; }
 // deterministic 0..1 "dice" — same situation always gives the same answer (no flicker on
 // re-render, no host/client drift) but a different game seed changes every decision
-function botNoise(s, seat, salt){
-  let h = ((s&&s.seed)||1) ^ ((seat+1)*2654435761);
-  const str=String(salt); for(let i=0;i<str.length;i++) h = Math.imul(h ^ str.charCodeAt(i), 16777619);
-  h ^= h>>>15; h = Math.imul(h, 2246822507); h ^= h>>>13;
-  return ((h>>>0) % 100000) / 100000; }
+function botNoise(s, seat, salt){ return noiseFromSeed(((s&&s.seed)||1) ^ ((seat+1)*2654435761), salt); }
 let botSpeed = 850, botTimer = null;                 // ms between bot steps (0 in tests) — slow enough to follow
 function isBotSeat(s, seat){ return !!(s && s.players[seat] && s.players[seat].bot); }
 function botDrivesNow(s){ if (!s || s.phase==='payout' || s.phase==='gameOver' || s.phase==='lobby') return false;
@@ -13774,7 +13780,7 @@ function botDecide(s){ const me=s.currentPlayer, diff=s.players[me].bot||'easy';
       botAvoidRow(s, me, 'auction'); return 'back'; }   // backing out frees the row again — don't re-pick it and spin
     case 'pickNextAuction': return 'pickauc:'+botPickNextAuction(s, me, diff);
     case 'developing': { const L=legalDevelopHexes(s); if(!L.length){ botAvoidRow(s, me, 'develop'); return 'back'; }
-      if(diff==='easy') return 'hex:'+L[Math.floor(Math.random()*L.length)];
+      if(diff==='easy') return 'hex:'+L[Math.floor(botNoise(s,me,'devPick:'+L.join(','))*L.length)];
       return 'hex:'+L.slice().sort((a,b)=>developValue(s,me,b,diff)-developValue(s,me,a,diff))[0]; }
     case 'expanding': return botExpandStep(s, me, diff);
     case 'turnDone': if (s.botAvoid) delete s.botAvoid[me]; return 'done';
@@ -13914,7 +13920,7 @@ function botBid(s, me, diff){ const a=s.auction, minNext=auctionMinNext(s), mone
   if (minNext > cap) return 'pass';
   return 'bid:' + botBidAmount(s, me, cap, minNext, bidStyle(s, me, diff), diff); }
 function botStartCity(s, me, diff){ const empties=Object.keys(BOARD).filter(id=>BOARD[id].city && !(s.hexes[id]&&s.hexes[id].cubes.length));
-  if (diff==='easy') return empties[Math.floor(Math.random()*empties.length)];
+  if (diff==='easy') return empties[Math.floor(botNoise(s,me,'startCity:'+empties.join(','))*empties.length)];
   return empties.sort((a,b)=>cityScore(s,b,diff)-cityScore(s,a,diff))[0]; }
 function botFundCo(s, me, diff){ const owned=[...new Set(s.players[me].shares)].filter(cid=>s.companies[cid].onMap && !isRemoved(s.companies[cid]));
   if(!owned.length) return activeCompanyIds(s)[0];
@@ -13993,7 +13999,7 @@ function botExpandStep(s, me, diff){ const p=s.pending;
     for(const cid of cos){ const v=bestExpansion(s, me, cid, cubes, diff).value; if(v>best){ best=v; bestCo=cid; } }
     return 'exco:'+bestCo; }
   const cid=p.companyId, hexes=legalExpandHexes(s, me, cid); if(!hexes.length) return 'endexpand';
-  if (diff==='easy') return 'hex:'+hexes[Math.floor(Math.random()*hexes.length)];   // easy stays greedy/wasteful
+  if (diff==='easy') return 'hex:'+hexes[Math.floor(botNoise(s,me,'expandHex:'+hexes.join(','))*hexes.length)];   // easy stays greedy/wasteful
   const target=botExpandTarget(s, me, cid, diff, cubes);
   if(target){ const toTarget=bfsHex([target]); let best=hexes[0], bestKey=Infinity;
     const conn=connectedCities(s,cid), slice=incomeSlice(s,me,cid), chokes=chokeHexes(s,me,diff);
