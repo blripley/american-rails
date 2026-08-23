@@ -168,11 +168,11 @@
       "name": "Edmonton",
       "lat": 53.546,
       "lon": -113.491,
-      "full": 3,
-      "shared": 2,
+      "full": 5,
+      "shared": 3,
       "hub": true,
       "region": "AB",
-      "note": "A real, continuously-occupied fur-trade settlement (Fort Edmonton), surveyed 1881 amid a small land rush when the CPR was still expected via the Yellowhead Pass. When the CPR chose the Kicking Horse/Calgary route instead, 'Edmonton's growth tailed off' and it was not reached by any railway until 1891 — after this board's window. Locked as a hub per the design brief despite this thin, deliberately modest value: a hub that pays less than several developable cities is an intentional echo of the real bypass story, flagged for the balance-measurement phase in case it proves unbuildable-into in practice."
+      "note": "A real, continuously-occupied fur-trade settlement (Fort Edmonton), surveyed 1881 amid a small land rush when the CPR was still expected via the Yellowhead Pass. When the CPR chose the Kicking Horse/Calgary route instead, 'Edmonton's growth tailed off' and it was not reached by any railway until 1891 — after this board's window. VALUE BUMP (measured play, docs/western-canada-board-rescale-final.md 'Edmonton traffic'): only 3 of 16 games ever placed a cube here at the original 3/2 value, the same Owen-Sound-shaped problem the build report itself flagged. Raised to 5/3 — matching New Westminster/Victoria's developable-city tier (a real, old, substantial settlement) and clearly above Battleford's 4/3, while staying below the CPR-connected hub tier (Calgary/Regina/Vancouver at 6/4, Winnipeg at 7/5) so the 'bypassed by the mainline' story still reads: a hub worth reaching, just not worth as much as the hubs the railway actually chose."
     },
     {
       "name": "Fort Macleod",
