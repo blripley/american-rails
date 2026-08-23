@@ -73,18 +73,38 @@ for (const [a, b] of EDGES) {
 for (const c of byName.values()) add(c.col, c.row);
 
 // ---- terrain typing ---------------------------------------------------------
-// Region rules per docs/western-canada-board-research.md §4: prairie
-// dominant east of Calgary; a mountain belt through the Rockies/Selkirks
-// (Banff-Field-Golden-Revelstoke-Kamloops-Yale corridor); boreal forest in
-// the north (the Edmonton/Battleford/Prince Albert arc, rows 0-9); BC
-// interior plateau and coastal lowlands; Vancouver Island as its own
-// mixed plains/forest landmass.
+// RESCALE (24x22 grid): re-derived from where the actual cities in cities.json
+// now sit, not by eye and not by resizing the old 40x34 thresholds (both of
+// which the rescale spike explicitly flagged as shortcuts to fix properly).
+// Region rules per docs/western-canada-board-research.md §4 and the build
+// report's own city-role list:
+//  - Northern boreal arc: Edmonton (9,2), Battleford (13,5), Prince Albert
+//    (15,3) — rows 0-6 catches all three with a small margin, same "sparse
+//    forest, low value" role as the Canadian board's Shield interior.
+//  - Rockies/Selkirks mountain chokepoint: Cochrane (7,7), Field (6,8),
+//    Calgary (8,9), Revelstoke (5,10), Gleichen (10,10), Banff (6,11),
+//    Kamloops (3,11), Golden (5,12) — every one of these lands inside
+//    cols 3-10, rows 7-12, which is exactly the box used below. Fort Macleod
+//    and Lethbridge (both row 13) are deliberately just outside this box —
+//    prairie/foothills towns, not mountain towns, per the build report.
+//  - Fraser Canyon (Onderdonk's contract corridor): cols 0-3, rows 11-14 —
+//    catches Yale (2,13) in the canyon proper, shading down to plains at
+//    Kamloops (already covered by the mountain box above).
+//  - Lower Mainland lowlands: cols 0-3, rows 15-17 — Vancouver, Port Moody,
+//    New Westminster, Nanaimo (the mainland side and the near shore).
+//  - Vancouver Island south of the water gap: cols 0-2, rows 18-21 — plains
+//    near Victoria (row 19), forest further south near Esquimalt (row 21),
+//    mirroring the original board's "plains near town, forest further south"
+//    split.
+//  - Everything else still standing: prairie.
 function terrainFor(col, row) {
-  if (row <= 9) return 'F';                                    // northern boreal arc
-  if (row >= 25 && col <= 7) return (row <= 28 ? 'P' : 'F');    // Vancouver Island
-  if (row >= 19 && row <= 25 && col <= 7) return 'P';           // Lower Mainland / Fraser lowlands
-  if (col <= 19 && row >= 10 && row <= 19) return 'M';          // Rockies/Selkirks + Fraser Canyon + interior plateau edge
-  return 'P';                                                   // prairie
+  if (row <= 6) return 'F';                                          // northern boreal arc
+  if (row >= 7 && row <= 12 && col >= 3 && col <= 10) return 'M';     // Rockies/Selkirks chokepoint
+  if (row >= 11 && row <= 14 && col <= 3) return 'M';                 // Fraser Canyon
+  if (row >= 15 && row <= 17 && col <= 3) return 'P';                 // Lower Mainland lowlands
+  if (row >= 18 && row <= 19 && col <= 2) return 'P';                 // Vancouver Island (near shore)
+  if (row >= 20 && col <= 2) return 'F';                              // Vancouver Island (further south)
+  return 'P';                                                         // prairie
 }
 
 const cityAt = new Set([...byName.values()].map(c => `${c.col},${c.row}`));

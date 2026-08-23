@@ -12,6 +12,19 @@ import { fileURLToPath } from 'node:url';
 export const HERE = path.dirname(fileURLToPath(import.meta.url));
 
 // --- projection ------------------------------------------------------------
+// RESCALED (2nd pass) from the original 40x34 grid. The original board's own
+// balance measurement (docs/western-canada-board-balance-measurement.md)
+// found the connection-bonus mechanic completely dead — 0 of 16 games —
+// because Winnipeg/Calgary/Vancouver sat 17-43 hexes apart, more than double
+// the other two boards' working legs (8-11 hexes). A grid-rescale spike
+// (docs/western-canada-rescale-prototype.md) proved that compressing the
+// same real lon/lat footprint onto far fewer grid cells fixes this (Calgary-
+// Vancouver 17 -> ~10 hexes) without changing which real-world area the
+// board covers. This is that fix, promoted from spike to the real board,
+// with the nudges and terrain re-done properly (see
+// docs/western-canada-board-rescale-final.md) rather than the spike's
+// admittedly-blunt versions of both.
+//
 // Isotropic scaling (equal km per hex step in every direction) is what the
 // American and Canadian boards use. It does NOT work here: this board's real
 // city footprint spans ~28 degrees of longitude but only ~5.1 degrees of
@@ -21,25 +34,27 @@ export const HERE = path.dirname(fileURLToPath(import.meta.url));
 // would crush every prairie town into a handful of rows. So, deliberately,
 // like the Canadian board's own 29% non-isotropic latitude stretch (done for
 // the same reason: pulling a crowded shore apart), this projection stretches
-// latitude far more aggressively — about 3.3x the isotropic rate at this
-// latitude band — purely so prairie towns that sit within a few tenths of a
-// degree of each other (Fort Qu'Appelle/Qu'Appelle Station, Golden/Field,
-// Winnipeg/St. Boniface, Victoria/Esquimalt) land in distinguishable rows
-// instead of the same one. The board reads far "taller" relative to its real
-// shape than the Canadian board does — an intentional, documented liberty,
-// not a mistake.
-export const HEX = 24;
-export const OX = 60, OY = 70;
+// latitude — about 2x the isotropic rate at this latitude band — purely so
+// prairie towns that sit within a few tenths of a degree of each other
+// (Fort Qu'Appelle/Qu'Appelle Station, Golden/Field, Winnipeg/St. Boniface,
+// Victoria/Esquimalt) land in distinguishable rows instead of the same one.
+export const HEX = 40;
+export const OX = 60, OY = 60;
 
 export const PROJ = {
-  lonLeft: -124.4,   // col 0  — west of Nanaimo, Vancouver Island
-  lonRight: -96.4,   // col 39 — east of Selkirk, Manitoba
-  latTop: 54.3,      // row 0  — north of Edmonton
-  cols: 40,
-  rows: 34,
-  // Isotropic would be roughly 0.9 rows/deg at this longitude spread and
-  // latitude band. We stretch to 4.6 rows/deg — see the note above.
-  rowsPerDegLat: 4.6,
+  lonLeft: -124.4,   // col 0  — west of Nanaimo, Vancouver Island (unchanged bounds)
+  lonRight: -96.4,   // col 23 — east of Selkirk, Manitoba (unchanged bounds)
+  latTop: 54.3,      // row 0  — north of Edmonton (unchanged bounds)
+  cols: 24,
+  rows: 20,
+  // 20 rows: 18 of them (0-17) hold every mainland city at this stretch
+  // factor; rows 18-19 are a deliberate buffer that exists ONLY to give the
+  // Vancouver Island cluster (Nanaimo/Victoria/Esquimalt) room to sit south
+  // of the mainland cluster with a real off-map water gap between them —
+  // see terrain.json's "Vancouver Island water gap" region note. Isotropic
+  // would be roughly 0.9 rows/deg at this longitude spread and latitude
+  // band; settled rows use 2.9 rows/deg.
+  rowsPerDegLat: 2.9,
 };
 
 export function project(lat, lon, nudge) {
