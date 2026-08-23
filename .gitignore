@@ -5,3 +5,4 @@ dist/
 *.log
 .firebase/
 .playwright-mcp/
+.superpowers/
