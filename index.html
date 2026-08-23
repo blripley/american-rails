@@ -12942,11 +12942,19 @@ const MAPS = {
     at:{x:1240,y:40}, yt:{x:640,y:1010}, houseSupply:{x:640,y:1150},
     years:{start:1881, end:1887},
     // The CPR's real near-monopoly, fictionalized as one dominant company:
-    // 'american' plays "Canadian Pacific" with a noticeably bigger share and
-    // cube supply than any company on either existing board (max today is
-    // 5 shares / 31 cubes) — the other five ids are omitted here and fall
-    // back to the shared COMPANIES table via companyShares()/companyCubes().
-    companyCounts: { american:{shares:7, cubes:38} },
+    // 'american' plays "Canadian Pacific" with a noticeably bigger share
+    // count than any company on either existing board (max today is 5
+    // shares) — the other five ids are omitted here and fall back to the
+    // shared COMPANIES table via companyShares()/companyCubes().
+    // Cube count tuned down from an original 38 to 28 (docs/western-canada-
+    // cp-tuning.md, 2026-08-23): 38 cubes was structurally too large for CP
+    // to spend down in a 7-round game (a 16-game bot measurement found it
+    // worst-in-class on income/cube-spend/share-sale rate, with treasury
+    // cash sitting idle instead). 28 sits close to, not above, the existing
+    // shared-table cube max (31) — cube count wasn't the asymmetry that
+    // needed to survive; the elevated share count carries the "dominant
+    // company" framing on its own.
+    companyCounts: { american:{shares:7, cubes:28} },
   },
 };
 const MAP_IDS = Object.keys(MAPS).filter(id => MAPS[id].cells);
@@ -15328,16 +15336,25 @@ window.__selfTest = function(){
       applySpecialConnections(m,'american');
       assert('WC: the same pair never pays twice', m.companies.american.income===before+10); }
 
-    // per-company share/cube asymmetry — the whole reason this map exists
-    assert('WC: the dominant company\'s share/cube counts are overridden and bigger than any existing company',
-      companyShares('american')===7 && companyCubes('american')===38
-      && companyShares('american')>Math.max(...COMPANY_IDS.map(id=>COMPANIES[id].shares))
-      && companyCubes('american')>Math.max(...COMPANY_IDS.map(id=>COMPANIES[id].cubes)));
+    // per-company share/cube asymmetry — the whole reason this map exists.
+    // NOTE (2026-08-23 CP tuning pass, docs/western-canada-cp-tuning.md): the
+    // original 7sh/38cu override made Canadian Pacific structurally unable to
+    // spend its own cube pile down in a 7-round game (worst-in-class on every
+    // bot-measured metric except treasury, where cash just sat idle). A
+    // 16-game measurement sweep found 28 cubes to be a real, reproducible
+    // sweet spot (24 and 30-38 both measured worse), so cubes came down close
+    // to the shared-table max (31) while shares stayed elevated at 7 — shares
+    // was never the broken variable, so keeping it high preserves the
+    // "biggest company" framing even though cubes alone no longer is (national
+    // now has slightly more, 29 vs 28).
+    assert('WC: the dominant company\'s share count is overridden and bigger than any existing company',
+      companyShares('american')===7 && companyCubes('american')===28
+      && companyShares('american')>Math.max(...COMPANY_IDS.map(id=>COMPANIES[id].shares)));
     assert('WC: the five subsidiaries still read the shared COMPANIES table (no override needed)',
       COMPANY_IDS.filter(id=>id!=='american').every(id=>companyShares(id)===COMPANIES[id].shares && companyCubes(id)===COMPANIES[id].cubes));
     const wcState = createInitialState({mode:'local', names:['A','B','C','D']});
     assert('WC: a fresh game seeds the dominant company\'s overridden supply',
-      wcState.companies.american.sharesInSupply===7 && wcState.companies.american.cubesInSupply===38);
+      wcState.companies.american.sharesInSupply===7 && wcState.companies.american.cubesInSupply===28);
 
     // the era — 1881-1887, not the two existing boards' 1851-1857
     assert('WC: map declares the 1881-1887 play window', MAPS.wc.years.start===1881 && MAPS.wc.years.end===1887);
