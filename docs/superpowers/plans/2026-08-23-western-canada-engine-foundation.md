@@ -58,6 +58,7 @@ Insert a new block between line 11285 and line 11286:
      so a map with a different play window (the planned Western Canada board,
      1881-1887) works without touching game logic. */
   {
+    const _mapBefore2 = MAP.id;   // restore to whatever board was active, not always 'us'
     assert('us map declares its play years', MAPS.us.years && MAPS.us.years.start===1851 && MAPS.us.years.end===1857);
     assert('ca map declares its play years', MAPS.ca.years && MAPS.ca.years.start===1851 && MAPS.ca.years.end===1857);
     const savedYears = MAPS.us.years;
@@ -71,7 +72,7 @@ Insert a new block between line 11285 and line 11286:
     endRound(m);
     assert('endRound ends the game at its map\'s end year', m.phase==='gameOver');
     MAPS.us.years = savedYears;
-    setMap('us');
+    setMap(_mapBefore2);
     assert('map years restored after the swap test', YEAR_START===1851 && YEAR_END===1857);
   }
 ```
@@ -301,6 +302,7 @@ Immediately after Task 1's new block (which ends with `assert('map years restore
      without touching COMPANIES, the shared rules table both existing
      boards rely on staying untouched. */
   {
+    const _mapBefore3 = MAP.id;   // restore to whatever board was active, not always 'us'
     assert('companyShares/companyCubes fall back to COMPANIES with no override',
       companyShares('liberty')===COMPANIES.liberty.shares && companyCubes('liberty')===COMPANIES.liberty.cubes);
     const savedCounts = MAPS.us.companyCounts;
@@ -314,7 +316,7 @@ Immediately after Task 1's new block (which ends with `assert('map years restore
     const m3 = createInitialState({mode:'local', names:['A','B','C'], removed:'liberty'});
     assert('3-player removal records the overridden share count', m3.companies.liberty.sharesRemoved===9);
     MAPS.us.companyCounts = savedCounts;
-    setMap('us');
+    setMap(_mapBefore3);
     assert('company counts restored after the swap test', companyShares('liberty')===COMPANIES.liberty.shares);
   }
 ```
