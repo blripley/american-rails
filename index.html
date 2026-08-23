@@ -11292,6 +11292,7 @@ window.__selfTest = function(){
      so a map with a different play window (the planned Western Canada board,
      1881-1887) works without touching game logic. */
   {
+    const _mapBefore2 = MAP.id;   // restore to whatever board was active, not always 'us'
     assert('us map declares its play years', MAPS.us.years && MAPS.us.years.start===1851 && MAPS.us.years.end===1857);
     assert('ca map declares its play years', MAPS.ca.years && MAPS.ca.years.start===1851 && MAPS.ca.years.end===1857);
     const savedYears = MAPS.us.years;
@@ -11305,7 +11306,7 @@ window.__selfTest = function(){
     endRound(m);
     assert('endRound ends the game at its map\'s end year', m.phase==='gameOver');
     MAPS.us.years = savedYears;
-    setMap('us');
+    setMap(_mapBefore2);
     assert('map years restored after the swap test', YEAR_START===1851 && YEAR_END===1857);
   }
 
