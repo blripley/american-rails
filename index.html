@@ -4263,7 +4263,7 @@ button.act-redo { border: 1px solid var(--color-accent); }
   <text x="895" y="1282.1" text-anchor="start" font-family="&#39;EB Garamond&#39;, serif" font-size="14.99" font-weight="700" fill="#ece0c4">21</text>
   <text x="1074.99" y="1282.1" text-anchor="end" font-family="&#39;EB Garamond&#39;, serif" font-size="14.99" font-weight="700" fill="#ece0c4">4</text>
   <text x="986.49" y="1332.42" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.01" font-style="italic" letter-spacing="1.56" fill="#8d7a58">Railroad Company</text>
-  <text x="1261.5" y="1282.27" text-anchor="middle" font-family="&#39;Cinzel&#39;,serif" font-size="12.04" font-weight="700" letter-spacing="1.20" fill="#ece0c4">ONDERDONK &amp; CO.</text>
+  <text x="1261.5" y="1282.27" text-anchor="middle" font-family="&#39;Cinzel&#39;,serif" font-size="11.29" font-weight="700" letter-spacing="1.13" fill="#ece0c4">CASCADE DIVISION</text>
   <text x="1170.01" y="1282.1" text-anchor="start" font-family="&#39;EB Garamond&#39;, serif" font-size="14.99" font-weight="700" fill="#ece0c4">18</text>
   <text x="1350" y="1282.1" text-anchor="end" font-family="&#39;EB Garamond&#39;, serif" font-size="14.99" font-weight="700" fill="#ece0c4">2</text>
   <text x="1261.5" y="1332.42" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.01" font-style="italic" letter-spacing="1.56" fill="#8d7a58">Railroad Company</text>
@@ -12889,7 +12889,7 @@ const CA_CARD_NAMES = {
 // rather than company names, flagged there rather than silently invented).
 const WC_COMPANY_NAMES = {
   american:'Canadian Pacific', national:'Manitoba & North Western', continental:'Manitoba South Western',
-  majestic:"Qu'Appelle, Long Lake & Saskatchewan", liberty:'Onderdonk & Co.', republic:'Langdon & Shepard',
+  majestic:"Qu'Appelle, Long Lake & Saskatchewan", liberty:'Cascade Division', republic:'Langdon & Shepard',
 };
 // Short forms for the share cards and board plates (make-board-svg.mjs
 // PLATE_NAMES uses the identical short forms). "Q.L.&S." mirrors how the real
@@ -12897,7 +12897,7 @@ const WC_COMPANY_NAMES = {
 // its own historical sources — the full name does not fit a plate this size.
 const WC_CARD_NAMES = {
   american:'CANADIAN PACIFIC', national:'MANITOBA N.W.', continental:'MANITOBA S.W.',
-  majestic:"Q.L.&amp;S.", liberty:'ONDERDONK &amp; CO.', republic:'LANGDON &amp; SHEPARD',
+  majestic:"Q.L.&amp;S.", liberty:'CASCADE DIVISION', republic:'LANGDON &amp; SHEPARD',
 };
 
 let HUBS, SPECIALS;
@@ -15371,11 +15371,11 @@ window.__selfTest = function(){
     // the SVG template at build time, and the share-card art swapped at
     // runtime by miniStack) — check all three, not just the first.
     assert('WC: companies carry Western Canada names', COMPANIES.american.name==='Canadian Pacific');
-    assert('WC: a subsidiary carries its Western Canada name', COMPANIES.liberty.name==='Onderdonk & Co.');
+    assert('WC: a subsidiary carries its Western Canada name', COMPANIES.liberty.name==='Cascade Division');
     assert('WC: the dominant company\'s short name is baked into the board plate',
       document.getElementById('tpl-board-wc').innerHTML.includes('CANADIAN PACIFIC'));
     assert('WC: a subsidiary\'s short name is baked into the board plate',
-      document.getElementById('tpl-board-wc').innerHTML.includes('ONDERDONK'));
+      document.getElementById('tpl-board-wc').innerHTML.includes('CASCADE'));
     assert('WC: the dominant company\'s short name renders on its share card',
       miniStack('american',1).includes('CANADIAN PACIFIC'));
     assert('WC: a subsidiary\'s short name renders on its share card',

@@ -222,7 +222,7 @@ let legendBlock = retranslate(slice(iLegend, iLegendEnd), ...byName('legend').to
 // name -> id mapping and the reasoning behind each short form.
 const PLATE_NAMES = {
   AMERICAN: 'CANADIAN PACIFIC', NATIONAL: 'MANITOBA N.W.', CONTINENTAL: 'MANITOBA S.W.',
-  MAJESTIC: "Q.L.&amp;S.", LIBERTY: 'ONDERDONK &amp; CO.', REPUBLIC: 'LANGDON &amp; SHEPARD',
+  MAJESTIC: "Q.L.&amp;S.", LIBERTY: 'CASCADE DIVISION', REPUBLIC: 'LANGDON &amp; SHEPARD',
 };
 const plateSize = plain => Math.min(15.5, 112 / (plain.length * 0.62));
 let tail = slice(iPlates, L.length - 2)
