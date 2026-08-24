@@ -14688,7 +14688,21 @@ const net = {
       if (gameState && gameState.phase!=='lobby'){
         let seat = gameState.players.findIndex(p=>p.disconnected && p.name===msg.playerName);
         if (seat<0) seat = gameState.players.findIndex(p=>p.disconnected);
-        if (seat>=0){ const p=gameState.players[seat]; p.disconnected=false; p.bot=p.botBackup||null; delete p.botBackup; p.name=msg.playerName; conn.seat=seat;
+        // A same-named seat that ISN'T marked disconnected yet is almost always a
+        // stale connection from a plain browser refresh, not a real conflict: a
+        // reload doesn't reliably fire the old connection's 'close' event before
+        // the same player's new connection arrives here, so without this check
+        // the seat still looks occupied and the room reports full even though
+        // the old connection is already dead. Trusted-friends game (no anti-
+        // cheat requirement), so an exact name match is treated as the same
+        // person reconnecting.
+        if (seat<0) seat = gameState.players.findIndex(p=>!p.disconnected && p.name===msg.playerName && !p.bot);
+        if (seat>=0){ const p=gameState.players[seat];
+          const stale = this.conns.find(c=>c!==conn && c.seat===seat);
+          if (stale){ stale.seat=null; try{ stale.close(); }catch(e){} this.conns=this.conns.filter(c=>c!==stale); }
+          const wasDisconnected=p.disconnected;
+          p.disconnected=false; if (wasDisconnected){ p.bot=p.botBackup||null; delete p.botBackup; }
+          p.name=msg.playerName; conn.seat=seat;
           conn.send({type:'welcome',seat,roomCode:this.roomCode}); conn.send({type:'gameStart',state:makeView(gameState,seat)});
           pushLog(gameState, `${msg.playerName} reconnected (seat ${seat+1}).`); afterMutate(); }
         else conn.send({type:'full'});
