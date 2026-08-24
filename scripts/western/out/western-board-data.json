@@ -11,11 +11,11 @@
     "rowSpacing": 57,
     "origin": {
       "x": 60,
-      "y": 60
+      "y": 85
     },
     "cols": 24,
     "rows": 18,
-    "formula": "x = 60 + col*65.8179 + (row&1)*32.9090 ;  y = 60 + row*57",
+    "formula": "x = 60 + col*65.8179 + (row&1)*32.9090 ;  y = 85 + row*57",
     "note": "Radius 38, not the American board's 41. Pieces and city type scale by 0.9268."
   },
   "terrainCost": {
@@ -29,12 +29,12 @@
     "OOOOOOOOFFFFFOOOOOOOOOOO",
     "OOOOOOOOFCFFCFOFFOOOOOOO",
     "OOOOOOOPPFPPFPFCFOOOOOOO",
-    "OOOOOOOOFPPOFPPFFFOOOOOO",
-    "OOOOOOOFPFOOFCFCFOOOOOOO",
-    "OOOOOOOFPFFOOFFFPFOOOOOO",
-    "OOOOOMMCPPOOPCPPPPOOOOOO",
-    "OOOOOMCPMPPOOPPPPPPOOOOO",
-    "OOOMMMMMCPPOOOPCPCPOOOOO",
+    "OOOOOOOOFPPPFPPFFFOOOOOO",
+    "OOOOOOOFPFPPFCFCFOOOOOOO",
+    "OOOOOOOFPFFPPFFFPFOOOOOO",
+    "OOOOOMMCPPPPPCPPPPOOOOOO",
+    "OOOOOMCPMPPPPPPPPPPOOOOO",
+    "OOOMMMMMCPPPPPPCPCPOOOOO",
     "OOOPMCMMPPCPPPPPPPPFFPOP",
     "OOMCPPCMPPPPCPPPCPCFCPPC",
     "OOMMPCMMPPPCFPCPPPPPPPPP",
@@ -69,14 +69,14 @@
       "col": 9,
       "row": 0,
       "x": 652.4,
-      "y": 60,
+      "y": 85,
       "terrain": "forest"
     },
     {
       "col": 10,
       "row": 0,
       "x": 718.2,
-      "y": 60,
+      "y": 85,
       "terrain": "city",
       "city": "Victoria Settlement",
       "value": "2/1",
@@ -87,60 +87,60 @@
       "col": 11,
       "row": 0,
       "x": 784,
-      "y": 60,
+      "y": 85,
       "terrain": "forest"
     },
     {
       "col": 8,
       "row": 1,
       "x": 619.5,
-      "y": 117,
+      "y": 142,
       "terrain": "forest"
     },
     {
       "col": 9,
       "row": 1,
       "x": 685.3,
-      "y": 117,
+      "y": 142,
       "terrain": "forest"
     },
     {
       "col": 10,
       "row": 1,
       "x": 751.1,
-      "y": 117,
+      "y": 142,
       "terrain": "forest"
     },
     {
       "col": 11,
       "row": 1,
       "x": 816.9,
-      "y": 117,
+      "y": 142,
       "terrain": "forest"
     },
     {
       "col": 12,
       "row": 1,
       "x": 882.7,
-      "y": 117,
+      "y": 142,
       "terrain": "forest"
     },
     {
       "col": 8,
       "row": 2,
       "x": 586.5,
-      "y": 174,
+      "y": 199,
       "terrain": "forest"
     },
     {
       "col": 9,
       "row": 2,
       "x": 652.4,
-      "y": 174,
+      "y": 199,
       "terrain": "city",
       "city": "Edmonton",
-      "value": "5/3",
-      "full": 5,
+      "value": "6/3",
+      "full": 6,
       "shared": 3,
       "port": true
     },
@@ -148,21 +148,21 @@
       "col": 10,
       "row": 2,
       "x": 718.2,
-      "y": 174,
+      "y": 199,
       "terrain": "forest"
     },
     {
       "col": 11,
       "row": 2,
       "x": 784,
-      "y": 174,
+      "y": 199,
       "terrain": "forest"
     },
     {
       "col": 12,
       "row": 2,
       "x": 849.8,
-      "y": 174,
+      "y": 199,
       "terrain": "city",
       "city": "Fort Pitt",
       "value": "2/1",
@@ -173,84 +173,84 @@
       "col": 13,
       "row": 2,
       "x": 915.6,
-      "y": 174,
+      "y": 199,
       "terrain": "forest"
     },
     {
       "col": 15,
       "row": 2,
       "x": 1047.3,
-      "y": 174,
+      "y": 199,
       "terrain": "forest"
     },
     {
       "col": 16,
       "row": 2,
       "x": 1113.1,
-      "y": 174,
+      "y": 199,
       "terrain": "forest"
     },
     {
       "col": 7,
       "row": 3,
       "x": 553.6,
-      "y": 231,
+      "y": 256,
       "terrain": "plains"
     },
     {
       "col": 8,
       "row": 3,
       "x": 619.5,
-      "y": 231,
+      "y": 256,
       "terrain": "plains"
     },
     {
       "col": 9,
       "row": 3,
       "x": 685.3,
-      "y": 231,
+      "y": 256,
       "terrain": "forest"
     },
     {
       "col": 10,
       "row": 3,
       "x": 751.1,
-      "y": 231,
+      "y": 256,
       "terrain": "plains"
     },
     {
       "col": 11,
       "row": 3,
       "x": 816.9,
-      "y": 231,
+      "y": 256,
       "terrain": "plains"
     },
     {
       "col": 12,
       "row": 3,
       "x": 882.7,
-      "y": 231,
+      "y": 256,
       "terrain": "forest"
     },
     {
       "col": 13,
       "row": 3,
       "x": 948.5,
-      "y": 231,
+      "y": 256,
       "terrain": "plains"
     },
     {
       "col": 14,
       "row": 3,
       "x": 1014.4,
-      "y": 231,
+      "y": 256,
       "terrain": "forest"
     },
     {
       "col": 15,
       "row": 3,
       "x": 1080.2,
-      "y": 231,
+      "y": 256,
       "terrain": "city",
       "city": "Prince Albert",
       "value": "5/3",
@@ -261,105 +261,126 @@
       "col": 16,
       "row": 3,
       "x": 1146,
-      "y": 231,
+      "y": 256,
       "terrain": "forest"
     },
     {
       "col": 8,
       "row": 4,
       "x": 586.5,
-      "y": 288,
+      "y": 313,
       "terrain": "forest"
     },
     {
       "col": 9,
       "row": 4,
       "x": 652.4,
-      "y": 288,
+      "y": 313,
       "terrain": "plains"
     },
     {
       "col": 10,
       "row": 4,
       "x": 718.2,
-      "y": 288,
+      "y": 313,
+      "terrain": "plains"
+    },
+    {
+      "col": 11,
+      "row": 4,
+      "x": 784,
+      "y": 313,
       "terrain": "plains"
     },
     {
       "col": 12,
       "row": 4,
       "x": 849.8,
-      "y": 288,
+      "y": 313,
       "terrain": "forest"
     },
     {
       "col": 13,
       "row": 4,
       "x": 915.6,
-      "y": 288,
+      "y": 313,
       "terrain": "plains"
     },
     {
       "col": 14,
       "row": 4,
       "x": 981.5,
-      "y": 288,
+      "y": 313,
       "terrain": "plains"
     },
     {
       "col": 15,
       "row": 4,
       "x": 1047.3,
-      "y": 288,
+      "y": 313,
       "terrain": "forest"
     },
     {
       "col": 16,
       "row": 4,
       "x": 1113.1,
-      "y": 288,
+      "y": 313,
       "terrain": "forest"
     },
     {
       "col": 17,
       "row": 4,
       "x": 1178.9,
-      "y": 288,
+      "y": 313,
       "terrain": "forest"
     },
     {
       "col": 7,
       "row": 5,
       "x": 553.6,
-      "y": 345,
+      "y": 370,
       "terrain": "forest"
     },
     {
       "col": 8,
       "row": 5,
       "x": 619.5,
-      "y": 345,
+      "y": 370,
       "terrain": "plains"
     },
     {
       "col": 9,
       "row": 5,
       "x": 685.3,
-      "y": 345,
+      "y": 370,
       "terrain": "forest"
+    },
+    {
+      "col": 10,
+      "row": 5,
+      "x": 751.1,
+      "y": 370,
+      "terrain": "plains"
+    },
+    {
+      "col": 11,
+      "row": 5,
+      "x": 816.9,
+      "y": 370,
+      "terrain": "plains"
     },
     {
       "col": 12,
       "row": 5,
       "x": 882.7,
-      "y": 345,
+      "y": 370,
       "terrain": "forest"
     },
     {
       "col": 13,
       "row": 5,
       "x": 948.5,
-      "y": 345,
+      "y": 370,
       "terrain": "city",
       "city": "Battleford",
       "value": "4/3",
@@ -370,14 +391,14 @@
       "col": 14,
       "row": 5,
       "x": 1014.4,
-      "y": 345,
+      "y": 370,
       "terrain": "forest"
     },
     {
       "col": 15,
       "row": 5,
       "x": 1080.2,
-      "y": 345,
+      "y": 370,
       "terrain": "city",
       "city": "Fort Carlton",
       "value": "2/1",
@@ -388,91 +409,105 @@
       "col": 16,
       "row": 5,
       "x": 1146,
-      "y": 345,
+      "y": 370,
       "terrain": "forest"
     },
     {
       "col": 7,
       "row": 6,
       "x": 520.7,
-      "y": 402,
+      "y": 427,
       "terrain": "forest"
     },
     {
       "col": 8,
       "row": 6,
       "x": 586.5,
-      "y": 402,
+      "y": 427,
       "terrain": "plains"
     },
     {
       "col": 9,
       "row": 6,
       "x": 652.4,
-      "y": 402,
+      "y": 427,
       "terrain": "forest"
     },
     {
       "col": 10,
       "row": 6,
       "x": 718.2,
-      "y": 402,
+      "y": 427,
       "terrain": "forest"
+    },
+    {
+      "col": 11,
+      "row": 6,
+      "x": 784,
+      "y": 427,
+      "terrain": "plains"
+    },
+    {
+      "col": 12,
+      "row": 6,
+      "x": 849.8,
+      "y": 427,
+      "terrain": "plains"
     },
     {
       "col": 13,
       "row": 6,
       "x": 915.6,
-      "y": 402,
+      "y": 427,
       "terrain": "forest"
     },
     {
       "col": 14,
       "row": 6,
       "x": 981.5,
-      "y": 402,
+      "y": 427,
       "terrain": "forest"
     },
     {
       "col": 15,
       "row": 6,
       "x": 1047.3,
-      "y": 402,
+      "y": 427,
       "terrain": "forest"
     },
     {
       "col": 16,
       "row": 6,
       "x": 1113.1,
-      "y": 402,
+      "y": 427,
       "terrain": "plains"
     },
     {
       "col": 17,
       "row": 6,
       "x": 1178.9,
-      "y": 402,
+      "y": 427,
       "terrain": "forest"
     },
     {
       "col": 5,
       "row": 7,
       "x": 422,
-      "y": 459,
+      "y": 484,
       "terrain": "mountain"
     },
     {
       "col": 6,
       "row": 7,
       "x": 487.8,
-      "y": 459,
+      "y": 484,
       "terrain": "mountain"
     },
     {
       "col": 7,
       "row": 7,
       "x": 553.6,
-      "y": 459,
+      "y": 484,
       "terrain": "city",
       "city": "Cochrane",
       "value": "2/1",
@@ -483,28 +518,42 @@
       "col": 8,
       "row": 7,
       "x": 619.5,
-      "y": 459,
+      "y": 484,
       "terrain": "plains"
     },
     {
       "col": 9,
       "row": 7,
       "x": 685.3,
-      "y": 459,
+      "y": 484,
+      "terrain": "plains"
+    },
+    {
+      "col": 10,
+      "row": 7,
+      "x": 751.1,
+      "y": 484,
+      "terrain": "plains"
+    },
+    {
+      "col": 11,
+      "row": 7,
+      "x": 816.9,
+      "y": 484,
       "terrain": "plains"
     },
     {
       "col": 12,
       "row": 7,
       "x": 882.7,
-      "y": 459,
+      "y": 484,
       "terrain": "plains"
     },
     {
       "col": 13,
       "row": 7,
       "x": 948.5,
-      "y": 459,
+      "y": 484,
       "terrain": "city",
       "city": "Batoche",
       "value": "3/2",
@@ -515,42 +564,42 @@
       "col": 14,
       "row": 7,
       "x": 1014.4,
-      "y": 459,
+      "y": 484,
       "terrain": "plains"
     },
     {
       "col": 15,
       "row": 7,
       "x": 1080.2,
-      "y": 459,
+      "y": 484,
       "terrain": "plains"
     },
     {
       "col": 16,
       "row": 7,
       "x": 1146,
-      "y": 459,
+      "y": 484,
       "terrain": "plains"
     },
     {
       "col": 17,
       "row": 7,
       "x": 1211.8,
-      "y": 459,
+      "y": 484,
       "terrain": "plains"
     },
     {
       "col": 5,
       "row": 8,
       "x": 389.1,
-      "y": 516,
+      "y": 541,
       "terrain": "mountain"
     },
     {
       "col": 6,
       "row": 8,
       "x": 454.9,
-      "y": 516,
+      "y": 541,
       "terrain": "city",
       "city": "Field",
       "value": "3/2",
@@ -561,112 +610,126 @@
       "col": 7,
       "row": 8,
       "x": 520.7,
-      "y": 516,
+      "y": 541,
       "terrain": "plains"
     },
     {
       "col": 8,
       "row": 8,
       "x": 586.5,
-      "y": 516,
+      "y": 541,
       "terrain": "mountain"
     },
     {
       "col": 9,
       "row": 8,
       "x": 652.4,
-      "y": 516,
+      "y": 541,
       "terrain": "plains"
     },
     {
       "col": 10,
       "row": 8,
       "x": 718.2,
-      "y": 516,
+      "y": 541,
+      "terrain": "plains"
+    },
+    {
+      "col": 11,
+      "row": 8,
+      "x": 784,
+      "y": 541,
+      "terrain": "plains"
+    },
+    {
+      "col": 12,
+      "row": 8,
+      "x": 849.8,
+      "y": 541,
       "terrain": "plains"
     },
     {
       "col": 13,
       "row": 8,
       "x": 915.6,
-      "y": 516,
+      "y": 541,
       "terrain": "plains"
     },
     {
       "col": 14,
       "row": 8,
       "x": 981.5,
-      "y": 516,
+      "y": 541,
       "terrain": "plains"
     },
     {
       "col": 15,
       "row": 8,
       "x": 1047.3,
-      "y": 516,
+      "y": 541,
       "terrain": "plains"
     },
     {
       "col": 16,
       "row": 8,
       "x": 1113.1,
-      "y": 516,
+      "y": 541,
       "terrain": "plains"
     },
     {
       "col": 17,
       "row": 8,
       "x": 1178.9,
-      "y": 516,
+      "y": 541,
       "terrain": "plains"
     },
     {
       "col": 18,
       "row": 8,
       "x": 1244.7,
-      "y": 516,
+      "y": 541,
       "terrain": "plains"
     },
     {
       "col": 3,
       "row": 9,
       "x": 290.4,
-      "y": 573,
+      "y": 598,
       "terrain": "mountain"
     },
     {
       "col": 4,
       "row": 9,
       "x": 356.2,
-      "y": 573,
+      "y": 598,
       "terrain": "mountain"
     },
     {
       "col": 5,
       "row": 9,
       "x": 422,
-      "y": 573,
+      "y": 598,
       "terrain": "mountain"
     },
     {
       "col": 6,
       "row": 9,
       "x": 487.8,
-      "y": 573,
+      "y": 598,
       "terrain": "mountain"
     },
     {
       "col": 7,
       "row": 9,
       "x": 553.6,
-      "y": 573,
+      "y": 598,
       "terrain": "mountain"
     },
     {
       "col": 8,
       "row": 9,
       "x": 619.5,
-      "y": 573,
+      "y": 598,
       "terrain": "city",
       "city": "Calgary",
       "value": "6/4",
@@ -679,28 +742,49 @@
       "col": 9,
       "row": 9,
       "x": 685.3,
-      "y": 573,
+      "y": 598,
       "terrain": "plains"
     },
     {
       "col": 10,
       "row": 9,
       "x": 751.1,
-      "y": 573,
+      "y": 598,
+      "terrain": "plains"
+    },
+    {
+      "col": 11,
+      "row": 9,
+      "x": 816.9,
+      "y": 598,
+      "terrain": "plains"
+    },
+    {
+      "col": 12,
+      "row": 9,
+      "x": 882.7,
+      "y": 598,
+      "terrain": "plains"
+    },
+    {
+      "col": 13,
+      "row": 9,
+      "x": 948.5,
+      "y": 598,
       "terrain": "plains"
     },
     {
       "col": 14,
       "row": 9,
       "x": 1014.4,
-      "y": 573,
+      "y": 598,
       "terrain": "plains"
     },
     {
       "col": 15,
       "row": 9,
       "x": 1080.2,
-      "y": 573,
+      "y": 598,
       "terrain": "city",
       "city": "Qu'Appelle Station",
       "value": "2/1",
@@ -711,14 +795,14 @@
       "col": 16,
       "row": 9,
       "x": 1146,
-      "y": 573,
+      "y": 598,
       "terrain": "plains"
     },
     {
       "col": 17,
       "row": 9,
       "x": 1211.8,
-      "y": 573,
+      "y": 598,
       "terrain": "city",
       "city": "Fort Qu'Appelle",
       "value": "2/1",
@@ -729,28 +813,28 @@
       "col": 18,
       "row": 9,
       "x": 1277.6,
-      "y": 573,
+      "y": 598,
       "terrain": "plains"
     },
     {
       "col": 3,
       "row": 10,
       "x": 257.5,
-      "y": 630,
+      "y": 655,
       "terrain": "plains"
     },
     {
       "col": 4,
       "row": 10,
       "x": 323.3,
-      "y": 630,
+      "y": 655,
       "terrain": "mountain"
     },
     {
       "col": 5,
       "row": 10,
       "x": 389.1,
-      "y": 630,
+      "y": 655,
       "terrain": "city",
       "city": "Revelstoke",
       "value": "3/2",
@@ -761,35 +845,35 @@
       "col": 6,
       "row": 10,
       "x": 454.9,
-      "y": 630,
+      "y": 655,
       "terrain": "mountain"
     },
     {
       "col": 7,
       "row": 10,
       "x": 520.7,
-      "y": 630,
+      "y": 655,
       "terrain": "mountain"
     },
     {
       "col": 8,
       "row": 10,
       "x": 586.5,
-      "y": 630,
+      "y": 655,
       "terrain": "plains"
     },
     {
       "col": 9,
       "row": 10,
       "x": 652.4,
-      "y": 630,
+      "y": 655,
       "terrain": "plains"
     },
     {
       "col": 10,
       "row": 10,
       "x": 718.2,
-      "y": 630,
+      "y": 655,
       "terrain": "city",
       "city": "Gleichen",
       "value": "2/1",
@@ -800,98 +884,98 @@
       "col": 11,
       "row": 10,
       "x": 784,
-      "y": 630,
+      "y": 655,
       "terrain": "plains"
     },
     {
       "col": 12,
       "row": 10,
       "x": 849.8,
-      "y": 630,
+      "y": 655,
       "terrain": "plains"
     },
     {
       "col": 13,
       "row": 10,
       "x": 915.6,
-      "y": 630,
+      "y": 655,
       "terrain": "plains"
     },
     {
       "col": 14,
       "row": 10,
       "x": 981.5,
-      "y": 630,
+      "y": 655,
       "terrain": "plains"
     },
     {
       "col": 15,
       "row": 10,
       "x": 1047.3,
-      "y": 630,
+      "y": 655,
       "terrain": "plains"
     },
     {
       "col": 16,
       "row": 10,
       "x": 1113.1,
-      "y": 630,
+      "y": 655,
       "terrain": "plains"
     },
     {
       "col": 17,
       "row": 10,
       "x": 1178.9,
-      "y": 630,
+      "y": 655,
       "terrain": "plains"
     },
     {
       "col": 18,
       "row": 10,
       "x": 1244.7,
-      "y": 630,
+      "y": 655,
       "terrain": "plains"
     },
     {
       "col": 19,
       "row": 10,
       "x": 1310.5,
-      "y": 630,
+      "y": 655,
       "terrain": "forest"
     },
     {
       "col": 20,
       "row": 10,
       "x": 1376.4,
-      "y": 630,
+      "y": 655,
       "terrain": "forest"
     },
     {
       "col": 21,
       "row": 10,
       "x": 1442.2,
-      "y": 630,
+      "y": 655,
       "terrain": "plains"
     },
     {
       "col": 23,
       "row": 10,
       "x": 1573.8,
-      "y": 630,
+      "y": 655,
       "terrain": "plains"
     },
     {
       "col": 2,
       "row": 11,
       "x": 224.5,
-      "y": 687,
+      "y": 712,
       "terrain": "mountain"
     },
     {
       "col": 3,
       "row": 11,
       "x": 290.4,
-      "y": 687,
+      "y": 712,
       "terrain": "city",
       "city": "Kamloops",
       "value": "2/1",
@@ -902,21 +986,21 @@
       "col": 4,
       "row": 11,
       "x": 356.2,
-      "y": 687,
+      "y": 712,
       "terrain": "plains"
     },
     {
       "col": 5,
       "row": 11,
       "x": 422,
-      "y": 687,
+      "y": 712,
       "terrain": "plains"
     },
     {
       "col": 6,
       "row": 11,
       "x": 487.8,
-      "y": 687,
+      "y": 712,
       "terrain": "city",
       "city": "Banff",
       "value": "2/1",
@@ -927,42 +1011,42 @@
       "col": 7,
       "row": 11,
       "x": 553.6,
-      "y": 687,
+      "y": 712,
       "terrain": "mountain"
     },
     {
       "col": 8,
       "row": 11,
       "x": 619.5,
-      "y": 687,
+      "y": 712,
       "terrain": "plains"
     },
     {
       "col": 9,
       "row": 11,
       "x": 685.3,
-      "y": 687,
+      "y": 712,
       "terrain": "plains"
     },
     {
       "col": 10,
       "row": 11,
       "x": 751.1,
-      "y": 687,
+      "y": 712,
       "terrain": "plains"
     },
     {
       "col": 11,
       "row": 11,
       "x": 816.9,
-      "y": 687,
+      "y": 712,
       "terrain": "plains"
     },
     {
       "col": 12,
       "row": 11,
       "x": 882.7,
-      "y": 687,
+      "y": 712,
       "terrain": "city",
       "city": "Moose Jaw",
       "value": "5/3",
@@ -973,28 +1057,28 @@
       "col": 13,
       "row": 11,
       "x": 948.5,
-      "y": 687,
+      "y": 712,
       "terrain": "plains"
     },
     {
       "col": 14,
       "row": 11,
       "x": 1014.4,
-      "y": 687,
+      "y": 712,
       "terrain": "plains"
     },
     {
       "col": 15,
       "row": 11,
       "x": 1080.2,
-      "y": 687,
+      "y": 712,
       "terrain": "plains"
     },
     {
       "col": 16,
       "row": 11,
       "x": 1146,
-      "y": 687,
+      "y": 712,
       "terrain": "city",
       "city": "Regina",
       "value": "6/4",
@@ -1006,14 +1090,14 @@
       "col": 17,
       "row": 11,
       "x": 1211.8,
-      "y": 687,
+      "y": 712,
       "terrain": "plains"
     },
     {
       "col": 18,
       "row": 11,
       "x": 1277.6,
-      "y": 687,
+      "y": 712,
       "terrain": "city",
       "city": "Indian Head",
       "value": "2/1",
@@ -1024,14 +1108,14 @@
       "col": 19,
       "row": 11,
       "x": 1343.4,
-      "y": 687,
+      "y": 712,
       "terrain": "forest"
     },
     {
       "col": 20,
       "row": 11,
       "x": 1409.3,
-      "y": 687,
+      "y": 712,
       "terrain": "city",
       "city": "Portage la Prairie",
       "value": "3/2",
@@ -1042,21 +1126,21 @@
       "col": 21,
       "row": 11,
       "x": 1475.1,
-      "y": 687,
+      "y": 712,
       "terrain": "plains"
     },
     {
       "col": 22,
       "row": 11,
       "x": 1540.9,
-      "y": 687,
+      "y": 712,
       "terrain": "plains"
     },
     {
       "col": 23,
       "row": 11,
       "x": 1606.7,
-      "y": 687,
+      "y": 712,
       "terrain": "city",
       "city": "Selkirk",
       "value": "2/1",
@@ -1067,28 +1151,28 @@
       "col": 2,
       "row": 12,
       "x": 191.6,
-      "y": 744,
+      "y": 769,
       "terrain": "mountain"
     },
     {
       "col": 3,
       "row": 12,
       "x": 257.5,
-      "y": 744,
+      "y": 769,
       "terrain": "mountain"
     },
     {
       "col": 4,
       "row": 12,
       "x": 323.3,
-      "y": 744,
+      "y": 769,
       "terrain": "plains"
     },
     {
       "col": 5,
       "row": 12,
       "x": 389.1,
-      "y": 744,
+      "y": 769,
       "terrain": "city",
       "city": "Golden",
       "value": "3/2",
@@ -1099,42 +1183,42 @@
       "col": 6,
       "row": 12,
       "x": 454.9,
-      "y": 744,
+      "y": 769,
       "terrain": "mountain"
     },
     {
       "col": 7,
       "row": 12,
       "x": 520.7,
-      "y": 744,
+      "y": 769,
       "terrain": "mountain"
     },
     {
       "col": 8,
       "row": 12,
       "x": 586.5,
-      "y": 744,
+      "y": 769,
       "terrain": "plains"
     },
     {
       "col": 9,
       "row": 12,
       "x": 652.4,
-      "y": 744,
+      "y": 769,
       "terrain": "plains"
     },
     {
       "col": 10,
       "row": 12,
       "x": 718.2,
-      "y": 744,
+      "y": 769,
       "terrain": "plains"
     },
     {
       "col": 11,
       "row": 12,
       "x": 784,
-      "y": 744,
+      "y": 769,
       "terrain": "city",
       "city": "Medicine Hat",
       "value": "4/3",
@@ -1145,21 +1229,21 @@
       "col": 12,
       "row": 12,
       "x": 849.8,
-      "y": 744,
+      "y": 769,
       "terrain": "forest"
     },
     {
       "col": 13,
       "row": 12,
       "x": 915.6,
-      "y": 744,
+      "y": 769,
       "terrain": "plains"
     },
     {
       "col": 14,
       "row": 12,
       "x": 981.5,
-      "y": 744,
+      "y": 769,
       "terrain": "city",
       "city": "Swift Current",
       "value": "2/1",
@@ -1170,77 +1254,77 @@
       "col": 15,
       "row": 12,
       "x": 1047.3,
-      "y": 744,
+      "y": 769,
       "terrain": "plains"
     },
     {
       "col": 16,
       "row": 12,
       "x": 1113.1,
-      "y": 744,
+      "y": 769,
       "terrain": "plains"
     },
     {
       "col": 17,
       "row": 12,
       "x": 1178.9,
-      "y": 744,
+      "y": 769,
       "terrain": "plains"
     },
     {
       "col": 18,
       "row": 12,
       "x": 1244.7,
-      "y": 744,
+      "y": 769,
       "terrain": "plains"
     },
     {
       "col": 19,
       "row": 12,
       "x": 1310.5,
-      "y": 744,
+      "y": 769,
       "terrain": "plains"
     },
     {
       "col": 20,
       "row": 12,
       "x": 1376.4,
-      "y": 744,
+      "y": 769,
       "terrain": "plains"
     },
     {
       "col": 21,
       "row": 12,
       "x": 1442.2,
-      "y": 744,
+      "y": 769,
       "terrain": "plains"
     },
     {
       "col": 22,
       "row": 12,
       "x": 1508,
-      "y": 744,
+      "y": 769,
       "terrain": "plains"
     },
     {
       "col": 23,
       "row": 12,
       "x": 1573.8,
-      "y": 744,
+      "y": 769,
       "terrain": "plains"
     },
     {
       "col": 1,
       "row": 13,
       "x": 158.7,
-      "y": 801,
+      "y": 826,
       "terrain": "mountain"
     },
     {
       "col": 2,
       "row": 13,
       "x": 224.5,
-      "y": 801,
+      "y": 826,
       "terrain": "city",
       "city": "Yale",
       "value": "3/3",
@@ -1251,35 +1335,35 @@
       "col": 3,
       "row": 13,
       "x": 290.4,
-      "y": 801,
+      "y": 826,
       "terrain": "mountain"
     },
     {
       "col": 4,
       "row": 13,
       "x": 356.2,
-      "y": 801,
+      "y": 826,
       "terrain": "plains"
     },
     {
       "col": 5,
       "row": 13,
       "x": 422,
-      "y": 801,
+      "y": 826,
       "terrain": "plains"
     },
     {
       "col": 6,
       "row": 13,
       "x": 487.8,
-      "y": 801,
+      "y": 826,
       "terrain": "plains"
     },
     {
       "col": 7,
       "row": 13,
       "x": 553.6,
-      "y": 801,
+      "y": 826,
       "terrain": "city",
       "city": "Fort Macleod",
       "value": "2/1",
@@ -1290,14 +1374,14 @@
       "col": 8,
       "row": 13,
       "x": 619.5,
-      "y": 801,
+      "y": 826,
       "terrain": "plains"
     },
     {
       "col": 9,
       "row": 13,
       "x": 685.3,
-      "y": 801,
+      "y": 826,
       "terrain": "city",
       "city": "Lethbridge",
       "value": "4/3",
@@ -1308,21 +1392,21 @@
       "col": 10,
       "row": 13,
       "x": 751.1,
-      "y": 801,
+      "y": 826,
       "terrain": "plains"
     },
     {
       "col": 11,
       "row": 13,
       "x": 816.9,
-      "y": 801,
+      "y": 826,
       "terrain": "forest"
     },
     {
       "col": 12,
       "row": 13,
       "x": 882.7,
-      "y": 801,
+      "y": 826,
       "terrain": "city",
       "city": "Maple Creek",
       "value": "2/1",
@@ -1333,42 +1417,42 @@
       "col": 13,
       "row": 13,
       "x": 948.5,
-      "y": 801,
+      "y": 826,
       "terrain": "plains"
     },
     {
       "col": 14,
       "row": 13,
       "x": 1014.4,
-      "y": 801,
+      "y": 826,
       "terrain": "plains"
     },
     {
       "col": 17,
       "row": 13,
       "x": 1211.8,
-      "y": 801,
+      "y": 826,
       "terrain": "plains"
     },
     {
       "col": 18,
       "row": 13,
       "x": 1277.6,
-      "y": 801,
+      "y": 826,
       "terrain": "plains"
     },
     {
       "col": 19,
       "row": 13,
       "x": 1343.4,
-      "y": 801,
+      "y": 826,
       "terrain": "plains"
     },
     {
       "col": 20,
       "row": 13,
       "x": 1409.3,
-      "y": 801,
+      "y": 826,
       "terrain": "city",
       "city": "Brandon",
       "value": "4/3",
@@ -1379,18 +1463,18 @@
       "col": 21,
       "row": 13,
       "x": 1475.1,
-      "y": 801,
+      "y": 826,
       "terrain": "plains"
     },
     {
       "col": 22,
       "row": 13,
       "x": 1540.9,
-      "y": 801,
+      "y": 826,
       "terrain": "city",
       "city": "Winnipeg",
-      "value": "7/5",
-      "full": 7,
+      "value": "6/5",
+      "full": 6,
       "shared": 5,
       "port": true,
       "start": true
@@ -1399,126 +1483,126 @@
       "col": 23,
       "row": 13,
       "x": 1606.7,
-      "y": 801,
+      "y": 826,
       "terrain": "plains"
     },
     {
       "col": 1,
       "row": 14,
       "x": 125.8,
-      "y": 858,
+      "y": 883,
       "terrain": "mountain"
     },
     {
       "col": 2,
       "row": 14,
       "x": 191.6,
-      "y": 858,
+      "y": 883,
       "terrain": "mountain"
     },
     {
       "col": 3,
       "row": 14,
       "x": 257.5,
-      "y": 858,
+      "y": 883,
       "terrain": "mountain"
     },
     {
       "col": 4,
       "row": 14,
       "x": 323.3,
-      "y": 858,
+      "y": 883,
       "terrain": "plains"
     },
     {
       "col": 7,
       "row": 14,
       "x": 520.7,
-      "y": 858,
+      "y": 883,
       "terrain": "plains"
     },
     {
       "col": 8,
       "row": 14,
       "x": 586.5,
-      "y": 858,
+      "y": 883,
       "terrain": "plains"
     },
     {
       "col": 9,
       "row": 14,
       "x": 652.4,
-      "y": 858,
+      "y": 883,
       "terrain": "plains"
     },
     {
       "col": 10,
       "row": 14,
       "x": 718.2,
-      "y": 858,
+      "y": 883,
       "terrain": "plains"
     },
     {
       "col": 12,
       "row": 14,
       "x": 849.8,
-      "y": 858,
+      "y": 883,
       "terrain": "plains"
     },
     {
       "col": 13,
       "row": 14,
       "x": 915.6,
-      "y": 858,
+      "y": 883,
       "terrain": "plains"
     },
     {
       "col": 19,
       "row": 14,
       "x": 1310.5,
-      "y": 858,
+      "y": 883,
       "terrain": "plains"
     },
     {
       "col": 20,
       "row": 14,
       "x": 1376.4,
-      "y": 858,
+      "y": 883,
       "terrain": "plains"
     },
     {
       "col": 21,
       "row": 14,
       "x": 1442.2,
-      "y": 858,
+      "y": 883,
       "terrain": "plains"
     },
     {
       "col": 22,
       "row": 14,
       "x": 1508,
-      "y": 858,
+      "y": 883,
       "terrain": "plains"
     },
     {
       "col": 23,
       "row": 14,
       "x": 1573.8,
-      "y": 858,
+      "y": 883,
       "terrain": "plains"
     },
     {
       "col": 0,
       "row": 15,
       "x": 92.9,
-      "y": 915,
+      "y": 940,
       "terrain": "plains"
     },
     {
       "col": 1,
       "row": 15,
       "x": 158.7,
-      "y": 915,
+      "y": 940,
       "terrain": "city",
       "city": "Vancouver",
       "value": "6/4",
@@ -1531,14 +1615,14 @@
       "col": 2,
       "row": 15,
       "x": 224.5,
-      "y": 915,
+      "y": 940,
       "terrain": "plains"
     },
     {
       "col": 3,
       "row": 15,
       "x": 290.4,
-      "y": 915,
+      "y": 940,
       "terrain": "city",
       "city": "Port Moody",
       "value": "3/3",
@@ -1549,28 +1633,28 @@
       "col": 4,
       "row": 15,
       "x": 356.2,
-      "y": 915,
+      "y": 940,
       "terrain": "plains"
     },
     {
       "col": 20,
       "row": 15,
       "x": 1409.3,
-      "y": 915,
+      "y": 940,
       "terrain": "plains"
     },
     {
       "col": 21,
       "row": 15,
       "x": 1475.1,
-      "y": 915,
+      "y": 940,
       "terrain": "forest"
     },
     {
       "col": 22,
       "row": 15,
       "x": 1540.9,
-      "y": 915,
+      "y": 940,
       "terrain": "city",
       "city": "Emerson",
       "value": "2/1",
@@ -1581,49 +1665,49 @@
       "col": 23,
       "row": 15,
       "x": 1606.7,
-      "y": 915,
+      "y": 940,
       "terrain": "plains"
     },
     {
       "col": 1,
       "row": 16,
       "x": 125.8,
-      "y": 972,
+      "y": 997,
       "terrain": "plains"
     },
     {
       "col": 2,
       "row": 16,
       "x": 191.6,
-      "y": 972,
+      "y": 997,
       "terrain": "plains"
     },
     {
       "col": 3,
       "row": 16,
       "x": 257.5,
-      "y": 972,
+      "y": 997,
       "terrain": "plains"
     },
     {
       "col": 4,
       "row": 16,
       "x": 323.3,
-      "y": 972,
+      "y": 997,
       "terrain": "plains"
     },
     {
       "col": 20,
       "row": 16,
       "x": 1376.4,
-      "y": 972,
+      "y": 997,
       "terrain": "plains"
     },
     {
       "col": 21,
       "row": 16,
       "x": 1442.2,
-      "y": 972,
+      "y": 997,
       "terrain": "city",
       "city": "St. Boniface",
       "value": "2/1",
@@ -1634,28 +1718,28 @@
       "col": 22,
       "row": 16,
       "x": 1508,
-      "y": 972,
+      "y": 997,
       "terrain": "plains"
     },
     {
       "col": 23,
       "row": 16,
       "x": 1573.8,
-      "y": 972,
+      "y": 997,
       "terrain": "plains"
     },
     {
       "col": 1,
       "row": 17,
       "x": 158.7,
-      "y": 1029,
+      "y": 1054,
       "terrain": "plains"
     },
     {
       "col": 2,
       "row": 17,
       "x": 224.5,
-      "y": 1029,
+      "y": 1054,
       "terrain": "city",
       "city": "New Westminster",
       "value": "5/3",
@@ -1666,21 +1750,21 @@
       "col": 3,
       "row": 17,
       "x": 290.4,
-      "y": 1029,
+      "y": 1054,
       "terrain": "plains"
     },
     {
       "col": 20,
       "row": 17,
       "x": 1409.3,
-      "y": 1029,
+      "y": 1054,
       "terrain": "plains"
     },
     {
       "col": 21,
       "row": 17,
       "x": 1475.1,
-      "y": 1029,
+      "y": 1054,
       "terrain": "plains"
     }
   ],
@@ -1689,7 +1773,7 @@
       "name": "Winnipeg",
       "lat": 49.895,
       "lon": -97.138,
-      "full": 7,
+      "full": 6,
       "shared": 5,
       "hub": true,
       "special": true,
@@ -1965,7 +2049,7 @@
       "name": "Edmonton",
       "lat": 53.546,
       "lon": -113.491,
-      "full": 5,
+      "full": 6,
       "shared": 3,
       "hub": true,
       "region": "AB",
@@ -2206,10 +2290,10 @@
     1887
   ],
   "summary": {
-    "tiles": 210,
+    "tiles": 222,
     "forest": 40,
     "city": 35,
-    "plains": 112,
+    "plains": 124,
     "mountain": 23,
     "totalFullValue": 114,
     "totalSharedValue": 73

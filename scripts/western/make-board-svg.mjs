@@ -169,11 +169,17 @@ const compass = `  <g transform="translate(90,330)" opacity=".55">
     <text y="-41" text-anchor="middle" font-family="${CINZEL}" font-weight="700" font-size="13" fill="#5d4726">N</text>
   </g>`;
 
+// Repositioned 2026-08-24 (Ben's play feedback): the action table moved down
+// from y=20 toward the Manitoba cluster (Selkirk/Winnipeg's row starts around
+// y=687, so the table's new [180,658] span clears it with margin); year track
+// and legend swapped left/right; house supply nudged left (996+8 gap instead
+// of 996+20) — see the cubeLayout() call in index.html for the matching
+// containment-margin fix (houses were poking 9-12px past the printed box).
 const PANELS = [
-  { name: 'action table', box: [1250, 556, 1634, 1034], to: [1250, 20] },
-  { name: 'year track',   box: [1100, 1046, 1636, 1160], to: [60, 1060] },
-  { name: 'legend',       box: [660, 1034, 1040, 1164], to: [616, 1060] },
-  { name: 'house supply', box: [998, 906, 1300, 1026], to: [1016, 1060], absolute: true },
+  { name: 'action table', box: [1250, 556, 1634, 1034], to: [1264, 180] },
+  { name: 'year track',   box: [1100, 1046, 1636, 1160], to: [460, 1060] },
+  { name: 'legend',       box: [660, 1034, 1040, 1164], to: [60, 1060] },
+  { name: 'house supply', box: [998, 906, 1300, 1026], to: [1004, 1060], absolute: true },
 ];
 const deltaOf = p => [p.to[0] - p.box[0], p.to[1] - p.box[1]];
 
@@ -201,7 +207,7 @@ let legendBlock = retranslate(slice(iLegend, iLegendEnd), ...byName('legend').to
 // name -> id mapping and the reasoning behind each short form.
 const PLATE_NAMES = {
   AMERICAN: 'CANADIAN PACIFIC', NATIONAL: 'MANITOBA N.W.', CONTINENTAL: 'MANITOBA S.W.',
-  MAJESTIC: "Q.L.&amp;S.", LIBERTY: 'ONDERDONK', REPUBLIC: 'LANGDON &amp; SHEPARD',
+  MAJESTIC: "Q.L.&amp;S.", LIBERTY: 'ONDERDONK &amp; CO.', REPUBLIC: 'LANGDON &amp; SHEPARD',
 };
 const plateSize = plain => Math.min(15.5, 112 / (plain.length * 0.62));
 let tail = slice(iPlates, L.length - 2)

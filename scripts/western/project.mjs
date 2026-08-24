@@ -52,7 +52,12 @@ export const HERE = path.dirname(fileURLToPath(import.meta.url));
 // (Fort Qu'Appelle/Qu'Appelle Station, Golden/Field, Winnipeg/St. Boniface)
 // land in distinguishable rows instead of the same one.
 export const HEX = 38;
-export const OX = 60, OY = 60;
+export const OX = 60, OY = 85;
+// OY bumped 60->85 (2026-08-24, Ben's play feedback): at OY=60 a pointy-top
+// hex's top vertex (row 0 center - HEX = 60-38 = 22) reached above the printed
+// column-ruler strip's bottom edge (~34), visibly covering the "31-34" column
+// numbers behind Victoria Settlement's hex. At OY=85 the top vertex sits at
+// 47, comfortably clear.
 
 export const PROJ = {
   lonLeft: -124.4,   // col 0  — west of the BC coast (unchanged bounds)
