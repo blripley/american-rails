@@ -218,6 +218,9 @@ button.co-btn.co-broke { opacity: .4; filter: grayscale(.65); cursor: not-allowe
 .act-btn { display: inline-flex; flex-direction: column; align-items: center; gap: 1px; padding: 3px 8px 4px; line-height: 1;
   background: #f4ecd6; color: #2b2013; border: 1px solid #b9a06a; }
 .act-btn:hover { background: #fbf5e4; transform: translateY(-1px); }
+.bid-btn { background: #f4ecd6; color: #2b2013; border: 1px solid #b9a06a; border-radius: 6px; }
+.bid-btn:hover { background: #fbf5e4; transform: translateY(-1px); }
+.bid-btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
 .act-fig { width: 30px; height: 26px; display: block; }
 .act-lbl { font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .01em; }
 .bid-custom { display: inline-flex; align-items: center; gap: 3px; }
@@ -343,6 +346,7 @@ button.act-redo { border: 1px solid var(--color-accent); }
     <div class="topbar">
       <h2 id="game-title">AMERICAN RAILS</h2>
       <div class="year-chip">Year <span class="mono" id="year-label" data-year>1851</span></div>
+      <div class="year-chip" id="room-chip" style="display:none" title="Share this code so a dropped player can rejoin">Room <span class="mono" id="room-chip-code"></span></div>
       <div class="turn-status" id="turn-status" data-turn-status></div>
       <div class="actions-bar" id="actions-bar" data-actions></div>
       <button class="ghost topbar-leave" data-action="quit" title="Local games are saved — resume from the menu">Save &amp; exit</button>
@@ -14360,6 +14364,8 @@ function miniStack(cid, count){ const tpl=document.getElementById('card-'+cid);
   return `<div class="mini-stack" title="${COMPANIES[cid].name} ×${count}">${s}</div>`; }
 function renderPanels(s){
   $('#year-label').textContent = s.year;
+  const roomChip = $('#room-chip');
+  if (roomChip){ if (s.mode==='online' && net.roomCode){ roomChip.style.display=''; $('#room-chip-code').textContent = net.roomCode; } else roomChip.style.display='none'; }
   const cur=s.players[s.currentPlayer];
   // payout / winner highlight state
   const payStep = (s.phase==='payout' && s.payout && s.payout.idx>=0) ? s.payout.steps[s.payout.idx] : null;
@@ -14415,10 +14421,10 @@ function biddingBar(s, cur, mine){
   if (!curIsBot && (s.mode==='local' || mine)){
     const mn=auctionMinNext(s);
     h += `<span class="bid-turn"><b>${cur.name}</b> to bid:</span>`;
-    h += btn('Bid $'+mn,'bid:'+mn, money>=mn?'':'disabled');
-    if (money>=mn+5) h+=btn('Bid $'+(mn+5),'bid:'+(mn+5));
-    h += `<span class="bid-custom"><input id="bid-input" class="bid-input" type="number" min="${mn}" max="${money}" value="${mn}"><button onclick="AR.ui('bid:'+Math.min(${money}, Math.max(${mn}, parseInt(document.getElementById('bid-input').value)||${mn})))">Bid</button></span>`;
-    h += btn('Pass','pass','class="ghost"');
+    h += btn('Bid $'+mn,'bid:'+mn, money>=mn?'class="bid-btn"':'class="bid-btn" disabled');
+    if (money>=mn+5) h+=btn('Bid $'+(mn+5),'bid:'+(mn+5),'class="bid-btn"');
+    h += `<span class="bid-custom"><input id="bid-input" class="bid-input" type="number" min="${mn}" max="${money}" value="${mn}"><button class="bid-btn" onclick="AR.ui('bid:'+Math.min(${money}, Math.max(${mn}, parseInt(document.getElementById('bid-input').value)||${mn})))">Bid</button></span>`;
+    h += btn('Pass','pass','class="bid-btn"');
   } else {
     h += `<span class="bid-turn">${curIsBot?'🤖 ':''}<b>${cur.name}</b> deciding…</span>`;
   }
