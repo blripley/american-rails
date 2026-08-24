@@ -12979,6 +12979,15 @@ const MAPS = {
     // year track -> [560,900], house-supply box -> delta [-438,+139]).
     at:{x:1230,y:690}, yt:{x:560,y:900}, houseSupply:{x:594,y:1097},
     years:{start:1851, end:1857},
+    // "Duopoly" balance (Ben's pick, 2026-08-24, from a 10-option review — see
+    // the Company Ledgers artifact): Grand Trunk and Great Western, real
+    // 19th-century rivals, both grown into co-dominant companies; the other
+    // four shrink to compensate. Same 21 shares / 144 cubes total as the
+    // shared default — only the split changes.
+    companyCounts: {
+      american:{shares:6, cubes:34}, national:{shares:6, cubes:33}, continental:{shares:3, cubes:22},
+      majestic:{shares:2, cubes:20}, liberty:{shares:2, cubes:18}, republic:{shares:2, cubes:17},
+    },
   },
   wc: {
     id:'wc', label:'Western Canada', sub:'The Canadian Pacific Railway, 1881-1887',
@@ -13003,20 +13012,20 @@ const MAPS = {
     // not eliminated. us/ca are untouched (expandCost falls back to 3/5
     // when a map doesn't set this).
     terrainCost: { forest:2, mountain:3 },
-    // The CPR's real near-monopoly, fictionalized as one dominant company:
-    // 'american' plays "Canadian Pacific" with a noticeably bigger share
-    // count than any company on either existing board (max today is 5
-    // shares) — the other five ids are omitted here and fall back to the
-    // shared COMPANIES table via companyShares()/companyCubes().
-    // Cube count tuned down from an original 38 to 28 (docs/western-canada-
-    // cp-tuning.md, 2026-08-23): 38 cubes was structurally too large for CP
-    // to spend down in a 7-round game (a 16-game bot measurement found it
-    // worst-in-class on income/cube-spend/share-sale rate, with treasury
-    // cash sitting idle instead). Share count brought back down to the
-    // shared-table default (5) on Ben's direct call after playing it
-    // himself, 2026-08-24 — not historically motivated, just "7 is too
-    // many"; cubes stay at 28.
-    companyCounts: { american:{shares:5, cubes:28} },
+    // "True monopoly" balance (Ben's pick, 2026-08-24, from a 10-option
+    // review — see the Company Ledgers artifact): CPR grows to 7 shares/38
+    // cubes and every subsidiary shrinks to compensate, leaning harder into
+    // the CPR-as-near-monopoly story. This knowingly reopens two values an
+    // earlier bot-measurement pass (docs/western-canada-cp-tuning.md,
+    // 2026-08-23) had moved away from — 38 cubes measured worst-in-class
+    // there (idle treasury, low cube-spend; 28 was the measured sweet spot),
+    // and 7 shares was tried in real play and walked back to 5 as "too
+    // many" — both reopened here as a deliberate, informed choice, not an
+    // oversight.
+    companyCounts: {
+      american:{shares:7, cubes:38}, national:{shares:3, cubes:24}, continental:{shares:3, cubes:22},
+      majestic:{shares:3, cubes:20}, liberty:{shares:2, cubes:17}, republic:{shares:3, cubes:20},
+    },
   },
 };
 const MAP_IDS = Object.keys(MAPS).filter(id => MAPS[id].cells);
@@ -15436,8 +15445,14 @@ window.__selfTest = function(){
     assert('CA: tile geometry is the Canadian one, and pieces scale with it',
       HEX===34 && Math.abs(PIECE_SC-34/41)<1e-9 && Math.abs(GAME_CUBE_SC-GAME_CUBE_BASE*PIECE_SC)<1e-9);
     assert('CA: companies carry Canadian names', COMPANIES.american.name==='Grand Trunk');
-    assert('CA: company cube and share counts are unchanged',
-      COMPANIES.american.cubes===31 && COMPANIES.liberty.shares===2);
+    // "Duopoly" balance (2026-08-24, Ben's pick from a 10-option review): Grand Trunk
+    // (american) & Great Western (national), real 19th-century rivals, both grown into
+    // co-dominant companies; the other four shrink to compensate. Same 21 shares / 144
+    // cubes total as the shared default — only the split changes.
+    assert('CA: Grand Trunk & Great Western are rebalanced into a duopoly',
+      companyShares('american')===6 && companyCubes('american')===34 && companyShares('national')===6 && companyCubes('national')===33);
+    assert('CA: the rebalance still totals 21 shares / 144 cubes',
+      COMPANY_IDS.reduce((t,id)=>t+companyShares(id),0)===21 && COMPANY_IDS.reduce((t,id)=>t+companyCubes(id),0)===144);
 
     // the connection bonus must read the active map — this was hard-coded to the US trio once
     { const m=miniState(); const [a,b]=SPECIAL_PAIRS[0];
@@ -15607,25 +15622,24 @@ window.__selfTest = function(){
       assert('WC: the same pair never pays twice', m.companies.american.income===before+10); }
 
     // per-company share/cube asymmetry — the whole reason this map exists.
-    // NOTE (2026-08-23 CP tuning pass, docs/western-canada-cp-tuning.md): the
-    // original 7sh/38cu override made Canadian Pacific structurally unable to
-    // spend its own cube pile down in a 7-round game (worst-in-class on every
-    // bot-measured metric except treasury, where cash just sat idle). A
-    // 16-game measurement sweep found 28 cubes to be a real, reproducible
-    // sweet spot (24 and 30-38 both measured worse).
-    // NOTE (2026-08-24, Ben's direct call after playing it): shares brought
-    // back down from 7 to the shared-table default (5) — "not historically
-    // accurate, but 7 is too many." This drops the "visibly biggest company"
-    // framing entirely (5 shares ties its own unmodified default, and 28
-    // cubes is now below its own default of 31) — CP plays as an ordinary,
-    // slightly smaller company, not a monopoly-flavoured one. Intentional.
+    // NOTE (2026-08-23 CP tuning pass, docs/western-canada-cp-tuning.md): a
+    // 16-game measurement sweep found 7sh/38cu structurally unable to spend
+    // its own cube pile down in a 7-round game (worst-in-class on every
+    // bot-measured metric except treasury, where cash just sat idle), and
+    // found 28 cubes a real, reproducible sweet spot instead (24 and 30-38
+    // both measured worse). Ben moved the board to 5sh/28cu after playing it
+    // himself on 2026-08-24, calling 7 shares "too many."
+    // NOTE (2026-08-24, "true monopoly" pick from a 10-option review): Ben
+    // knowingly reopened both those findings, choosing 7sh/38cu again along
+    // with new subsidiary cuts — an informed choice to re-test that framing,
+    // not an oversight of the tuning notes above.
     assert('WC: the dominant company\'s override is applied correctly',
-      companyShares('american')===5 && companyCubes('american')===28);
-    assert('WC: the five subsidiaries still read the shared COMPANIES table (no override needed)',
-      COMPANY_IDS.filter(id=>id!=='american').every(id=>companyShares(id)===COMPANIES[id].shares && companyCubes(id)===COMPANIES[id].cubes));
+      companyShares('american')===7 && companyCubes('american')===38);
+    assert('WC: every subsidiary is also rebalanced for the "true monopoly" split',
+      companyShares('national')===3 && companyCubes('national')===24 && companyShares('liberty')===2 && companyCubes('liberty')===17);
     const wcState = createInitialState({mode:'local', names:['A','B','C','D']});
     assert('WC: a fresh game seeds the dominant company\'s overridden supply',
-      wcState.companies.american.sharesInSupply===5 && wcState.companies.american.cubesInSupply===28);
+      wcState.companies.american.sharesInSupply===7 && wcState.companies.american.cubesInSupply===38);
 
     // the era — 1881-1887, not the two existing boards' 1851-1857
     assert('WC: map declares the 1881-1887 play window', MAPS.wc.years.start===1881 && MAPS.wc.years.end===1887);
