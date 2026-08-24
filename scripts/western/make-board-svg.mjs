@@ -48,13 +48,13 @@ const iLabels    = find(has('font-style="italic" font-size="18"'));
 const slice = (a, b) => L.slice(a, b + 1).join('\n');
 
 // ------------------------------------------------------------------- geometry
-// The tile art in <defs> is drawn at radius 41. This map uses 24 — a much
-// smaller tile than the Canadian board's 34, because this board's real
-// footprint (~28 degrees of longitude) is far wider than the Canadian board's
-// (~24.5 degrees), so more columns are needed at a smaller radius to still
-// fit the same 1700x1400 frame. See project.mjs's header comment for the
-// rest of the sizing rationale (including the deliberately non-isotropic
-// latitude stretch).
+// The tile art in <defs> is drawn at radius 41. This map uses 38 (board-
+// rework-2; was 40, which spilled tiles past the frame edge — see
+// project.mjs's header comment for the exact margin math and why 38 fits
+// cleanly). Close to, but independently computed from, the Canadian board's
+// 34 — this board has fewer columns (24 vs 26) but each one spans a much
+// wider real-world longitude slice, so the two boards' hex sizes land in
+// the same neighbourhood without being the same number.
 const S = map.hexGrid.radius / 41;
 const { origin, horizontalSpacing: HW, rowSpacing: RP } = map.hexGrid;
 const px = (c, r) => ({
@@ -115,24 +115,38 @@ const labels = [
   region('BRITISH COLUMBIA', 300, 210, 17, 5),
   region('THE PRAIRIES', 900, 90, 18, 6),
   region('NORTH-WEST TERRITORIES', 900, 118, 13, 3),
-  // RESCALE: repositioned for the 24x20 grid -- the coastline (and the
-  // water gap it opens onto) now sits around row 15 (Vancouver's own row),
-  // not row 10ish where the old 40x34 board's fixed coordinates landed.
-  water('Pacific Ocean', 45, 880, 14),
-  water('Vancouver Island', 470, 1210, 13),
+  // BOARD-REWORK-2: repositioned for the 24x18 grid (HEX 38, was 40/20 rows)
+  // -- the coastline sits around row 15 (Vancouver's own row), same as the
+  // prior pass, just recomputed for the new pixel scale. Vancouver Island
+  // and its label are gone entirely: the island (Victoria/Esquimalt/
+  // Nanaimo) was removed from the board in this pass.
+  water('Pacific Ocean', 45, 800, 14),
   `  <text x="${craigellachiePx.x}" y="${craigellachiePx.y}" text-anchor="middle" font-family="&#39;EB Garamond&#39;,serif" font-style="italic" font-size="10.5" letter-spacing="0.5" fill="#5d4726" opacity=".85">&#10059; Craigellachie</text>`,
 ].join('\n');
 
 // --------------------------------------------------------------------- panels
-// This board's real footprint is a long, narrow east-west band (see
-// project.mjs), which leaves large open blocks of parchment in the
-// northwest (above the settled corridor, where the American template's
-// title cartouche already sits well) and across the whole top-right and
-// bottom-right of the frame (rows 0-9 for cols 20+, and rows 26+ for
-// cols 8+) — the prairie corridor and mountain belt occupy only a
-// relatively thin horizontal band through the middle third of the canvas.
-// Panels are placed in those open blocks rather than squeezed below a
-// tall landmass the way the Canadian board's are.
+// BOARD-REWORK-2: redesigned from scratch for the new 24x18/HEX-38 grid
+// (Ben's feedback: the old panel placement "wasn't looking right" and
+// overlay pieces needed to visibly stay inside their printed borders).
+// The land's true-pixel bounding box on this grid is x:[93,1607], y:[60,1029]
+// (measured directly from western-board-data.json's cells, not eyeballed) --
+// two genuinely land-free rectangles exist:
+//   1. Top-right corner, x:[1244,1640] y:[0,630] -- nothing east of col 17
+//      sits above row 7 (checked cell-by-cell: the boreal arc's forest tops
+//      out at col 17, the Qu'Appelle/Winnipeg cluster's northernmost city is
+//      row 9). The 384x478 action table fits here with real margin on every
+//      side.
+//   2. The FULL width below the map, y:[1029,1400] -- with Vancouver Island
+//      gone, nothing sits below row 17 at all any more (the old grid's rows
+//      18-19 no longer exist), so this band is entirely open, bounded only
+//      by the printed company-plates strip starting at y=1252. Year track,
+//      legend and house-supply box are laid out side by side here, all
+//      top-aligned at y=1060 (30px clear of the land, 60-90px clear of the
+//      plates strip depending on each panel's own height).
+// - Action table -> [1250, 20] (top-right corner, above every city).
+// - Year track -> [60, 1060] (bottom band, left-aligned with the map).
+// - Legend -> [616, 1060] (bottom band, centre).
+// - House-supply box -> [1016, 1060] (bottom band, right of legend).
 const move = (block, dx, dy, scale) =>
   `  <g transform="translate(${dx},${dy})${scale ? ` scale(${scale})` : ''}">\n${block}\n  </g>`;
 const retranslate = (block, x, y) => block.replace(/translate\(\d+,\d+\)/, `translate(${x},${y})`);
@@ -156,10 +170,10 @@ const compass = `  <g transform="translate(90,330)" opacity=".55">
   </g>`;
 
 const PANELS = [
-  { name: 'action table', box: [1250, 556, 1634, 1034], to: [1240, 40] },
-  { name: 'year track',   box: [1100, 1046, 1636, 1160], to: [640, 1010] },
-  { name: 'legend',       box: [660, 1034, 1040, 1164], to: [1220, 1010] },
-  { name: 'house supply', box: [998, 906, 1300, 1026], to: [640, 1150], absolute: true },
+  { name: 'action table', box: [1250, 556, 1634, 1034], to: [1250, 20] },
+  { name: 'year track',   box: [1100, 1046, 1636, 1160], to: [60, 1060] },
+  { name: 'legend',       box: [660, 1034, 1040, 1164], to: [616, 1060] },
+  { name: 'house supply', box: [998, 906, 1300, 1026], to: [1016, 1060], absolute: true },
 ];
 const deltaOf = p => [p.to[0] - p.box[0], p.to[1] - p.box[1]];
 
@@ -167,7 +181,20 @@ const byName = n => PANELS.find(p => p.name === n);
 const supplyBlock = move(slice(iSupply, iSupplyEnd), ...deltaOf(byName('house supply')));
 const actionBlock = retranslate(slice(iAction, iActionEnd), ...byName('action table').to);
 const yearBlock   = retranslate(slice(iYear, iYearEnd), ...byName('year track').to);
-const legendBlock = retranslate(slice(iLegend, iLegendEnd), ...byName('legend').to);
+// This board's forest/mountain expansion cost is softened from the shared
+// $3/$5 default (see MAPS.wc.terrainCost in index.html, read by expandCost())
+// -- the printed legend is otherwise copied verbatim from the American
+// template, which would silently keep showing the wrong price. Keep these
+// two numbers in sync with MAPS.wc.terrainCost by hand (same duplication
+// the company short-names below already require between build script and
+// engine).
+const WC_TERRAIN_COST = { forest: 2, mountain: 3 };
+let legendBlock = retranslate(slice(iLegend, iLegendEnd), ...byName('legend').to);
+{ const before = legendBlock;
+  legendBlock = legendBlock
+    .replace('>$3</text>', `>$${WC_TERRAIN_COST.forest}</text>`)
+    .replace('>$5</text>', `>$${WC_TERRAIN_COST.mountain}</text>`);
+  if (legendBlock === before) throw new Error('legend forest/mountain price text not found — the legend markup changed'); }
 
 // ------------------------------------------------------------- company plates
 // Short forms for the six board plates — see the build report for the full
