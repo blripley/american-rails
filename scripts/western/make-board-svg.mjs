@@ -176,22 +176,21 @@ const compass = `  <g transform="translate(90,330)" opacity=".55">
     <text y="-41" text-anchor="middle" font-family="${CINZEL}" font-weight="700" font-size="13" fill="#5d4726">N</text>
   </g>`;
 
-// Repositioned 2026-08-24 (Ben's play feedback), TWICE. First attempt moved
-// the action table down to y=180 "toward the Manitoba cluster" — verified
-// clear of Fort Qu'Appelle's hex specifically, but that check only looked at
-// city-label text, not blank terrain hexes. A full column-by-column scan
-// (checking every column the table's x-range actually intersects, at both
-// row parities) found the table would need y1<=25 to stay clear of col18's
-// hex at row8, or y1<=139 to clear cols19-23's hexes at row10 IF the table's
-// left edge also moves right of x=1316 — but width=384 means x1<=1316 to
-// stay inside the 1700px frame at all, leaving no room to combine both a
-// rightward AND downward shift. This board's geography (the northern
-// boreal/prairie band reaches close to the top-right corner) genuinely
-// doesn't have a pocket big enough to relocate a 384x478 panel into further
-// down — reverted to the safe near-original position. Year track/legend
-// swap and the house-supply left-nudge (from the first pass) are kept.
+// Repositioned 2026-08-24 (Ben's play feedback), THREE times. Attempt 1 moved
+// the table to y=180 "toward the Manitoba cluster" — checked clear of Fort
+// Qu'Appelle's hex specifically, but missed blank (unlabeled) terrain hexes,
+// 7 of which were actually underneath it. Attempt 2 reverted to y1=25, which
+// cleared every hex tile but was never checked against the printed top
+// column-ruler (whose bottom edge sits at y~36) — it overlapped that instead.
+// A column-by-column scan (every column the table's x-range intersects, at
+// both row parities) shows the two constraints (ruler: y1>=36; hexes: y1<=25
+// at this x-position) are only reconcilable by ALSO moving right, past
+// col18's hex (right edge at x~1277): at x1>=1312 the nearest hex drops to
+// row10 (y~617), giving a real y1 in [36,139] — verified against both
+// constraints together this time, not one at a time. x1=1312 keeps x2=1696,
+// 4px inside the 1700px frame.
 const PANELS = [
-  { name: 'action table', box: [1250, 556, 1634, 1034], to: [1264, 25] },
+  { name: 'action table', box: [1250, 556, 1634, 1034], to: [1312, 60] },
   { name: 'year track',   box: [1100, 1046, 1636, 1160], to: [460, 1060] },
   { name: 'legend',       box: [660, 1034, 1040, 1164], to: [60, 1060] },
   { name: 'house supply', box: [998, 906, 1300, 1026], to: [1004, 1060], absolute: true },

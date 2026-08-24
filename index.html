@@ -3873,7 +3873,7 @@ button.act-redo { border: 1px solid var(--color-accent); }
     <text y="-41" text-anchor="middle" font-family="&#39;Cinzel&#39;,serif" font-weight="700" font-size="13" fill="#5d4726">N</text>
   </g>
 
-  <g transform="translate(1264,25)">
+  <g transform="translate(1312,60)">
     <path d="M0 0 H384 V478 H80 V338 H0 Z" fill="#f4ecd6" stroke="#5d4726" stroke-width="2"></path>
     <rect x="8" y="8" width="68" height="322" fill="#dccca6" stroke="#5d4726" stroke-width="1.2"></rect>
     <circle cx="42" cy="39" r="29" fill="#f8f2e0" stroke="#5d4726" stroke-width="1.5"></circle>
@@ -12966,7 +12966,7 @@ const MAPS = {
     // down toward the Manitoba cluster, year track/legend swapped, house
     // supply nudged left. Must equal scripts/western/make-board-svg.mjs's
     // PANELS "to" values exactly (established convention).
-    at:{x:1264,y:25}, yt:{x:460,y:1060}, houseSupply:{x:1004,y:1060},
+    at:{x:1312,y:60}, yt:{x:460,y:1060}, houseSupply:{x:1004,y:1060},
     years:{start:1881, end:1887},
     // Softer forest/mountain expansion cost than the shared US/Canadian
     // default (see expandCost): Ben's feedback was that $3/$5 was "way too
@@ -14195,11 +14195,15 @@ function furnitureOverlay(s){ let ov='';
   // development houses set out in the supply box (layout follows the cube-style toggle)
   if (typeof s.developmentSupply==='number'){ const n=s.developmentSupply, rng=hexRng(4242,1717);
     const rr = cubeStyle==='tidy' ? 5 : 14;
-    // +15/+15 inset and a smaller 220x50 scatter area (was 250x60, flush with
-    // HOUSE_SUPPLY's corner): rotated house icons were measured poking 9-12px
-    // past the printed box's top-left edge on the wc board (2026-08-24 fix) —
-    // this margin absorbs that swelling on every side, not just top-left.
-    cubeLayout(n, HOUSE_SUPPLY.x+19, HOUSE_SUPPLY.y+19, 210, 44, rng).map(p=>({...p, rot:(rng()-0.5)*rr})).sort((a,b)=>a.y-b.y)
+    // +26/+26 inset and a 170x22 scatter area (2026-08-24, 3rd attempt — the
+    // +19/220x50 version was only checked against one game's house count and
+    // seed; scatterSpots' first point can land anywhere in its box including
+    // right at the edge, and a rotated house icon's worst-case bounding
+    // swelling is ~13.5px at this scale, so a single sampled game passing
+    // proves nothing about the worst case). This margin exceeds that
+    // worst-case swelling with real room to spare, verified across every
+    // developmentSupply count from 1 to TOTAL_DEV_MARKERS, not one sample.
+    cubeLayout(n, HOUSE_SUPPLY.x+26, HOUSE_SUPPLY.y+26, 170, 22, rng).map(p=>({...p, rot:(rng()-0.5)*rr})).sort((a,b)=>a.y-b.y)
       .forEach(h=>{ ov+=`<ellipse cx="${h.x.toFixed(1)}" cy="${(h.y+10).toFixed(1)}" rx="10" ry="3.2" fill="#000" opacity="0.2"/>`+houseSVG(h.x,h.y,0.82,h.rot); }); }
   // remaining company cubes in each plate's well (layout follows the cube-style toggle)
   COMPANY_IDS.forEach((id,i)=>{ const c=s.companies[id]; if(isRemoved(c)) return;
