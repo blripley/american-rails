@@ -105,9 +105,14 @@ input, select { font-family: var(--font-main); font-size: var(--font-size-md); p
 .panel-box { background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius); padding: var(--space-lg); margin-top: var(--space-md); text-align: left; }
 .player-names-list { display: flex; flex-direction: column; gap: var(--space-sm); margin: var(--space-md) 0; }
 .player-names-list input { width: 100%; }
-.player-row { display: flex; gap: 8px; align-items: center; }
+.player-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .player-row input { flex: 1 1 auto; }
+.player-row input.account-input { flex: 0 1 150px; }
 .kind-select { flex: 0 0 auto; }
+.history-table { width: 100%; border-collapse: collapse; }
+.history-table th, .history-table td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--color-border); font-size: var(--font-size-sm); }
+.history-table th { color: var(--color-text-muted); text-transform: uppercase; font-size: .68rem; letter-spacing: .05em; }
+.history-table tr:first-child td { font-weight: 700; color: var(--color-accent); }
 .color-picker { display: inline-flex; gap: 4px; flex: 0 0 auto; }
 .color-dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid transparent; padding: 0; cursor: pointer; }
 .color-dot.selected { border-color: var(--color-accent); box-shadow: 0 0 0 2px rgba(201,162,75,.4); }
@@ -295,6 +300,7 @@ button.act-redo { border: 1px solid var(--color-accent); }
     <button data-action="mode-local" id="btn-local">Local Game (one screen)</button>
     <button data-action="mode-host" id="btn-host">Host Online Game</button>
     <button data-action="mode-join" id="btn-join">Join Online Game</button>
+    <button data-action="show-history" id="btn-history" class="ghost">📊 History &amp; Rankings</button>
   </div>
   <div id="player-config" class="panel-box hidden">
     <div class="field-row"><label>Players:
@@ -313,7 +319,8 @@ button.act-redo { border: 1px solid var(--color-accent); }
   <!-- The room. Host and guests both land here, so a guest can see they are in and who else is
        waiting; the controls only the host can use are marked .host-only and hidden for guests. -->
   <div id="host-view" class="panel-box hidden">
-    <div class="field-row host-only"><label>Your name: <input id="host-name" maxlength="16" value="Host"></label></div>
+    <div class="field-row host-only"><label>Your name: <input id="host-name" maxlength="16" value="Host"></label>
+      <label>Account: <input id="host-account" maxlength="16" placeholder="for your history/rankings" style="width:170px;"></label></div>
     <div class="field-row host-only"><label>Map:
       <select id="map-choice-online">
         <option value="us" selected>American Rails — the Eastern United States</option>
@@ -339,11 +346,23 @@ button.act-redo { border: 1px solid var(--color-accent); }
     <button id="leave-room" class="ghost hidden" data-action="leave-room">Leave room</button>
   </div>
   <div id="join-view" class="panel-box hidden">
-    <div class="field-row"><label>Your name: <input id="join-name" maxlength="16" placeholder="Name"></label></div>
+    <div class="field-row"><label>Your name: <input id="join-name" maxlength="16" placeholder="Name"></label>
+      <label>Account: <input id="join-account" maxlength="16" placeholder="for your history/rankings" style="width:170px;"></label></div>
     <div class="field-row"><label>Room code: <input id="room-input" maxlength="6" placeholder="ABCD" style="text-transform:uppercase;width:120px;"></label>
       <button id="join-btn" data-action="join">Join</button></div>
     <p id="join-status" class="label"></p>
   </div>
+</div>
+
+<!-- History & Rankings: a standalone screen (not part of #game/#lobby's own toggle) built from every
+     game this browser has ever finished (as host, or as the single local screen) — see recordGameHistory(). -->
+<div id="history-screen" class="panel-box" style="display:none; max-width:820px; margin:6vh auto;">
+  <h1 style="font-size:1.6rem;">History &amp; Rankings</h1>
+  <div class="subtitle">Every game finished on this device, going back as far as your browser remembers.</div>
+  <div id="history-board" style="margin-top:var(--space-lg);"></div>
+  <h2 style="font-size:1.05rem; color:var(--color-accent); margin-top:var(--space-lg);">Recent games</h2>
+  <div id="history-recent" style="margin-top:var(--space-sm); max-height:320px; overflow-y:auto;"></div>
+  <button class="ghost" data-action="back-to-lobby" style="margin-top:var(--space-lg);">← Back</button>
 </div>
 
 <div id="game" data-screen="game">
@@ -13078,7 +13097,8 @@ function createInitialState(config){
   const state = {
     phase:'setup', mode: config.mode||'local',
     players: names.map((nm,i)=>({ id:i, name:nm, money:startingMoney(n), shares:[], connected:true, bot:(config.bots&&config.bots[i])||null,
-      colorIdx: (config.colors && config.colors[i]!=null) ? config.colors[i] : i })),
+      colorIdx: (config.colors && config.colors[i]!=null) ? config.colors[i] : i,
+      accountCode: (config.accountCodes && config.accountCodes[i]) || '' })),
     companies, hexes:{}, developmentSupply:TOTAL_DEV_MARKERS,
     year:YEAR_START, round:0, actionPhase:0,
     turnOrder: names.map((_,i)=>i), currentPlayer:0,
@@ -13421,7 +13441,8 @@ function endRound(s){
 }
 function endGame(s){ s.phase='gameOver'; const max=Math.max(...s.players.map(p=>p.money));
   s.winner = s.players.filter(p=>p.money===max).map(p=>p.id);
-  pushLog(s, 'Game over. Winner: ' + s.winner.map(i=>s.players[i].name).join(', ') + ` ($${max}).`); }
+  pushLog(s, 'Game over. Winner: ' + s.winner.map(i=>s.players[i].name).join(', ') + ` ($${max}).`);
+  recordGameHistory(s); }
 
 /* ============================ 8b. BOTS (Easy / Medium / Hard) ============================ */
 const COMPANY_START = { american:30, national:28, continental:25, majestic:21, liberty:18, republic:16 };
@@ -14148,7 +14169,9 @@ function botAction(s, me, diff){ const rows=availableActionRows(s), money=s.play
 
 /* ============================ 9. RENDER ============================ */
 const $ = (sel)=>document.querySelector(sel);
-function show(screen){ $('#lobby').style.display = screen==='lobby'?'':'none'; $('#game').classList.toggle('active', screen==='game'); }
+function show(screen){ $('#lobby').style.display = screen==='lobby'?'':'none'; $('#game').classList.toggle('active', screen==='game');
+  const h=$('#history-screen'); if (h) h.style.display = screen==='history'?'':'none';
+  if (screen==='history') renderHistoryScreen(); }
 function highlightSet(s){
   if (!s || s.mode!=='local' && s.localPlayerId!==s.currentPlayer) return new Set();
   if (s.turnPhase==='placeStartCube'){ return new Set(Object.keys(BOARD).filter(id=>{ const d=BOARD[id]; const hs=s.hexes[id]; return d.city && (!hs||hs.cubes.length===0); })); }
@@ -14466,7 +14489,7 @@ function renderActions(s){
       : `<span class="prompt payout-msg">💰 Paying dividends…</span>`;
     return; }
   if (s.phase==='gameOver'){ const max=Math.max(...s.players.map(p=>p.money));
-    bar.innerHTML = `<div class="banner win-banner" style="width:100%">${trophySVG('gold',20)} ${s.winner.map(i=>s.players[i].name).join(' & ')} win with $${max}! <button class="ghost" style="margin-left:14px" data-action="quit">New game</button></div>`; return; }
+    bar.innerHTML = `<div class="banner win-banner" style="width:100%">${trophySVG('gold',20)} ${s.winner.map(i=>s.players[i].name).join(' & ')} win with $${max}! <button class="ghost" style="margin-left:14px" data-action="quit">New game</button><button class="ghost" data-action="show-history">📊 History &amp; Rankings</button></div>`; return; }
   // BIDDING: everyone watches the auction (company, high bid, and the last move); the active human bidder gets controls
   if (s.turnPhase==='bidding' && s.auction){ bar.innerHTML = biddingBar(s, cur, mine); return; }
   if (isBotSeat(s, s.currentPlayer)){ const last=s.log[s.log.length-1]||'';
@@ -14619,6 +14642,9 @@ function buildNameInputs(count){ const wrap=$('#player-names'); const defs=['Ben
     sel.innerHTML='<option value="human">Human</option>'
       + ['easy','medium','hard','extreme'].map(d=>`<option value="${d}">Bot · ${botLabel(d)}</option>`).join('');
     sel.addEventListener('change', ()=>{ if (sel.value!=='human' && !inp.dataset.touched) inp.value = (botNames[i]||('Bot '+(i+1)))+' 🤖'; });
+    const acct=document.createElement('input'); acct.className='account-input'; acct.maxLength=16; acct.placeholder='Account (for history)';
+    acct.value=savedSlotAccount(i); acct.dataset.playerAccount=i;
+    acct.addEventListener('input', ()=>rememberSlotAccount(i, acct.value.trim()));
     const swatches=document.createElement('span'); swatches.className='color-picker';
     PLAYER_PIECES.forEach((pc,ci)=>{
       const dot=document.createElement('button'); dot.type='button'; dot.className='color-dot'+(ci===i?' selected':'');
@@ -14631,7 +14657,7 @@ function buildNameInputs(count){ const wrap=$('#player-names'); const defs=['Ben
       });
       swatches.appendChild(dot);
     });
-    row.appendChild(inp); row.appendChild(sel); row.appendChild(swatches); wrap.appendChild(row);
+    row.appendChild(inp); row.appendChild(sel); row.appendChild(acct); row.appendChild(swatches); wrap.appendChild(row);
   } }
 document.addEventListener('click', (e)=>{
   // close the floating dropdowns when clicking anywhere outside them
@@ -14639,11 +14665,14 @@ document.addEventListener('click', (e)=>{
   const om=$('#opts-menu'); if (om && !om.hidden && !e.target.closest('#opts-ctl')) om.hidden=true;
   const btnEl=e.target.closest('[data-action]'); if (!btnEl) return; const action=btnEl.dataset.action;
   if (action==='mode-local'){ $('#player-config').classList.remove('hidden'); $('#host-view').classList.add('hidden'); $('#join-view').classList.add('hidden'); buildNameInputs(parseInt($('#player-count').value,10)); }
+  else if (action==='show-history'){ show('history'); }
+  else if (action==='back-to-lobby'){ show('lobby'); }
   else if (action==='start-game'){ const names=[...document.querySelectorAll('[data-player-name]')].map(i=>i.value.trim()||'Player');
     setMap(($('#map-choice')||{}).value || 'us');
     const bots=[...document.querySelectorAll('[data-player-kind]')].map(sel=> sel.value==='human'?null:sel.value);
     const colors=[...document.querySelectorAll('.player-row')].map(row=>parseInt(row.dataset.colorIdx,10));
-    gameState=createInitialState({mode:'local',names,bots,colors}); window.gameState=gameState; show('game'); render(gameState); maybeRunBot(); }
+    const accountCodes=[...document.querySelectorAll('[data-player-account]')].map(i=>i.value.trim());
+    gameState=createInitialState({mode:'local',names,bots,colors,accountCodes}); window.gameState=gameState; show('game'); render(gameState); maybeRunBot(); }
   else if (action==='quit'){ saveGame(); net.leaveRoom(); gameState=null; show('lobby'); refreshResumeBtn(); } // keep the save so you can resume
   else if (action==='resume'){ resumeGame(); }
   else if (action==='mode-host'){ net.startHost(); }
@@ -14653,7 +14682,7 @@ document.addEventListener('click', (e)=>{
     if (net.isHost) net.setLobbyColor(0, ci); else net.guestPickColor(ci); }
   else if (action==='add-bot'){ net.addBot(btnEl.dataset.bot); }
   else if (action==='remove-bot'){ net.removeBot(); }
-  else if (action==='join'){ net.joinGame($('#join-name').value.trim()||'Player', ($('#room-input').value||'').toUpperCase().trim()); }
+  else if (action==='join'){ net.joinGame($('#join-name').value.trim()||'Player', ($('#room-input').value||'').toUpperCase().trim(), ($('#join-account').value||'').trim()); }
   else if (action==='leave-room'){ net.leaveRoom(); }
   else if (action==='zoom-toggle'){ const o=$('#zoom-opts'); if(o) o.hidden=!o.hidden; }
   else if (action==='zoom-in'){ setZoom(boardZoom*1.1180); }   /* finer steps: a level between each old 1.25 step */
@@ -14685,6 +14714,60 @@ function rememberName(n){ try{ if (n) localStorage.setItem(NAME_KEY, n); }catch(
   if (j){ if (mine && !j.value) j.value=mine;
     j.addEventListener('input', ()=>rememberName(j.value.trim())); }
 })();
+/* ---- account code: a per-device identity kept apart from the display name (which can change
+   every game), so history/rankings track the same person across sessions. Online, each person's
+   own browser remembers its own code (like the name field). Local hot-seat play uses one browser
+   for several people, so each seat's code is remembered per-slot instead (see savedSlotAccount). */
+const ACCOUNT_KEY='ar-account-v1';
+function savedAccountCode(){ try{ return localStorage.getItem(ACCOUNT_KEY)||''; }catch(e){ return ''; } }
+function rememberAccountCode(v){ try{ if (v) localStorage.setItem(ACCOUNT_KEY, v); }catch(e){} }
+function savedSlotAccount(i){ try{ return localStorage.getItem('ar-account-slot'+i)||''; }catch(e){ return ''; } }
+function rememberSlotAccount(i,v){ try{ if (v) localStorage.setItem('ar-account-slot'+i, v); }catch(e){} }
+(function initAccounts(){
+  const mine=savedAccountCode();
+  const h=$('#host-account'), j=$('#join-account');
+  if (h){ h.value=mine; h.addEventListener('input', ()=>{ rememberAccountCode(h.value.trim()); net.setHostAccountCode(h.value.trim()); }); }
+  if (j){ if (mine && !j.value) j.value=mine; j.addEventListener('input', ()=>rememberAccountCode(j.value.trim())); }
+})();
+/* ---- game history: one entry per finished game, recorded only by whoever is authoritative for
+   that game (the local screen, or the online host — a guest's gameState is just a view and never
+   runs endGame() itself), so history lives in that device's storage. See recordGameHistory(). */
+const HISTORY_KEY='ar-history-v1';
+function loadHistory(){ try{ return JSON.parse(localStorage.getItem(HISTORY_KEY))||[]; }catch(e){ return []; } }
+function saveHistoryLog(log){ try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(log)); }catch(e){} }
+function recordGameHistory(s){ try{
+  const places=finalPlaces(s);
+  const entry={ date:new Date().toISOString(), mapId:s.mapId,
+    players: s.players.map(p=>({ accountCode:(p.accountCode||'').trim(), name:p.name, money:p.money, place:places[p.id], bot:!!p.bot })) };
+  const log=loadHistory(); log.push(entry); saveHistoryLog(log);
+}catch(e){} }
+// one row per account code that has ever played, aggregated across every recorded game
+function aggregateHistory(log){
+  const byAccount={};
+  for (const g of log) for (const p of g.players){
+    if (!p.accountCode) continue;   // bots, and anyone who skipped the account field, don't rank
+    const a = byAccount[p.accountCode] || (byAccount[p.accountCode]={accountCode:p.accountCode, name:p.name, games:0, wins:0, totalMoney:0});
+    a.games++; a.totalMoney+=p.money; a.name=p.name;   // keep the most recently seen display name
+    if (p.place===1) a.wins++;
+  }
+  return Object.values(byAccount).sort((a,b)=> b.wins-a.wins || (b.wins/b.games)-(a.wins/a.games) || b.totalMoney-a.totalMoney);
+}
+function renderHistoryScreen(){
+  const log=loadHistory(), board=aggregateHistory(log);
+  const boardHtml = board.length
+    ? `<table class="history-table"><tr><th>Account</th><th>Last seen as</th><th>Games</th><th>Wins</th><th>Win %</th><th>Avg $</th></tr>`
+      + board.map(a=>`<tr><td>${a.accountCode}</td><td>${a.name}</td><td>${a.games}</td><td>${a.wins}</td><td>${Math.round(100*a.wins/a.games)}%</td><td>$${Math.round(a.totalMoney/a.games)}</td></tr>`).join('')
+      + `</table>`
+    : `<p class="label">No games recorded yet — enter an Account on the host/join screen (or a local player row) before your next game.</p>`;
+  $('#history-board').innerHTML = boardHtml;
+  const recent = log.slice(-15).reverse().map(g=>{
+    const when = new Date(g.date).toLocaleDateString();
+    const line = g.players.slice().sort((a,b)=>a.place-b.place)
+      .map(p=>`${p.place}. ${p.name}${p.accountCode?` (${p.accountCode})`:''} — $${p.money}`).join(', ');
+    return `<div class="log-line">${when} · ${(MAPS[g.mapId]||{}).label||g.mapId} — ${line}</div>`;
+  }).join('');
+  $('#history-recent').innerHTML = recent || '<p class="label">Nothing yet.</p>';
+}
 setMap('us');       // the default board; the lobby picker swaps it before a game starts
 refreshResumeBtn(); // show "Resume" on the lobby if a local game was left unfinished
 // Safety net: if it's ever a bot's turn with nothing scheduled (a "start the bot" signal was missed
@@ -14722,7 +14805,7 @@ function renderRoom({names, bots, colors, roomCode, mySeat, isHost}){
   }
 }
 const net = {
-  isHost:false, peer:null, conns:[], roomCode:null, seatOf:new Map(), lobbyNames:[], lobbyBots:[], lobbyColors:[],
+  isHost:false, peer:null, conns:[], roomCode:null, seatOf:new Map(), lobbyNames:[], lobbyBots:[], lobbyColors:[], lobbyAccountCodes:[],
   // shared by a fresh "Host Online Game" and by reopenHost() resuming a saved game —
   // both need a listening peer under a room code before anything else can happen
   _openPeer(onError){ if (typeof Peer==='undefined'){ alert('Online needs an internet connection (PeerJS failed to load).'); return false; }
@@ -14739,6 +14822,7 @@ const net = {
     $('#host-view').classList.remove('hidden'); $('#player-config').classList.add('hidden'); $('#join-view').classList.add('hidden');
     $('#room-code').textContent=this.roomCode;
     this.lobbyNames=[$('#host-name').value.trim() || savedName() || 'Host']; this.lobbyBots=[null]; this.lobbyColors=[0];
+    this.lobbyAccountCodes=[($('#host-account')||{}).value ? $('#host-account').value.trim() : savedAccountCode()];
     this._renderHostLobby();
   },
   // a host resuming a saved online game: their old peer is long gone (the browser was closed), so
@@ -14752,10 +14836,12 @@ const net = {
   // the host renaming themselves while sitting in the room — the roster and every guest follow along
   setHostName(v){ if (!this.isHost || !this.lobbyNames.length) return;
     this.lobbyNames[0] = v.trim() || 'Host'; this._renderHostLobby(); },
+  setHostAccountCode(v){ if (!this.isHost || !this.lobbyAccountCodes.length) return;
+    this.lobbyAccountCodes[0] = v.trim(); },
   addBot(diff){ if (!this.isHost) return; const total=this.lobbyNames.length; if (total>=5) return;
-    const names=['Ada','Boris','Cleo','Dex','Echo']; this.lobbyNames.push((names[total]||('Bot'+total))+' 🤖'); this.lobbyBots.push(diff); this.lobbyColors.push(total); this._renderHostLobby(); },
+    const names=['Ada','Boris','Cleo','Dex','Echo']; this.lobbyNames.push((names[total]||('Bot'+total))+' 🤖'); this.lobbyBots.push(diff); this.lobbyColors.push(total); this.lobbyAccountCodes.push(''); this._renderHostLobby(); },
   removeBot(){ if (!this.isHost) return;
-    for (let k=this.lobbyBots.length-1;k>=0;k--){ if (this.lobbyBots[k]){ this.lobbyBots.splice(k,1); this.lobbyNames.splice(k,1); this.lobbyColors.splice(k,1); break; } } this._renderHostLobby(); },
+    for (let k=this.lobbyBots.length-1;k>=0;k--){ if (this.lobbyBots[k]){ this.lobbyBots.splice(k,1); this.lobbyNames.splice(k,1); this.lobbyColors.splice(k,1); this.lobbyAccountCodes.splice(k,1); break; } } this._renderHostLobby(); },
   // shared by the host's own click (seat 0) and a guest's 'pickColor' message — swap with
   // whoever currently holds that color so two seats never collide and no seat goes uncolored
   setLobbyColor(seat, colorIdx){ if (seat==null || colorIdx==null || seat<0 || seat>=this.lobbyColors.length) return;
@@ -14788,7 +14874,7 @@ const net = {
         else conn.send({type:'full'});
         return; }
       // lobby join
-      if (this.lobbyNames.length<5){ conn.seat=this.lobbyNames.length; this.lobbyNames.push(msg.playerName); this.lobbyBots.push(null); this.lobbyColors.push(conn.seat); conn.send({type:'welcome',seat:conn.seat,roomCode:this.roomCode}); this._renderHostLobby(); }
+      if (this.lobbyNames.length<5){ conn.seat=this.lobbyNames.length; this.lobbyNames.push(msg.playerName); this.lobbyBots.push(null); this.lobbyColors.push(conn.seat); this.lobbyAccountCodes.push((msg.accountCode||'').trim()); conn.send({type:'welcome',seat:conn.seat,roomCode:this.roomCode}); this._renderHostLobby(); }
       else conn.send({type:'full'}); }
     else if (msg.type==='pickColor'){ if (conn.seat!=null && (!gameState || gameState.phase==='lobby')) this.setLobbyColor(conn.seat, msg.colorIdx); }
     else if (msg.type==='moveRequest'){ if (gameState && gameState.currentPlayer===msg.seat && gameState.phase!=='payout'){ applyUi(gameState, msg.cmd); afterMutate(); } }
@@ -14798,7 +14884,7 @@ const net = {
     // everyone — otherwise a ghost seat sits in the list and counts toward the 3-player minimum
     if (conn.seat!=null && (!gameState || gameState.phase==='lobby')){
       if (conn.seat>0 && conn.seat<this.lobbyNames.length){
-        this.lobbyNames.splice(conn.seat,1); this.lobbyBots.splice(conn.seat,1); this.lobbyColors.splice(conn.seat,1);
+        this.lobbyNames.splice(conn.seat,1); this.lobbyBots.splice(conn.seat,1); this.lobbyColors.splice(conn.seat,1); this.lobbyAccountCodes.splice(conn.seat,1);
         for (const c of this.conns) if (c.seat!=null && c.seat>conn.seat) c.seat--;
         conn.seat=null; this._renderHostLobby();
       }
@@ -14818,17 +14904,17 @@ const net = {
     conn.send({type:'lobby', names:this.lobbyNames, bots:this.lobbyBots, colors:this.lobbyColors, roomCode:this.roomCode, yourSeat:conn.seat}); } },
   guestPickColor(colorIdx){ if (this.hostConn) this.hostConn.send({type:'pickColor', colorIdx}); },
   hostStartGame(){ const mapId=($('#map-choice-online')||{}).value || 'us';
-    gameState=createInitialState({mode:'online',mapId,names:this.lobbyNames.slice(),bots:this.lobbyBots.slice(),colors:this.lobbyColors.slice()}); gameState.localPlayerId=0; window.gameState=gameState;
+    gameState=createInitialState({mode:'online',mapId,names:this.lobbyNames.slice(),bots:this.lobbyBots.slice(),colors:this.lobbyColors.slice(),accountCodes:this.lobbyAccountCodes.slice()}); gameState.localPlayerId=0; window.gameState=gameState;
     this._broadcastState(true); show('game'); render(gameState); maybeRunBot(); },
   _broadcastState(start){ for (const conn of this.conns){ if (conn.seat!=null){ const view=makeView(gameState, conn.seat); conn.send({type: start?'gameStart':'stateUpdate', state:view}); } } },
   maybeBroadcast(){ if (this.isHost && gameState && gameState.mode==='online') this._broadcastState(); },
   requestMove(cmd){ if (this.hostConn) this.hostConn.send({type:'moveRequest', seat:this.mySeat, cmd}); },
-  joinGame(name, code){ if (typeof Peer==='undefined'){ alert('Online needs an internet connection.'); return; }
+  joinGame(name, code, accountCode){ if (typeof Peer==='undefined'){ alert('Online needs an internet connection.'); return; }
     if (!code){ $('#join-status').textContent='Enter a room code.'; return; }
-    this.isHost=false; $('#join-status').textContent='Connecting…';
+    this.isHost=false; this.myAccountCode=accountCode||''; $('#join-status').textContent='Connecting…';
     this.peer=new Peer(); this.peer.on('error', err=>{ $('#join-status').textContent='Error: '+err.type; });
     this.peer.on('open', ()=>{ const conn=this.peer.connect('amrails-'+code,{reliable:true}); this.hostConn=conn;
-      conn.on('open', ()=>{ conn.send({type:'join',playerName:name}); });
+      conn.on('open', ()=>{ conn.send({type:'join',playerName:name,accountCode:this.myAccountCode}); });
       conn.on('data', d=>this._guestOnData(d));
       // say it wherever they're actually looking — the room screen if they got in, else the join form
       conn.on('close', ()=>{ $('#join-status').textContent='Disconnected from host.';
@@ -15120,6 +15206,23 @@ window.__selfTest = function(){
     assert('podium: seat order does not decide places', finalPlaces(mk([90,300,220]))[1]===1);
     assert('podium: three metals are defined', ['gold','silver','bronze'].every(m=>TROPHY_METAL[m]&&TROPHY_METAL[m].length===3));
     assert('podium: trophies render as svg', /^<svg[\s\S]*<\/svg>$/.test(trophySVG('silver')) && trophySVG('bronze').includes('#bd7a45')); }
+
+  /* ---- history & rankings: account codes, not display names, are what a career tracks ---- */
+  { const log=[
+      { date:'d1', mapId:'us', players:[
+        {accountCode:'a', name:'Ann', money:100, place:1, bot:false},
+        {accountCode:'b', name:'Bo',  money:50,  place:2, bot:false} ]},
+      { date:'d2', mapId:'us', players:[
+        {accountCode:'a', name:'Ann', money:90,  place:1, bot:false},
+        {accountCode:'b', name:'Bo',  money:60,  place:2, bot:false},
+        {accountCode:'',  name:'Bot', money:10,  place:3, bot:true} ]},
+    ];
+    const board=aggregateHistory(log);
+    assert('history: a bot with no account code never ranks', !board.some(x=>x.accountCode===''));
+    assert('history: only two accounts have ever played', board.length===2);
+    assert('history: an account\'s games/wins aggregate across every game it appears in', board.find(x=>x.accountCode==='a').games===2 && board.find(x=>x.accountCode==='a').wins===2);
+    assert('history: a place other than 1st never counts as a win', board.find(x=>x.accountCode==='b').wins===0);
+    assert('history: ranked by win rate — 2/2 beats 0/2', board[0].accountCode==='a' && board[1].accountCode==='b'); }
 
   /* ---- personalities: visible from the first bid, and off-model on purpose ---- */
   { const plans={};
