@@ -3389,7 +3389,7 @@
     <text y="-41" text-anchor="middle" font-family="&#39;Cinzel&#39;,serif" font-weight="700" font-size="13" fill="#5d4726">N</text>
   </g>
 
-  <g transform="translate(1264,25)">
+  <g transform="translate(1264,45)">
     <path d="M0 0 H384 V478 H80 V338 H0 Z" fill="#f4ecd6" stroke="#5d4726" stroke-width="2"></path>
     <rect x="8" y="8" width="68" height="322" fill="#dccca6" stroke="#5d4726" stroke-width="1.2"></rect>
     <circle cx="42" cy="39" r="29" fill="#f8f2e0" stroke="#5d4726" stroke-width="1.5"></circle>

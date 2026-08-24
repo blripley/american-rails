@@ -191,7 +191,7 @@ const compass = `  <g transform="translate(90,330)" opacity=".55">
 // this height) — the only cost is the bottom ~9px of ruler columns 43-49's
 // glyphs sitting behind the table's own top edge.
 const PANELS = [
-  { name: 'action table', box: [1250, 556, 1634, 1034], to: [1264, 25] },
+  { name: 'action table', box: [1250, 556, 1634, 1034], to: [1264, 45] },
   { name: 'year track',   box: [1100, 1046, 1636, 1160], to: [460, 1060] },
   { name: 'legend',       box: [660, 1034, 1040, 1164], to: [60, 1060] },
   { name: 'house supply', box: [998, 906, 1300, 1026], to: [1004, 1060], absolute: true },
