@@ -108,6 +108,11 @@ input, select { font-family: var(--font-main); font-size: var(--font-size-md); p
 .player-row { display: flex; gap: 8px; align-items: center; }
 .player-row input { flex: 1 1 auto; }
 .kind-select { flex: 0 0 auto; }
+.color-picker { display: inline-flex; gap: 4px; flex: 0 0 auto; }
+.color-dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid transparent; padding: 0; cursor: pointer; }
+.color-dot.selected { border-color: var(--color-accent); box-shadow: 0 0 0 2px rgba(201,162,75,.4); }
+.color-dot-static { width: 14px; height: 14px; border-radius: 50%; display: inline-block; vertical-align: middle; }
+.seat-row { display: flex; align-items: center; gap: 6px; padding: 2px 0; }
 .room-code { font-family: var(--font-mono); font-size: var(--font-size-2xl); letter-spacing: .3em; color: var(--color-accent); }
 .field-row { display: flex; align-items: center; gap: var(--space-sm); margin: var(--space-sm) 0; flex-wrap: wrap; }
 #game { display: none; height: 100vh; }
@@ -13072,7 +13077,8 @@ function createInitialState(config){
   for (const id of COMPANY_IDS) companies[id] = { treasury:0, income:0, sharesInSupply:companyShares(id), sharesRemoved:0, cubesInSupply:companyCubes(id), onMap:false, bonuses:[], removed:false };
   const state = {
     phase:'setup', mode: config.mode||'local',
-    players: names.map((nm,i)=>({ id:i, name:nm, money:startingMoney(n), shares:[], connected:true, bot:(config.bots&&config.bots[i])||null })),
+    players: names.map((nm,i)=>({ id:i, name:nm, money:startingMoney(n), shares:[], connected:true, bot:(config.bots&&config.bots[i])||null,
+      colorIdx: (config.colors && config.colors[i]!=null) ? config.colors[i] : i })),
     companies, hexes:{}, developmentSupply:TOTAL_DEV_MARKERS,
     year:YEAR_START, round:0, actionPhase:0,
     turnOrder: names.map((_,i)=>i), currentPlayer:0,
@@ -14192,7 +14198,8 @@ function furnitureOverlay(s){ let ov='';
     Object.keys(s.markers).forEach(seat=>{ const m=s.markers[seat]; if(!m) return;
       const cell = (m.phase>=0) ? atCell(m.phase,m.row) : (AT_STRIPCY[m.row]!=null ? atStrip(m.row) : null);
       if(!cell) return; const key=Math.round(cell.x)+','+Math.round(cell.y); const n=(at[key]=(at[key]||0)+1)-1;
-      const pc=PLAYER_PIECES[(+seat)%PLAYER_PIECES.length];
+      const seatPlayer=s.players[+seat]; const colorIdx=(seatPlayer&&seatPlayer.colorIdx!=null)?seatPlayer.colorIdx:+seat;
+      const pc=PLAYER_PIECES[colorIdx%PLAYER_PIECES.length];
       ov+=locoSVG(cell.x + n*9 - 3, cell.y, pc.face, pc.shade, 0.42); }); }
   // year marker — black locomotive sitting in the current year's circle
   const yi=(s.year-YEAR_START); if(yi>=0&&yi<(YEAR_END-YEAR_START+1)){ const yc=ytCell(yi); ov+=locoSVG(yc.x, yc.y-2, '#23262e', '#0d0f13', 0.36); }
@@ -14403,7 +14410,7 @@ function renderPanels(s){
     // a bot's personality stays hidden — you have to read it from how it bids, like a real opponent
     const metal = places ? PLACE_METAL[places[i]] : null;       // null past 3rd, and during the game
     const cls = [ (i===s.currentPlayer && s.phase!=='payout' && s.phase!=='gameOver')?'active':'', paidPlayers.has(i)?'paid':'', winnerSet.has(i)?'winner':'', metal?('place-'+metal):'', out?'bid-out':'' ].filter(Boolean).join(' ');
-    ph+=`<div class="pl-row2 ${cls}"><span class="pl-dot" style="background:${PLAYER_COLORS[i]||'#888'}"></span>`
+    ph+=`<div class="pl-row2 ${cls}"><span class="pl-dot" style="background:${PLAYER_COLORS[p.colorIdx!=null?p.colorIdx:i]||'#888'}"></span>`
       +`<div class="pl-main"><div class="pl-head"><span class="pl-name">${metal?trophySVG(metal):''}${p.name}${p.bot?` <span class="bot-badge bd-${p.bot}">🤖 ${botLabel(p.bot)}</span>`:''}${p.disconnected?` <span class="bot-badge" style="background:#8a4a2a">⚠ away</span>`:''}${bidTag}</span><span class="pl-money">$${p.money}</span></div>`
       +`<div class="share-fan">${fan}</div></div></div>`; });
   $('#players').innerHTML=ph;
@@ -14574,16 +14581,34 @@ document.addEventListener('click', (e)=>{
 });
 
 /* ============================ 11. LOBBY ============================ */
+function updateColorSwatches(wrap){
+  wrap.querySelectorAll('.player-row').forEach(row=>{
+    const cur=parseInt(row.dataset.colorIdx,10);
+    row.querySelectorAll('.color-dot').forEach(dot=>dot.classList.toggle('selected', parseInt(dot.dataset.colorIdx,10)===cur));
+  });
+}
 function buildNameInputs(count){ const wrap=$('#player-names'); const defs=['Ben','Wife','Friend 1','Friend 2','Player 5']; const botNames=['Ada','Boris','Cleo','Dex','Echo']; wrap.innerHTML='';
   for (let i=0;i<count;i++){
-    const row=document.createElement('div'); row.className='player-row';
+    const row=document.createElement('div'); row.className='player-row'; row.dataset.colorIdx=i;
     const inp=document.createElement('input'); inp.value=defs[i]||('Player '+(i+1)); inp.maxLength=16; inp.dataset.playerName=i;
     inp.addEventListener('input', ()=>{ inp.dataset.touched='1'; });
     const sel=document.createElement('select'); sel.className='kind-select'; sel.dataset.playerKind=i;
     sel.innerHTML='<option value="human">Human</option>'
       + ['easy','medium','hard','extreme'].map(d=>`<option value="${d}">Bot · ${botLabel(d)}</option>`).join('');
     sel.addEventListener('change', ()=>{ if (sel.value!=='human' && !inp.dataset.touched) inp.value = (botNames[i]||('Bot '+(i+1)))+' 🤖'; });
-    row.appendChild(inp); row.appendChild(sel); wrap.appendChild(row);
+    const swatches=document.createElement('span'); swatches.className='color-picker';
+    PLAYER_PIECES.forEach((pc,ci)=>{
+      const dot=document.createElement('button'); dot.type='button'; dot.className='color-dot'+(ci===i?' selected':'');
+      dot.style.background=pc.face; dot.title=pc.name; dot.dataset.colorIdx=ci;
+      dot.addEventListener('click', ()=>{
+        const other=[...wrap.querySelectorAll('.player-row')].find(r=>r!==row && parseInt(r.dataset.colorIdx,10)===ci);
+        if (other) other.dataset.colorIdx = row.dataset.colorIdx;
+        row.dataset.colorIdx = ci;
+        updateColorSwatches(wrap);
+      });
+      swatches.appendChild(dot);
+    });
+    row.appendChild(inp); row.appendChild(sel); row.appendChild(swatches); wrap.appendChild(row);
   } }
 document.addEventListener('click', (e)=>{
   // close the floating dropdowns when clicking anywhere outside them
@@ -14594,12 +14619,15 @@ document.addEventListener('click', (e)=>{
   else if (action==='start-game'){ const names=[...document.querySelectorAll('[data-player-name]')].map(i=>i.value.trim()||'Player');
     setMap(($('#map-choice')||{}).value || 'us');
     const bots=[...document.querySelectorAll('[data-player-kind]')].map(sel=> sel.value==='human'?null:sel.value);
-    gameState=createInitialState({mode:'local',names,bots}); window.gameState=gameState; show('game'); render(gameState); maybeRunBot(); }
+    const colors=[...document.querySelectorAll('.player-row')].map(row=>parseInt(row.dataset.colorIdx,10));
+    gameState=createInitialState({mode:'local',names,bots,colors}); window.gameState=gameState; show('game'); render(gameState); maybeRunBot(); }
   else if (action==='quit'){ saveGame(); net.leaveRoom(); gameState=null; show('lobby'); refreshResumeBtn(); } // keep the save so you can resume
   else if (action==='resume'){ resumeGame(); }
   else if (action==='mode-host'){ net.startHost(); }
   else if (action==='mode-join'){ $('#join-view').classList.remove('hidden'); $('#player-config').classList.add('hidden'); $('#host-view').classList.add('hidden'); }
   else if (action==='start-online'){ net.hostStartGame(); }
+  else if (action==='pick-color'){ const ci=parseInt(btnEl.dataset.colorIdx,10);
+    if (net.isHost) net.setLobbyColor(0, ci); else net.guestPickColor(ci); }
   else if (action==='add-bot'){ net.addBot(btnEl.dataset.bot); }
   else if (action==='remove-bot'){ net.removeBot(); }
   else if (action==='join'){ net.joinGame($('#join-name').value.trim()||'Player', ($('#room-input').value||'').toUpperCase().trim()); }
@@ -14646,7 +14674,7 @@ function genRoomCode(){ const cs='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c=''; f
 // One room screen, drawn for whoever is looking at it. The host gets the bot buttons and the Start
 // button; a guest gets the same room code and the same list of who is in, plus a live "waiting"
 // line — so joining visibly puts you somewhere, instead of leaving you on a form you already used.
-function renderRoom({names, bots, roomCode, mySeat, isHost}){
+function renderRoom({names, bots, colors, roomCode, mySeat, isHost}){
   $('#room-code').textContent = roomCode || '----';
   $('#room-code-label').textContent = isHost ? 'Room code — share with your friends' : 'Room code';
   document.querySelectorAll('.host-only').forEach(el=>el.classList.toggle('hidden', !isHost));
@@ -14655,9 +14683,13 @@ function renderRoom({names, bots, roomCode, mySeat, isHost}){
   const seats = (names||[]).map((n,i)=>{
     const you = i===mySeat ? `<span class="seat-you"> (you${isHost?', host':''})</span>` : (i===0 && !isHost ? ' (host)' : '');
     const bot = bots && bots[i] ? ` · <span class="bot-diff bd-${bots[i]}">${botLabel(bots[i])}</span>` : '';
-    return `${i+1}. ${n}${you}${bot}`;
+    const ci = (colors && colors[i]!=null) ? colors[i] : i;
+    const swatch = (i===mySeat && !bot)
+      ? `<span class="color-picker">${PLAYER_PIECES.map((pc,k)=>`<button type="button" class="color-dot${k===ci?' selected':''}" style="background:${pc.face}" title="${pc.name}" data-action="pick-color" data-color-idx="${k}"></button>`).join('')}</span>`
+      : `<span class="color-dot-static" style="background:${(PLAYER_PIECES[ci]||{}).face||'#888'}" title="${(PLAYER_PIECES[ci]||{}).name||''}"></span>`;
+    return `<div class="seat-row">${swatch}<span>${i+1}. ${n}${you}${bot}</span></div>`;
   });
-  $('#connected-players').innerHTML = seats.length ? seats.join('<br>')
+  $('#connected-players').innerHTML = seats.length ? seats.join('')
     : (isHost ? 'Waiting for players…' : 'Joining the room…');
   if (!isHost){
     const n = (names||[]).length;
@@ -14667,27 +14699,46 @@ function renderRoom({names, bots, roomCode, mySeat, isHost}){
   }
 }
 const net = {
-  isHost:false, peer:null, conns:[], roomCode:null, seatOf:new Map(), lobbyNames:[], lobbyBots:[],
-  startHost(){ if (typeof Peer==='undefined'){ alert('Online needs an internet connection (PeerJS failed to load).'); return; }
-    this.isHost=true; this.roomCode=genRoomCode(); $('#host-view').classList.remove('hidden'); $('#player-config').classList.add('hidden'); $('#join-view').classList.add('hidden');
-    $('#room-code').textContent=this.roomCode;
-    this.lobbyNames=[$('#host-name').value.trim() || savedName() || 'Host']; this.lobbyBots=[null];
+  isHost:false, peer:null, conns:[], roomCode:null, seatOf:new Map(), lobbyNames:[], lobbyBots:[], lobbyColors:[],
+  // shared by a fresh "Host Online Game" and by reopenHost() resuming a saved game —
+  // both need a listening peer under a room code before anything else can happen
+  _openPeer(onError){ if (typeof Peer==='undefined'){ alert('Online needs an internet connection (PeerJS failed to load).'); return false; }
+    this.isHost=true; this.roomCode=genRoomCode(); this.conns=[];
     this.peer=new Peer('amrails-'+this.roomCode);
-    this.peer.on('error', err=>{ console.error(err); $('#connected-players').textContent='Error: '+err.type; });
+    this.peer.on('error', err=>{ console.error(err); if (onError) onError(err); });
     this.peer.on('connection', conn=>{ this.conns.push(conn);
       conn.on('data', d=>this._hostOnData(conn,d));
       conn.on('open', ()=>{});
       conn.on('close', ()=>{ this.conns=this.conns.filter(c=>c!==conn); this._onGuestClose(conn); });
     });
+    return true; },
+  startHost(){ if (!this._openPeer(err=>{ $('#connected-players').textContent='Error: '+err.type; })) return;
+    $('#host-view').classList.remove('hidden'); $('#player-config').classList.add('hidden'); $('#join-view').classList.add('hidden');
+    $('#room-code').textContent=this.roomCode;
+    this.lobbyNames=[$('#host-name').value.trim() || savedName() || 'Host']; this.lobbyBots=[null]; this.lobbyColors=[0];
     this._renderHostLobby();
   },
+  // a host resuming a saved online game: their old peer is long gone (the browser was closed), so
+  // open a fresh one under a new code, then fill every other human seat with a bot exactly like a
+  // mid-game disconnect — the existing reconnect-by-name logic in _hostOnData lets each of them
+  // step back into their own seat once you've sent them the new code
+  reopenHost(){ if (!this._openPeer()) return false;
+    gameState.players.forEach((p,i)=>{ if (i>0 && !p.bot && !p.disconnected){ p.disconnected=true; p.botBackup=null; p.bot='medium'; } });
+    pushLog(gameState, `Game resumed — new room code ${this.roomCode}. Send it to whoever needs to rejoin.`);
+    return true; },
   // the host renaming themselves while sitting in the room — the roster and every guest follow along
   setHostName(v){ if (!this.isHost || !this.lobbyNames.length) return;
     this.lobbyNames[0] = v.trim() || 'Host'; this._renderHostLobby(); },
   addBot(diff){ if (!this.isHost) return; const total=this.lobbyNames.length; if (total>=5) return;
-    const names=['Ada','Boris','Cleo','Dex','Echo']; this.lobbyNames.push((names[total]||('Bot'+total))+' 🤖'); this.lobbyBots.push(diff); this._renderHostLobby(); },
+    const names=['Ada','Boris','Cleo','Dex','Echo']; this.lobbyNames.push((names[total]||('Bot'+total))+' 🤖'); this.lobbyBots.push(diff); this.lobbyColors.push(total); this._renderHostLobby(); },
   removeBot(){ if (!this.isHost) return;
-    for (let k=this.lobbyBots.length-1;k>=0;k--){ if (this.lobbyBots[k]){ this.lobbyBots.splice(k,1); this.lobbyNames.splice(k,1); break; } } this._renderHostLobby(); },
+    for (let k=this.lobbyBots.length-1;k>=0;k--){ if (this.lobbyBots[k]){ this.lobbyBots.splice(k,1); this.lobbyNames.splice(k,1); this.lobbyColors.splice(k,1); break; } } this._renderHostLobby(); },
+  // shared by the host's own click (seat 0) and a guest's 'pickColor' message — swap with
+  // whoever currently holds that color so two seats never collide and no seat goes uncolored
+  setLobbyColor(seat, colorIdx){ if (seat==null || colorIdx==null || seat<0 || seat>=this.lobbyColors.length) return;
+    const other=this.lobbyColors.findIndex((c,idx)=>c===colorIdx && idx!==seat);
+    if (other>=0) this.lobbyColors[other]=this.lobbyColors[seat];
+    this.lobbyColors[seat]=colorIdx; this._renderHostLobby(); },
   _hostOnData(conn,msg){
     if (msg.type==='join'){ conn.playerName=msg.playerName;
       // game already running → let a newcomer (or the same player) slot into a disconnected seat
@@ -14714,8 +14765,9 @@ const net = {
         else conn.send({type:'full'});
         return; }
       // lobby join
-      if (this.lobbyNames.length<5){ conn.seat=this.lobbyNames.length; this.lobbyNames.push(msg.playerName); this.lobbyBots.push(null); conn.send({type:'welcome',seat:conn.seat,roomCode:this.roomCode}); this._renderHostLobby(); }
+      if (this.lobbyNames.length<5){ conn.seat=this.lobbyNames.length; this.lobbyNames.push(msg.playerName); this.lobbyBots.push(null); this.lobbyColors.push(conn.seat); conn.send({type:'welcome',seat:conn.seat,roomCode:this.roomCode}); this._renderHostLobby(); }
       else conn.send({type:'full'}); }
+    else if (msg.type==='pickColor'){ if (conn.seat!=null && (!gameState || gameState.phase==='lobby')) this.setLobbyColor(conn.seat, msg.colorIdx); }
     else if (msg.type==='moveRequest'){ if (gameState && gameState.currentPlayer===msg.seat && gameState.phase!=='payout'){ applyUi(gameState, msg.cmd); afterMutate(); } }
   },
   _onGuestClose(conn){
@@ -14723,7 +14775,7 @@ const net = {
     // everyone — otherwise a ghost seat sits in the list and counts toward the 3-player minimum
     if (conn.seat!=null && (!gameState || gameState.phase==='lobby')){
       if (conn.seat>0 && conn.seat<this.lobbyNames.length){
-        this.lobbyNames.splice(conn.seat,1); this.lobbyBots.splice(conn.seat,1);
+        this.lobbyNames.splice(conn.seat,1); this.lobbyBots.splice(conn.seat,1); this.lobbyColors.splice(conn.seat,1);
         for (const c of this.conns) if (c.seat!=null && c.seat>conn.seat) c.seat--;
         conn.seat=null; this._renderHostLobby();
       }
@@ -14735,14 +14787,15 @@ const net = {
     p.disconnected=true; p.botBackup = (p.bot||null); p.bot = p.bot || 'medium';
     pushLog(gameState, `${p.name} disconnected — a bot is filling in (they can rejoin with the room code).`);
     afterMutate(); },
-  _renderHostLobby(){ renderRoom({names:this.lobbyNames, bots:this.lobbyBots, roomCode:this.roomCode, mySeat:0, isHost:true});
+  _renderHostLobby(){ renderRoom({names:this.lobbyNames, bots:this.lobbyBots, colors:this.lobbyColors, roomCode:this.roomCode, mySeat:0, isHost:true});
     $('#start-online').disabled = this.lobbyNames.length<3;
     this._broadcastLobby(); },
   // keep every guest's roster live — someone joining, or a bot being added, shows up on their screen too
   _broadcastLobby(){ for (const conn of this.conns){ if (conn.seat!=null)
-    conn.send({type:'lobby', names:this.lobbyNames, bots:this.lobbyBots, roomCode:this.roomCode, yourSeat:conn.seat}); } },
+    conn.send({type:'lobby', names:this.lobbyNames, bots:this.lobbyBots, colors:this.lobbyColors, roomCode:this.roomCode, yourSeat:conn.seat}); } },
+  guestPickColor(colorIdx){ if (this.hostConn) this.hostConn.send({type:'pickColor', colorIdx}); },
   hostStartGame(){ const mapId=($('#map-choice-online')||{}).value || 'us';
-    gameState=createInitialState({mode:'online',mapId,names:this.lobbyNames.slice(),bots:this.lobbyBots.slice()}); gameState.localPlayerId=0; window.gameState=gameState;
+    gameState=createInitialState({mode:'online',mapId,names:this.lobbyNames.slice(),bots:this.lobbyBots.slice(),colors:this.lobbyColors.slice()}); gameState.localPlayerId=0; window.gameState=gameState;
     this._broadcastState(true); show('game'); render(gameState); maybeRunBot(); },
   _broadcastState(start){ for (const conn of this.conns){ if (conn.seat!=null){ const view=makeView(gameState, conn.seat); conn.send({type: start?'gameStart':'stateUpdate', state:view}); } } },
   maybeBroadcast(){ if (this.isHost && gameState && gameState.mode==='online') this._broadcastState(); },
@@ -14765,10 +14818,10 @@ const net = {
       $('#join-status').textContent='';
       // you're in — swap the join form for the room itself, so it's obvious you're waiting, not stuck
       $('#join-view').classList.add('hidden'); $('#host-view').classList.remove('hidden');
-      renderRoom({names:[], bots:[], roomCode:msg.roomCode, mySeat:msg.seat, isHost:false}); }
-    else if (msg.type==='lobby'){ this.lobbyNames=msg.names.slice(); this.lobbyBots=msg.bots.slice();
+      renderRoom({names:[], bots:[], colors:[], roomCode:msg.roomCode, mySeat:msg.seat, isHost:false}); }
+    else if (msg.type==='lobby'){ this.lobbyNames=msg.names.slice(); this.lobbyBots=msg.bots.slice(); this.lobbyColors=(msg.colors||[]).slice();
       if (msg.yourSeat!=null) this.mySeat=msg.yourSeat;          // seats renumber if someone ahead of you leaves
-      renderRoom({names:msg.names, bots:msg.bots, roomCode:msg.roomCode||this.roomCode, mySeat:this.mySeat, isHost:false}); }
+      renderRoom({names:msg.names, bots:msg.bots, colors:msg.colors, roomCode:msg.roomCode||this.roomCode, mySeat:this.mySeat, isHost:false}); }
     else if (msg.type==='full'){ $('#join-status').textContent='Room is full.'; }
     else if (msg.type==='gameStart' || msg.type==='stateUpdate'){
       if (msg.state && msg.state.mapId && msg.state.mapId!==MAP.id) setMap(msg.state.mapId);   // play on the host's board
@@ -14789,14 +14842,20 @@ function makeView(s, seat){ const v=JSON.parse(JSON.stringify(s)); v.localPlayer
 /* ---- save / resume: local games auto-save so an accidental refresh doesn't lose the night ---- */
 const SAVE_KEY='ar-save-v1';
 function saveGame(){ try{
-  if(!gameState || gameState.mode!=='local') return;                 // online is host-authoritative; use rejoin instead
+  if(!gameState) return;
+  // a guest only ever holds a partial view of the game (see makeView) — never save that as if it
+  // were the real thing. Only the host's own authoritative copy (localPlayerId 0 in online mode,
+  // same as local) is worth resuming later; net.reopenHost() re-opens the room on top of it.
+  if(gameState.mode==='online' && gameState.localPlayerId!==0) return;
   if(gameState.phase==='lobby'||gameState.phase==='payout') return;   // payout is a transient animation — skip
   if(gameState.phase==='gameOver'){ localStorage.removeItem(SAVE_KEY); return; }
   localStorage.setItem(SAVE_KEY, JSON.stringify(gameState));
 }catch(e){} }
 function hasSave(){ try{ const j=localStorage.getItem(SAVE_KEY); if(!j) return null; const st=JSON.parse(j); return (st&&st.phase&&st.phase!=='gameOver'&&st.phase!=='lobby')?st:null; }catch(e){ return null; } }
 function clearSave(){ try{ localStorage.removeItem(SAVE_KEY); }catch(e){} }
-function resumeGame(){ const st=hasSave(); if(!st) return false; setMap(st.mapId||'us'); gameState=st; window.gameState=gameState; show('game'); render(gameState); maybeRunBot(); return true; }
+function resumeGame(){ const st=hasSave(); if(!st) return false; setMap(st.mapId||'us'); gameState=st; window.gameState=gameState;
+  if (gameState.mode==='online' && gameState.localPlayerId===0) net.reopenHost();
+  show('game'); render(gameState); maybeRunBot(); return true; }
 function refreshResumeBtn(){ const b=$('#resume-btn'); if(b) b.style.display = hasSave()?'':'none'; }
 
 /* ---- "Copy game report": one click, so a game can be pasted to someone who wasn't watching ----
