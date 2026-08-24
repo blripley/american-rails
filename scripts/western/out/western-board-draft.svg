@@ -3090,262 +3090,268 @@
   <text x="300" y="210" text-anchor="middle" font-family="&#39;Cinzel&#39;,serif" font-weight="600" font-size="17" letter-spacing="5" fill="#8d6e3e" opacity=".48">BRITISH COLUMBIA</text>
   <text x="900" y="90" text-anchor="middle" font-family="&#39;Cinzel&#39;,serif" font-weight="600" font-size="18" letter-spacing="6" fill="#8d6e3e" opacity=".48">THE PRAIRIES</text>
   <text x="900" y="118" text-anchor="middle" font-family="&#39;Cinzel&#39;,serif" font-weight="600" font-size="13" letter-spacing="3" fill="#8d6e3e" opacity=".48">NORTH-WEST TERRITORIES</text>
-  <text x="45" y="880" text-anchor="middle" font-family="&#39;EB Garamond&#39;,serif" font-style="italic" font-size="14" letter-spacing="2" fill="#8d6e3e" opacity=".8">Pacific Ocean</text>
-  <text x="470" y="1210" text-anchor="middle" font-family="&#39;EB Garamond&#39;,serif" font-style="italic" font-size="13" letter-spacing="2" fill="#8d6e3e" opacity=".8">Vancouver Island</text>
-  <text x="302.5" y="570" text-anchor="middle" font-family="&#39;EB Garamond&#39;,serif" font-style="italic" font-size="10.5" letter-spacing="0.5" fill="#5d4726" opacity=".85">&#10059; Craigellachie</text>
+  <text x="45" y="800" text-anchor="middle" font-family="&#39;EB Garamond&#39;,serif" font-style="italic" font-size="14" letter-spacing="2" fill="#8d6e3e" opacity=".8">Pacific Ocean</text>
+  <text x="290.4" y="544.5" text-anchor="middle" font-family="&#39;EB Garamond&#39;,serif" font-style="italic" font-size="10.5" letter-spacing="0.5" fill="#5d4726" opacity=".85">&#10059; Craigellachie</text>
 
-  <g filter="url(#landShadow)" transform="scale(0.97561)">
-      <use href="#hx-F" x="665.12" y="123"></use>
-      <use href="#hx-F" x="736.13" y="123"></use>
-      <use href="#hx-F" x="807.15" y="123"></use>
-      <use href="#hx-F" x="629.61" y="184.5"></use>
-      <use href="#hx-C" x="700.63" y="184.5"></use>
-      <use href="#hx-F" x="771.64" y="184.5"></use>
-      <use href="#hx-F" x="842.65" y="184.5"></use>
-      <use href="#hx-F" x="913.67" y="184.5"></use>
-      <use href="#hx-F" x="1126.71" y="184.5"></use>
-      <use href="#hx-F" x="1197.72" y="184.5"></use>
-      <use href="#hx-F" x="594.11" y="246"></use>
-      <use href="#hx-F" x="665.12" y="246"></use>
-      <use href="#hx-F" x="736.13" y="246"></use>
-      <use href="#hx-F" x="807.15" y="246"></use>
-      <use href="#hx-F" x="878.16" y="246"></use>
-      <use href="#hx-F" x="949.18" y="246"></use>
-      <use href="#hx-F" x="1020.19" y="246"></use>
-      <use href="#hx-F" x="1091.2" y="246"></use>
-      <use href="#hx-C" x="1162.22" y="246"></use>
-      <use href="#hx-F" x="1233.23" y="246"></use>
-      <use href="#hx-F" x="629.61" y="307.5"></use>
-      <use href="#hx-F" x="700.63" y="307.5"></use>
-      <use href="#hx-F" x="771.64" y="307.5"></use>
-      <use href="#hx-F" x="842.65" y="307.5"></use>
-      <use href="#hx-F" x="913.67" y="307.5"></use>
-      <use href="#hx-F" x="984.68" y="307.5"></use>
-      <use href="#hx-F" x="1055.7" y="307.5"></use>
-      <use href="#hx-F" x="1126.71" y="307.5"></use>
-      <use href="#hx-F" x="1197.72" y="307.5"></use>
-      <use href="#hx-F" x="1268.74" y="307.5"></use>
-      <use href="#hx-F" x="594.11" y="369"></use>
-      <use href="#hx-F" x="665.12" y="369"></use>
-      <use href="#hx-F" x="736.13" y="369"></use>
-      <use href="#hx-F" x="878.16" y="369"></use>
-      <use href="#hx-F" x="949.18" y="369"></use>
-      <use href="#hx-C" x="1020.19" y="369"></use>
-      <use href="#hx-F" x="1091.2" y="369"></use>
-      <use href="#hx-F" x="1162.22" y="369"></use>
-      <use href="#hx-F" x="1233.23" y="369"></use>
-      <use href="#hx-F" x="558.6" y="430.5"></use>
-      <use href="#hx-F" x="629.61" y="430.5"></use>
-      <use href="#hx-F" x="700.63" y="430.5"></use>
-      <use href="#hx-F" x="771.64" y="430.5"></use>
-      <use href="#hx-F" x="984.68" y="430.5"></use>
-      <use href="#hx-F" x="1055.7" y="430.5"></use>
-      <use href="#hx-F" x="1126.71" y="430.5"></use>
-      <use href="#hx-F" x="1197.72" y="430.5"></use>
-      <use href="#hx-F" x="1268.74" y="430.5"></use>
-      <use href="#hx-M" x="452.08" y="492"></use>
-      <use href="#hx-M" x="523.09" y="492"></use>
-      <use href="#hx-C" x="594.11" y="492"></use>
-      <use href="#hx-M" x="665.12" y="492"></use>
-      <use href="#hx-M" x="736.13" y="492"></use>
-      <use href="#hx-P" x="1162.22" y="492"></use>
-      <use href="#hx-P" x="1233.23" y="492"></use>
-      <use href="#hx-P" x="1304.25" y="492"></use>
-      <use href="#hx-M" x="416.57" y="553.5"></use>
-      <use href="#hx-C" x="487.58" y="553.5"></use>
-      <use href="#hx-M" x="558.6" y="553.5"></use>
-      <use href="#hx-M" x="629.61" y="553.5"></use>
-      <use href="#hx-M" x="700.63" y="553.5"></use>
-      <use href="#hx-M" x="771.64" y="553.5"></use>
-      <use href="#hx-P" x="1126.71" y="553.5"></use>
-      <use href="#hx-P" x="1197.72" y="553.5"></use>
-      <use href="#hx-P" x="1268.74" y="553.5"></use>
-      <use href="#hx-P" x="1339.75" y="553.5"></use>
-      <use href="#hx-M" x="310.05" y="615"></use>
-      <use href="#hx-M" x="381.06" y="615"></use>
-      <use href="#hx-M" x="452.08" y="615"></use>
-      <use href="#hx-M" x="523.09" y="615"></use>
-      <use href="#hx-M" x="594.11" y="615"></use>
-      <use href="#hx-C" x="665.12" y="615"></use>
-      <use href="#hx-M" x="736.13" y="615"></use>
-      <use href="#hx-M" x="807.15" y="615"></use>
-      <use href="#hx-P" x="1091.2" y="615"></use>
-      <use href="#hx-C" x="1162.22" y="615"></use>
-      <use href="#hx-P" x="1233.23" y="615"></use>
-      <use href="#hx-C" x="1304.25" y="615"></use>
-      <use href="#hx-P" x="1375.26" y="615"></use>
-      <use href="#hx-M" x="274.54" y="676.5"></use>
-      <use href="#hx-M" x="345.56" y="676.5"></use>
-      <use href="#hx-C" x="416.57" y="676.5"></use>
-      <use href="#hx-M" x="487.58" y="676.5"></use>
-      <use href="#hx-M" x="558.6" y="676.5"></use>
-      <use href="#hx-M" x="629.61" y="676.5"></use>
-      <use href="#hx-M" x="700.63" y="676.5"></use>
-      <use href="#hx-C" x="771.64" y="676.5"></use>
-      <use href="#hx-P" x="842.65" y="676.5"></use>
-      <use href="#hx-P" x="913.67" y="676.5"></use>
-      <use href="#hx-P" x="984.68" y="676.5"></use>
-      <use href="#hx-P" x="1055.7" y="676.5"></use>
-      <use href="#hx-P" x="1126.71" y="676.5"></use>
-      <use href="#hx-P" x="1197.72" y="676.5"></use>
-      <use href="#hx-P" x="1268.74" y="676.5"></use>
-      <use href="#hx-P" x="1339.75" y="676.5"></use>
-      <use href="#hx-P" x="1410.77" y="676.5"></use>
-      <use href="#hx-P" x="1481.78" y="676.5"></use>
-      <use href="#hx-P" x="1552.8" y="676.5"></use>
-      <use href="#hx-P" x="1694.82" y="676.5"></use>
-      <use href="#hx-M" x="239.04" y="738"></use>
-      <use href="#hx-C" x="310.05" y="738"></use>
-      <use href="#hx-M" x="381.06" y="738"></use>
-      <use href="#hx-M" x="452.08" y="738"></use>
-      <use href="#hx-C" x="523.09" y="738"></use>
-      <use href="#hx-M" x="594.11" y="738"></use>
-      <use href="#hx-M" x="665.12" y="738"></use>
-      <use href="#hx-M" x="736.13" y="738"></use>
-      <use href="#hx-M" x="807.15" y="738"></use>
-      <use href="#hx-P" x="878.16" y="738"></use>
-      <use href="#hx-C" x="949.18" y="738"></use>
-      <use href="#hx-P" x="1020.19" y="738"></use>
-      <use href="#hx-P" x="1091.2" y="738"></use>
-      <use href="#hx-P" x="1162.22" y="738"></use>
-      <use href="#hx-C" x="1233.23" y="738"></use>
-      <use href="#hx-P" x="1304.25" y="738"></use>
-      <use href="#hx-C" x="1375.26" y="738"></use>
-      <use href="#hx-P" x="1446.27" y="738"></use>
-      <use href="#hx-C" x="1517.29" y="738"></use>
-      <use href="#hx-P" x="1588.3" y="738"></use>
-      <use href="#hx-P" x="1659.32" y="738"></use>
-      <use href="#hx-C" x="1730.33" y="738"></use>
-      <use href="#hx-M" x="203.53" y="799.5"></use>
-      <use href="#hx-M" x="274.54" y="799.5"></use>
-      <use href="#hx-M" x="345.56" y="799.5"></use>
-      <use href="#hx-C" x="416.57" y="799.5"></use>
-      <use href="#hx-M" x="487.58" y="799.5"></use>
-      <use href="#hx-M" x="558.6" y="799.5"></use>
-      <use href="#hx-M" x="629.61" y="799.5"></use>
-      <use href="#hx-M" x="700.63" y="799.5"></use>
-      <use href="#hx-M" x="771.64" y="799.5"></use>
-      <use href="#hx-C" x="842.65" y="799.5"></use>
-      <use href="#hx-P" x="913.67" y="799.5"></use>
-      <use href="#hx-P" x="984.68" y="799.5"></use>
-      <use href="#hx-C" x="1055.7" y="799.5"></use>
-      <use href="#hx-P" x="1126.71" y="799.5"></use>
-      <use href="#hx-P" x="1197.72" y="799.5"></use>
-      <use href="#hx-P" x="1268.74" y="799.5"></use>
-      <use href="#hx-P" x="1339.75" y="799.5"></use>
-      <use href="#hx-P" x="1410.77" y="799.5"></use>
-      <use href="#hx-P" x="1481.78" y="799.5"></use>
-      <use href="#hx-P" x="1552.8" y="799.5"></use>
-      <use href="#hx-P" x="1623.81" y="799.5"></use>
-      <use href="#hx-P" x="1694.82" y="799.5"></use>
-      <use href="#hx-M" x="168.02" y="861"></use>
-      <use href="#hx-C" x="239.04" y="861"></use>
-      <use href="#hx-M" x="310.05" y="861"></use>
-      <use href="#hx-P" x="381.06" y="861"></use>
-      <use href="#hx-P" x="452.08" y="861"></use>
-      <use href="#hx-P" x="523.09" y="861"></use>
-      <use href="#hx-C" x="594.11" y="861"></use>
-      <use href="#hx-P" x="665.12" y="861"></use>
-      <use href="#hx-C" x="736.13" y="861"></use>
-      <use href="#hx-P" x="807.15" y="861"></use>
-      <use href="#hx-P" x="878.16" y="861"></use>
-      <use href="#hx-C" x="949.18" y="861"></use>
-      <use href="#hx-P" x="1020.19" y="861"></use>
-      <use href="#hx-P" x="1091.2" y="861"></use>
-      <use href="#hx-P" x="1304.25" y="861"></use>
-      <use href="#hx-P" x="1375.26" y="861"></use>
-      <use href="#hx-P" x="1446.27" y="861"></use>
-      <use href="#hx-C" x="1517.29" y="861"></use>
-      <use href="#hx-P" x="1588.3" y="861"></use>
-      <use href="#hx-C" x="1659.32" y="861"></use>
-      <use href="#hx-P" x="1730.33" y="861"></use>
-      <use href="#hx-M" x="132.51" y="922.5"></use>
-      <use href="#hx-M" x="203.53" y="922.5"></use>
-      <use href="#hx-M" x="274.54" y="922.5"></use>
-      <use href="#hx-P" x="345.56" y="922.5"></use>
-      <use href="#hx-P" x="558.6" y="922.5"></use>
-      <use href="#hx-P" x="629.61" y="922.5"></use>
-      <use href="#hx-P" x="700.63" y="922.5"></use>
-      <use href="#hx-P" x="771.64" y="922.5"></use>
-      <use href="#hx-P" x="913.67" y="922.5"></use>
-      <use href="#hx-P" x="984.68" y="922.5"></use>
-      <use href="#hx-P" x="1410.77" y="922.5"></use>
-      <use href="#hx-P" x="1481.78" y="922.5"></use>
-      <use href="#hx-P" x="1552.8" y="922.5"></use>
-      <use href="#hx-P" x="1623.81" y="922.5"></use>
-      <use href="#hx-P" x="1694.82" y="922.5"></use>
-      <use href="#hx-P" x="97.01" y="984"></use>
-      <use href="#hx-C" x="168.02" y="984"></use>
-      <use href="#hx-P" x="239.04" y="984"></use>
-      <use href="#hx-C" x="310.05" y="984"></use>
-      <use href="#hx-P" x="381.06" y="984"></use>
-      <use href="#hx-P" x="1517.29" y="984"></use>
-      <use href="#hx-P" x="1588.3" y="984"></use>
-      <use href="#hx-C" x="1659.32" y="984"></use>
-      <use href="#hx-P" x="1730.33" y="984"></use>
-      <use href="#hx-P" x="132.51" y="1045.5"></use>
-      <use href="#hx-P" x="274.54" y="1045.5"></use>
-      <use href="#hx-P" x="1481.78" y="1045.5"></use>
-      <use href="#hx-C" x="1552.8" y="1045.5"></use>
-      <use href="#hx-P" x="1623.81" y="1045.5"></use>
-      <use href="#hx-P" x="1694.82" y="1045.5"></use>
-      <use href="#hx-C" x="97.01" y="1107"></use>
-      <use href="#hx-C" x="239.04" y="1107"></use>
-      <use href="#hx-P" x="1517.29" y="1107"></use>
-      <use href="#hx-P" x="1588.3" y="1107"></use>
-      <use href="#hx-P" x="61.5" y="1168.5"></use>
-      <use href="#hx-P" x="132.51" y="1168.5"></use>
-      <use href="#hx-C" x="97.01" y="1230"></use>
-      <use href="#hx-P" x="168.02" y="1230"></use>
-      <use href="#hx-C" x="239.04" y="1230"></use>
-      <use href="#hx-P" x="310.05" y="1230"></use>
+  <g filter="url(#landShadow)" transform="scale(0.92683)">
+      <use href="#hx-F" x="703.86" y="64.74"></use>
+      <use href="#hx-C" x="774.88" y="64.74"></use>
+      <use href="#hx-F" x="845.89" y="64.74"></use>
+      <use href="#hx-F" x="668.36" y="126.24"></use>
+      <use href="#hx-F" x="739.37" y="126.24"></use>
+      <use href="#hx-F" x="810.38" y="126.24"></use>
+      <use href="#hx-F" x="881.4" y="126.24"></use>
+      <use href="#hx-F" x="952.41" y="126.24"></use>
+      <use href="#hx-F" x="632.85" y="187.74"></use>
+      <use href="#hx-C" x="703.86" y="187.74"></use>
+      <use href="#hx-F" x="774.88" y="187.74"></use>
+      <use href="#hx-F" x="845.89" y="187.74"></use>
+      <use href="#hx-C" x="916.91" y="187.74"></use>
+      <use href="#hx-F" x="987.92" y="187.74"></use>
+      <use href="#hx-F" x="1129.95" y="187.74"></use>
+      <use href="#hx-F" x="1200.96" y="187.74"></use>
+      <use href="#hx-F" x="597.34" y="249.24"></use>
+      <use href="#hx-F" x="668.36" y="249.24"></use>
+      <use href="#hx-F" x="739.37" y="249.24"></use>
+      <use href="#hx-F" x="810.38" y="249.24"></use>
+      <use href="#hx-F" x="881.4" y="249.24"></use>
+      <use href="#hx-F" x="952.41" y="249.24"></use>
+      <use href="#hx-F" x="1023.43" y="249.24"></use>
+      <use href="#hx-F" x="1094.44" y="249.24"></use>
+      <use href="#hx-C" x="1165.45" y="249.24"></use>
+      <use href="#hx-F" x="1236.47" y="249.24"></use>
+      <use href="#hx-F" x="632.85" y="310.74"></use>
+      <use href="#hx-F" x="703.86" y="310.74"></use>
+      <use href="#hx-F" x="774.88" y="310.74"></use>
+      <use href="#hx-F" x="916.91" y="310.74"></use>
+      <use href="#hx-F" x="987.92" y="310.74"></use>
+      <use href="#hx-F" x="1058.93" y="310.74"></use>
+      <use href="#hx-F" x="1129.95" y="310.74"></use>
+      <use href="#hx-F" x="1200.96" y="310.74"></use>
+      <use href="#hx-F" x="1271.98" y="310.74"></use>
+      <use href="#hx-F" x="597.34" y="372.24"></use>
+      <use href="#hx-F" x="668.36" y="372.24"></use>
+      <use href="#hx-F" x="739.37" y="372.24"></use>
+      <use href="#hx-F" x="952.41" y="372.24"></use>
+      <use href="#hx-C" x="1023.43" y="372.24"></use>
+      <use href="#hx-F" x="1094.44" y="372.24"></use>
+      <use href="#hx-C" x="1165.45" y="372.24"></use>
+      <use href="#hx-F" x="1236.47" y="372.24"></use>
+      <use href="#hx-F" x="561.84" y="433.74"></use>
+      <use href="#hx-F" x="632.85" y="433.74"></use>
+      <use href="#hx-F" x="703.86" y="433.74"></use>
+      <use href="#hx-F" x="774.88" y="433.74"></use>
+      <use href="#hx-F" x="987.92" y="433.74"></use>
+      <use href="#hx-F" x="1058.93" y="433.74"></use>
+      <use href="#hx-F" x="1129.95" y="433.74"></use>
+      <use href="#hx-F" x="1200.96" y="433.74"></use>
+      <use href="#hx-F" x="1271.98" y="433.74"></use>
+      <use href="#hx-M" x="455.31" y="495.24"></use>
+      <use href="#hx-M" x="526.33" y="495.24"></use>
+      <use href="#hx-C" x="597.34" y="495.24"></use>
+      <use href="#hx-M" x="668.36" y="495.24"></use>
+      <use href="#hx-M" x="739.37" y="495.24"></use>
+      <use href="#hx-P" x="952.41" y="495.24"></use>
+      <use href="#hx-C" x="1023.43" y="495.24"></use>
+      <use href="#hx-P" x="1094.44" y="495.24"></use>
+      <use href="#hx-P" x="1165.45" y="495.24"></use>
+      <use href="#hx-P" x="1236.47" y="495.24"></use>
+      <use href="#hx-P" x="1307.48" y="495.24"></use>
+      <use href="#hx-M" x="419.81" y="556.74"></use>
+      <use href="#hx-C" x="490.82" y="556.74"></use>
+      <use href="#hx-P" x="561.84" y="556.74"></use>
+      <use href="#hx-M" x="632.85" y="556.74"></use>
+      <use href="#hx-M" x="703.86" y="556.74"></use>
+      <use href="#hx-M" x="774.88" y="556.74"></use>
+      <use href="#hx-P" x="987.92" y="556.74"></use>
+      <use href="#hx-P" x="1058.93" y="556.74"></use>
+      <use href="#hx-P" x="1129.95" y="556.74"></use>
+      <use href="#hx-P" x="1200.96" y="556.74"></use>
+      <use href="#hx-P" x="1271.98" y="556.74"></use>
+      <use href="#hx-P" x="1342.99" y="556.74"></use>
+      <use href="#hx-M" x="313.29" y="618.24"></use>
+      <use href="#hx-M" x="384.3" y="618.24"></use>
+      <use href="#hx-M" x="455.31" y="618.24"></use>
+      <use href="#hx-M" x="526.33" y="618.24"></use>
+      <use href="#hx-M" x="597.34" y="618.24"></use>
+      <use href="#hx-C" x="668.36" y="618.24"></use>
+      <use href="#hx-M" x="739.37" y="618.24"></use>
+      <use href="#hx-M" x="810.38" y="618.24"></use>
+      <use href="#hx-P" x="1094.44" y="618.24"></use>
+      <use href="#hx-C" x="1165.45" y="618.24"></use>
+      <use href="#hx-P" x="1236.47" y="618.24"></use>
+      <use href="#hx-C" x="1307.48" y="618.24"></use>
+      <use href="#hx-P" x="1378.5" y="618.24"></use>
+      <use href="#hx-M" x="277.78" y="679.74"></use>
+      <use href="#hx-M" x="348.79" y="679.74"></use>
+      <use href="#hx-C" x="419.81" y="679.74"></use>
+      <use href="#hx-M" x="490.82" y="679.74"></use>
+      <use href="#hx-M" x="561.84" y="679.74"></use>
+      <use href="#hx-M" x="632.85" y="679.74"></use>
+      <use href="#hx-M" x="703.86" y="679.74"></use>
+      <use href="#hx-C" x="774.88" y="679.74"></use>
+      <use href="#hx-P" x="845.89" y="679.74"></use>
+      <use href="#hx-P" x="916.91" y="679.74"></use>
+      <use href="#hx-P" x="987.92" y="679.74"></use>
+      <use href="#hx-P" x="1058.93" y="679.74"></use>
+      <use href="#hx-P" x="1129.95" y="679.74"></use>
+      <use href="#hx-P" x="1200.96" y="679.74"></use>
+      <use href="#hx-P" x="1271.98" y="679.74"></use>
+      <use href="#hx-P" x="1342.99" y="679.74"></use>
+      <use href="#hx-P" x="1414" y="679.74"></use>
+      <use href="#hx-P" x="1485.02" y="679.74"></use>
+      <use href="#hx-P" x="1556.03" y="679.74"></use>
+      <use href="#hx-P" x="1698.06" y="679.74"></use>
+      <use href="#hx-M" x="242.27" y="741.24"></use>
+      <use href="#hx-C" x="313.29" y="741.24"></use>
+      <use href="#hx-M" x="384.3" y="741.24"></use>
+      <use href="#hx-M" x="455.31" y="741.24"></use>
+      <use href="#hx-C" x="526.33" y="741.24"></use>
+      <use href="#hx-M" x="597.34" y="741.24"></use>
+      <use href="#hx-M" x="668.36" y="741.24"></use>
+      <use href="#hx-M" x="739.37" y="741.24"></use>
+      <use href="#hx-M" x="810.38" y="741.24"></use>
+      <use href="#hx-P" x="881.4" y="741.24"></use>
+      <use href="#hx-C" x="952.41" y="741.24"></use>
+      <use href="#hx-P" x="1023.43" y="741.24"></use>
+      <use href="#hx-P" x="1094.44" y="741.24"></use>
+      <use href="#hx-P" x="1165.45" y="741.24"></use>
+      <use href="#hx-C" x="1236.47" y="741.24"></use>
+      <use href="#hx-P" x="1307.48" y="741.24"></use>
+      <use href="#hx-C" x="1378.5" y="741.24"></use>
+      <use href="#hx-P" x="1449.51" y="741.24"></use>
+      <use href="#hx-C" x="1520.52" y="741.24"></use>
+      <use href="#hx-P" x="1591.54" y="741.24"></use>
+      <use href="#hx-P" x="1662.55" y="741.24"></use>
+      <use href="#hx-C" x="1733.57" y="741.24"></use>
+      <use href="#hx-M" x="206.76" y="802.74"></use>
+      <use href="#hx-M" x="277.78" y="802.74"></use>
+      <use href="#hx-M" x="348.79" y="802.74"></use>
+      <use href="#hx-C" x="419.81" y="802.74"></use>
+      <use href="#hx-M" x="490.82" y="802.74"></use>
+      <use href="#hx-M" x="561.84" y="802.74"></use>
+      <use href="#hx-M" x="632.85" y="802.74"></use>
+      <use href="#hx-M" x="703.86" y="802.74"></use>
+      <use href="#hx-M" x="774.88" y="802.74"></use>
+      <use href="#hx-C" x="845.89" y="802.74"></use>
+      <use href="#hx-P" x="916.91" y="802.74"></use>
+      <use href="#hx-P" x="987.92" y="802.74"></use>
+      <use href="#hx-C" x="1058.93" y="802.74"></use>
+      <use href="#hx-P" x="1129.95" y="802.74"></use>
+      <use href="#hx-P" x="1200.96" y="802.74"></use>
+      <use href="#hx-P" x="1271.98" y="802.74"></use>
+      <use href="#hx-P" x="1342.99" y="802.74"></use>
+      <use href="#hx-P" x="1414" y="802.74"></use>
+      <use href="#hx-P" x="1485.02" y="802.74"></use>
+      <use href="#hx-P" x="1556.03" y="802.74"></use>
+      <use href="#hx-P" x="1627.05" y="802.74"></use>
+      <use href="#hx-P" x="1698.06" y="802.74"></use>
+      <use href="#hx-M" x="171.26" y="864.24"></use>
+      <use href="#hx-C" x="242.27" y="864.24"></use>
+      <use href="#hx-M" x="313.29" y="864.24"></use>
+      <use href="#hx-P" x="384.3" y="864.24"></use>
+      <use href="#hx-P" x="455.31" y="864.24"></use>
+      <use href="#hx-P" x="526.33" y="864.24"></use>
+      <use href="#hx-C" x="597.34" y="864.24"></use>
+      <use href="#hx-P" x="668.36" y="864.24"></use>
+      <use href="#hx-C" x="739.37" y="864.24"></use>
+      <use href="#hx-P" x="810.38" y="864.24"></use>
+      <use href="#hx-P" x="881.4" y="864.24"></use>
+      <use href="#hx-C" x="952.41" y="864.24"></use>
+      <use href="#hx-P" x="1023.43" y="864.24"></use>
+      <use href="#hx-P" x="1094.44" y="864.24"></use>
+      <use href="#hx-P" x="1307.48" y="864.24"></use>
+      <use href="#hx-P" x="1378.5" y="864.24"></use>
+      <use href="#hx-P" x="1449.51" y="864.24"></use>
+      <use href="#hx-C" x="1520.52" y="864.24"></use>
+      <use href="#hx-P" x="1591.54" y="864.24"></use>
+      <use href="#hx-C" x="1662.55" y="864.24"></use>
+      <use href="#hx-P" x="1733.57" y="864.24"></use>
+      <use href="#hx-M" x="135.75" y="925.74"></use>
+      <use href="#hx-M" x="206.76" y="925.74"></use>
+      <use href="#hx-M" x="277.78" y="925.74"></use>
+      <use href="#hx-P" x="348.79" y="925.74"></use>
+      <use href="#hx-P" x="561.84" y="925.74"></use>
+      <use href="#hx-P" x="632.85" y="925.74"></use>
+      <use href="#hx-P" x="703.86" y="925.74"></use>
+      <use href="#hx-P" x="774.88" y="925.74"></use>
+      <use href="#hx-P" x="916.91" y="925.74"></use>
+      <use href="#hx-P" x="987.92" y="925.74"></use>
+      <use href="#hx-P" x="1414" y="925.74"></use>
+      <use href="#hx-P" x="1485.02" y="925.74"></use>
+      <use href="#hx-P" x="1556.03" y="925.74"></use>
+      <use href="#hx-P" x="1627.05" y="925.74"></use>
+      <use href="#hx-P" x="1698.06" y="925.74"></use>
+      <use href="#hx-P" x="100.24" y="987.24"></use>
+      <use href="#hx-C" x="171.26" y="987.24"></use>
+      <use href="#hx-P" x="242.27" y="987.24"></use>
+      <use href="#hx-C" x="313.29" y="987.24"></use>
+      <use href="#hx-P" x="384.3" y="987.24"></use>
+      <use href="#hx-P" x="1520.52" y="987.24"></use>
+      <use href="#hx-P" x="1591.54" y="987.24"></use>
+      <use href="#hx-C" x="1662.55" y="987.24"></use>
+      <use href="#hx-P" x="1733.57" y="987.24"></use>
+      <use href="#hx-P" x="135.75" y="1048.74"></use>
+      <use href="#hx-P" x="206.76" y="1048.74"></use>
+      <use href="#hx-P" x="277.78" y="1048.74"></use>
+      <use href="#hx-P" x="348.79" y="1048.74"></use>
+      <use href="#hx-P" x="1485.02" y="1048.74"></use>
+      <use href="#hx-C" x="1556.03" y="1048.74"></use>
+      <use href="#hx-P" x="1627.05" y="1048.74"></use>
+      <use href="#hx-P" x="1698.06" y="1048.74"></use>
+      <use href="#hx-P" x="171.26" y="1110.24"></use>
+      <use href="#hx-C" x="242.27" y="1110.24"></use>
+      <use href="#hx-P" x="313.29" y="1110.24"></use>
+      <use href="#hx-P" x="1520.52" y="1110.24"></use>
+      <use href="#hx-P" x="1591.54" y="1110.24"></use>
   </g>
-  <g transform="scale(0.97561)">
-      <use href="#skyline" x="700.63" y="188.5"></use>
-      <use href="#skyline" x="1162.22" y="250"></use>
-      <use href="#skyline" x="1020.19" y="373"></use>
-      <use href="#skyline" x="594.11" y="496"></use>
-      <use href="#skyline" x="487.58" y="557.5"></use>
-      <use href="#skyline" x="665.12" y="619"></use>
-      <use href="#skyline" x="1162.22" y="619"></use>
-      <use href="#skyline" x="1304.25" y="619"></use>
-      <use href="#skyline" x="416.57" y="680.5"></use>
-      <use href="#skyline" x="771.64" y="680.5"></use>
-      <use href="#skyline" x="310.05" y="742"></use>
-      <use href="#skyline" x="523.09" y="742"></use>
-      <use href="#skyline" x="949.18" y="742"></use>
-      <use href="#skyline" x="1233.23" y="742"></use>
-      <use href="#skyline" x="1375.26" y="742"></use>
-      <use href="#skyline" x="1517.29" y="742"></use>
-      <use href="#skyline" x="1730.33" y="742"></use>
-      <use href="#skyline" x="416.57" y="803.5"></use>
-      <use href="#skyline" x="842.65" y="803.5"></use>
-      <use href="#skyline" x="1055.7" y="803.5"></use>
-      <use href="#skyline" x="239.04" y="865"></use>
-      <use href="#skyline" x="594.11" y="865"></use>
-      <use href="#skyline" x="736.13" y="865"></use>
-      <use href="#skyline" x="949.18" y="865"></use>
-      <use href="#skyline" x="1517.29" y="865"></use>
-      <use href="#skyline" x="1659.32" y="865"></use>
-      <use href="#skyline" x="168.02" y="988"></use>
-      <use href="#skyline" x="310.05" y="988"></use>
-      <use href="#skyline" x="1659.32" y="988"></use>
-      <use href="#skyline" x="1552.8" y="1049.5"></use>
-      <use href="#skyline" x="97.01" y="1111"></use>
-      <use href="#skyline" x="239.04" y="1111"></use>
-      <use href="#skyline" x="97.01" y="1234"></use>
-      <use href="#skyline" x="239.04" y="1234"></use>
-      <use href="#ties" x="665.12" y="646"></use>
-      <use href="#ties" x="1659.32" y="892"></use>
-      <use href="#ties" x="168.02" y="1015"></use>
-      <use href="#portMark" x="720.63" y="171.5"></use>
-      <use href="#portMark" x="685.12" y="602"></use>
-      <use href="#portMark" x="1253.23" y="725"></use>
-      <use href="#portMark" x="1679.32" y="848"></use>
-      <use href="#portMark" x="188.02" y="971"></use>
+  <g transform="scale(0.92683)">
+      <use href="#skyline" x="774.88" y="68.74"></use>
+      <use href="#skyline" x="703.86" y="191.74"></use>
+      <use href="#skyline" x="916.91" y="191.74"></use>
+      <use href="#skyline" x="1165.45" y="253.24"></use>
+      <use href="#skyline" x="1023.43" y="376.24"></use>
+      <use href="#skyline" x="1165.45" y="376.24"></use>
+      <use href="#skyline" x="597.34" y="499.24"></use>
+      <use href="#skyline" x="1023.43" y="499.24"></use>
+      <use href="#skyline" x="490.82" y="560.74"></use>
+      <use href="#skyline" x="668.36" y="622.24"></use>
+      <use href="#skyline" x="1165.45" y="622.24"></use>
+      <use href="#skyline" x="1307.48" y="622.24"></use>
+      <use href="#skyline" x="419.81" y="683.74"></use>
+      <use href="#skyline" x="774.88" y="683.74"></use>
+      <use href="#skyline" x="313.29" y="745.24"></use>
+      <use href="#skyline" x="526.33" y="745.24"></use>
+      <use href="#skyline" x="952.41" y="745.24"></use>
+      <use href="#skyline" x="1236.47" y="745.24"></use>
+      <use href="#skyline" x="1378.5" y="745.24"></use>
+      <use href="#skyline" x="1520.52" y="745.24"></use>
+      <use href="#skyline" x="1733.57" y="745.24"></use>
+      <use href="#skyline" x="419.81" y="806.74"></use>
+      <use href="#skyline" x="845.89" y="806.74"></use>
+      <use href="#skyline" x="1058.93" y="806.74"></use>
+      <use href="#skyline" x="242.27" y="868.24"></use>
+      <use href="#skyline" x="597.34" y="868.24"></use>
+      <use href="#skyline" x="739.37" y="868.24"></use>
+      <use href="#skyline" x="952.41" y="868.24"></use>
+      <use href="#skyline" x="1520.52" y="868.24"></use>
+      <use href="#skyline" x="1662.55" y="868.24"></use>
+      <use href="#skyline" x="171.26" y="991.24"></use>
+      <use href="#skyline" x="313.29" y="991.24"></use>
+      <use href="#skyline" x="1662.55" y="991.24"></use>
+      <use href="#skyline" x="1556.03" y="1052.74"></use>
+      <use href="#skyline" x="242.27" y="1114.24"></use>
+      <use href="#ties" x="668.36" y="649.24"></use>
+      <use href="#ties" x="1662.55" y="895.24"></use>
+      <use href="#ties" x="171.26" y="1018.24"></use>
+      <use href="#portMark" x="723.86" y="174.74"></use>
+      <use href="#portMark" x="688.36" y="605.24"></use>
+      <use href="#portMark" x="1256.47" y="728.24"></use>
+      <use href="#portMark" x="1682.55" y="851.24"></use>
+      <use href="#portMark" x="191.26" y="974.24"></use>
   </g>
 
-  <g transform="translate(-358,244)">
+  <g transform="translate(18,154)">
   <g stroke="#3d2e1d" fill="none">
     <path d="M1058 906 L1300 906 L1300 1026 L998 1026 L998 952 Z" stroke-width="2.2" stroke-dasharray="11 7"></path>
     <g stroke-width="2" stroke-dasharray="4 4" stroke-linejoin="round">
@@ -3371,7 +3377,7 @@
     <text y="-41" text-anchor="middle" font-family="&#39;Cinzel&#39;,serif" font-weight="700" font-size="13" fill="#5d4726">N</text>
   </g>
 
-  <g transform="translate(1240,40)">
+  <g transform="translate(1250,20)">
     <path d="M0 0 H384 V478 H80 V338 H0 Z" fill="#f4ecd6" stroke="#5d4726" stroke-width="2"></path>
     <rect x="8" y="8" width="68" height="322" fill="#dccca6" stroke="#5d4726" stroke-width="1.2"></rect>
     <circle cx="42" cy="39" r="29" fill="#f8f2e0" stroke="#5d4726" stroke-width="1.5"></circle>
@@ -3479,7 +3485,7 @@
       </g>
     
   </g>
-  <g transform="translate(640,1010)">
+  <g transform="translate(60,1060)">
     <rect x="0" y="0" width="536" height="114" fill="#f4ecd6" stroke="#5d4726" stroke-width="2"></rect>
     <rect x="8" y="40" width="520" height="66" fill="#faf5e6" stroke="#5d4726" stroke-width="1.2"></rect>
     
@@ -3512,11 +3518,11 @@
       <path d="M0 0" fill="#a8814a" stroke="#5d4726" stroke-width="1" stroke-linejoin="round"></path>
     
   </g>
-  <g transform="translate(1220,1010)">
+  <g transform="translate(616,1060)">
     <g transform="translate(47,78)"><polygon points="0,-27 23.4,-13.5 23.4,13.5 0,27 -23.4,13.5 -23.4,-13.5" fill="url(#pPlains)" stroke="#33271b" stroke-width="1.4"></polygon><text y="52" text-anchor="middle" font-family="&#39;EB Garamond&#39;,serif" font-weight="700" font-size="20" fill="#2b2013">$2</text><text y="71" text-anchor="middle" font-family="&#39;EB Garamond&#39;,serif" font-size="13.5" fill="#6b5433">+$2 per cube</text></g>
     <g transform="translate(141,78)"><polygon points="0,-27 23.4,-13.5 23.4,13.5 0,27 -23.4,13.5 -23.4,-13.5" fill="url(#pCity)" stroke="#33271b" stroke-width="1.4"></polygon><text y="52" text-anchor="middle" font-family="&#39;EB Garamond&#39;,serif" font-weight="700" font-size="20" fill="#2b2013">$2</text><text y="71" text-anchor="middle" font-family="&#39;EB Garamond&#39;,serif" font-size="13.5" fill="#6b5433">+$2 per cube</text></g>
-    <g transform="translate(235,78)"><polygon points="0,-27 23.4,-13.5 23.4,13.5 0,27 -23.4,13.5 -23.4,-13.5" fill="url(#pForest)" stroke="#33271b" stroke-width="1.4"></polygon><text y="52" text-anchor="middle" font-family="&#39;EB Garamond&#39;,serif" font-weight="700" font-size="20" fill="#2b2013">$3</text></g>
-    <g transform="translate(329,78)"><polygon points="0,-27 23.4,-13.5 23.4,13.5 0,27 -23.4,13.5 -23.4,-13.5" fill="url(#pMount)" stroke="#33271b" stroke-width="1.4"></polygon><text y="52" text-anchor="middle" font-family="&#39;EB Garamond&#39;,serif" font-weight="700" font-size="20" fill="#2b2013">$5</text></g>
+    <g transform="translate(235,78)"><polygon points="0,-27 23.4,-13.5 23.4,13.5 0,27 -23.4,13.5 -23.4,-13.5" fill="url(#pForest)" stroke="#33271b" stroke-width="1.4"></polygon><text y="52" text-anchor="middle" font-family="&#39;EB Garamond&#39;,serif" font-weight="700" font-size="20" fill="#2b2013">$2</text></g>
+    <g transform="translate(329,78)"><polygon points="0,-27 23.4,-13.5 23.4,13.5 0,27 -23.4,13.5 -23.4,-13.5" fill="url(#pMount)" stroke="#33271b" stroke-width="1.4"></polygon><text y="52" text-anchor="middle" font-family="&#39;EB Garamond&#39;,serif" font-weight="700" font-size="20" fill="#2b2013">$3</text></g>
   </g>
     <g transform="translate(28,1252)">
       <rect x="0" y="0" width="267" height="138" fill="#15120f" stroke="#4d4029" stroke-width="1.2"></rect>
@@ -3737,13 +3743,13 @@
   <text x="1678" y="1171.46" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="19" fill="#f4ead0" font-weight="700">69</text>
   
   
-  <text x="685.10" y="1040.81" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="19.99" font-weight="600" fill="#2b2013">1881</text>
-  <text x="759.39" y="1040.81" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="19.99" font-weight="600" fill="#2b2013">1882</text>
-  <text x="833.70" y="1040.81" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="19.99" font-weight="600" fill="#2b2013">1883</text>
-  <text x="908.01" y="1040.81" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="19.99" font-weight="600" fill="#2b2013">1884</text>
-  <text x="982.30" y="1040.81" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="19.99" font-weight="600" fill="#2b2013">1885</text>
-  <text x="1056.60" y="1040.81" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="19.99" font-weight="600" fill="#2b2013">1886</text>
-  <text x="1130.89" y="1040.81" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="19.99" font-weight="600" fill="#2b2013">1887</text>
+  <text x="105.10" y="1090.81" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="19.99" font-weight="600" fill="#2b2013">1881</text>
+  <text x="179.39" y="1090.81" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="19.99" font-weight="600" fill="#2b2013">1882</text>
+  <text x="253.70" y="1090.81" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="19.99" font-weight="600" fill="#2b2013">1883</text>
+  <text x="328.01" y="1090.81" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="19.99" font-weight="600" fill="#2b2013">1884</text>
+  <text x="402.30" y="1090.81" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="19.99" font-weight="600" fill="#2b2013">1885</text>
+  <text x="476.60" y="1090.81" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="19.99" font-weight="600" fill="#2b2013">1886</text>
+  <text x="550.89" y="1090.81" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="19.99" font-weight="600" fill="#2b2013">1887</text>
   
   <text x="161.5" y="1282.27" text-anchor="middle" font-family="&#39;Cinzel&#39;,serif" font-size="11.29" font-weight="700" letter-spacing="1.13" fill="#ece0c4">CANADIAN PACIFIC</text>
   <text x="70.01" y="1282.1" text-anchor="start" font-family="&#39;EB Garamond&#39;, serif" font-size="14.99" font-weight="700" fill="#ece0c4">30</text>
@@ -3769,74 +3775,76 @@
   <text x="1445" y="1282.1" text-anchor="start" font-family="&#39;EB Garamond&#39;, serif" font-size="14.99" font-weight="700" fill="#ece0c4">16</text>
   <text x="1625" y="1282.1" text-anchor="end" font-family="&#39;EB Garamond&#39;, serif" font-size="14.99" font-weight="700" fill="#ece0c4">3</text>
   <text x="1536.49" y="1332.42" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.01" font-style="italic" letter-spacing="1.56" fill="#8d7a58">Railroad Company</text>
-  <g transform="scale(0.97561)">
-  <text x="700.63" y="170.18" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">5/3</text>
-  <text x="1162.22" y="231.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">5/3</text>
-  <text x="1020.19" y="354.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">4/3</text>
-  <text x="594.11" y="477.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
-  <text x="487.58" y="539.18" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
-  <text x="665.12" y="600.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">6/4</text>
-  <text x="1162.22" y="600.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
-  <text x="1304.25" y="600.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
-  <text x="416.57" y="662.18" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
-  <text x="771.64" y="662.18" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
-  <text x="310.05" y="723.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
-  <text x="523.09" y="723.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
-  <text x="949.18" y="723.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">5/3</text>
-  <text x="1233.23" y="723.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">6/4</text>
-  <text x="1375.26" y="723.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
-  <text x="1517.29" y="723.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">3/2</text>
-  <text x="1730.33" y="723.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
-  <text x="416.57" y="785.18" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
-  <text x="842.65" y="785.18" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">4/3</text>
-  <text x="1055.7" y="785.18" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
-  <text x="239.04" y="846.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">3/3</text>
-  <text x="594.11" y="846.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
-  <text x="736.13" y="846.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">4/3</text>
-  <text x="949.18" y="846.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
-  <text x="1517.29" y="846.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">4/3</text>
-  <text x="1659.32" y="846.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">7/5</text>
-  <text x="168.02" y="969.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">6/4</text>
-  <text x="310.05" y="969.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">3/3</text>
-  <text x="1659.32" y="969.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
-  <text x="1552.8" y="1031.18" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
-  <text x="97.01" y="1092.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">4/3</text>
-  <text x="239.04" y="1092.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">5/3</text>
-  <text x="97.01" y="1215.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">5/3</text>
-  <text x="239.04" y="1215.68" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
-  <text x="700.63" y="210.34" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Edmonton</text>
-  <text x="1162.22" y="269.62" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="10.6" font-weight="600" letter-spacing="0.16" fill="#000">Prince Albert</text>
-  <text x="1020.19" y="394.00" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="12.21" font-weight="600" letter-spacing="0.19" fill="#000">Battleford</text>
-  <text x="594.11" y="517.84" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Cochrane</text>
-  <text x="487.58" y="579.34" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Field</text>
-  <text x="665.12" y="640.84" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Calgary</text>
-  <text x="1162.22" y="637.41" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="9.2" font-weight="600" letter-spacing="0.14" fill="#000">Qu'Appelle Station</text>
-  <text x="1304.25" y="638.01" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="9.9" font-weight="600" letter-spacing="0.15" fill="#000">Fort Qu'Appelle</text>
-  <text x="416.57" y="701.50" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="12.21" font-weight="600" letter-spacing="0.19" fill="#000">Revelstoke</text>
-  <text x="771.64" y="702.34" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Gleichen</text>
-  <text x="310.05" y="763.84" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Kamloops</text>
-  <text x="523.09" y="763.84" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Banff</text>
-  <text x="949.18" y="763.00" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="12.21" font-weight="600" letter-spacing="0.19" fill="#000">Moose Jaw</text>
-  <text x="1233.23" y="763.84" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Regina</text>
-  <text x="1375.26" y="762.31" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="11.41" font-weight="600" letter-spacing="0.17" fill="#000">Indian Head</text>
-  <text x="1517.29" y="760.41" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="9.2" font-weight="600" letter-spacing="0.14" fill="#000">Portage la Prairie</text>
-  <text x="1730.33" y="763.84" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Selkirk</text>
-  <text x="416.57" y="825.34" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Golden</text>
-  <text x="842.65" y="823.81" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="11.41" font-weight="600" letter-spacing="0.17" fill="#000">Medicine Hat</text>
-  <text x="1055.7" y="823.12" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="10.6" font-weight="600" letter-spacing="0.16" fill="#000">Swift Current</text>
-  <text x="239.04" y="886.84" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Yale</text>
-  <text x="594.11" y="885.31" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="11.41" font-weight="600" letter-spacing="0.17" fill="#000">Fort Macleod</text>
-  <text x="736.13" y="886.00" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="12.21" font-weight="600" letter-spacing="0.19" fill="#000">Lethbridge</text>
-  <text x="949.18" y="885.31" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="11.41" font-weight="600" letter-spacing="0.17" fill="#000">Maple Creek</text>
-  <text x="1517.29" y="886.84" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Brandon</text>
-  <text x="1659.32" y="886.84" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Winnipeg</text>
-  <text x="168.02" y="1009.00" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="12.21" font-weight="600" letter-spacing="0.19" fill="#000">Vancouver</text>
-  <text x="310.05" y="1009.00" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="12.21" font-weight="600" letter-spacing="0.19" fill="#000">Port Moody</text>
-  <text x="1659.32" y="1009.84" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Emerson</text>
-  <text x="1552.8" y="1069.81" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="11.41" font-weight="600" letter-spacing="0.17" fill="#000">St. Boniface</text>
-  <text x="97.01" y="1132.84" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Nanaimo</text>
-  <text x="239.04" y="1130.01" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="9.9" font-weight="600" letter-spacing="0.15" fill="#000">New Westminster</text>
-  <text x="97.01" y="1255.84" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Victoria</text>
-  <text x="239.04" y="1255.00" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="12.21" font-weight="600" letter-spacing="0.19" fill="#000">Esquimalt</text>
+  <g transform="scale(0.92683)">
+  <text x="774.88" y="50.42" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
+  <text x="703.86" y="173.42" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">5/3</text>
+  <text x="916.91" y="173.42" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
+  <text x="1165.45" y="234.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">5/3</text>
+  <text x="1023.43" y="357.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">4/3</text>
+  <text x="1165.45" y="357.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
+  <text x="597.34" y="480.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
+  <text x="1023.43" y="480.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">3/2</text>
+  <text x="490.82" y="542.42" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">3/2</text>
+  <text x="668.36" y="603.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">6/4</text>
+  <text x="1165.45" y="603.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
+  <text x="1307.48" y="603.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
+  <text x="419.81" y="665.42" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">3/2</text>
+  <text x="774.88" y="665.42" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
+  <text x="313.29" y="726.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
+  <text x="526.33" y="726.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
+  <text x="952.41" y="726.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">5/3</text>
+  <text x="1236.47" y="726.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">6/4</text>
+  <text x="1378.5" y="726.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
+  <text x="1520.52" y="726.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">3/2</text>
+  <text x="1733.57" y="726.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
+  <text x="419.81" y="788.42" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">3/2</text>
+  <text x="845.89" y="788.42" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">4/3</text>
+  <text x="1058.93" y="788.42" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
+  <text x="242.27" y="849.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">3/3</text>
+  <text x="597.34" y="849.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
+  <text x="739.37" y="849.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">4/3</text>
+  <text x="952.41" y="849.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
+  <text x="1520.52" y="849.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">4/3</text>
+  <text x="1662.55" y="849.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">7/5</text>
+  <text x="171.26" y="972.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">6/4</text>
+  <text x="313.29" y="972.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">3/3</text>
+  <text x="1662.55" y="972.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
+  <text x="1556.03" y="1034.42" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">2/1</text>
+  <text x="242.27" y="1095.92" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="24" font-weight="700" letter-spacing="0.24" fill="#000">5/3</text>
+  <text x="774.88" y="86.46" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="8.4" font-weight="600" letter-spacing="0.13" fill="#000">Victoria Settlement</text>
+  <text x="703.86" y="213.58" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Edmonton</text>
+  <text x="916.91" y="212.74" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="12.21" font-weight="600" letter-spacing="0.19" fill="#000">Fort Pitt</text>
+  <text x="1165.45" y="272.86" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="10.6" font-weight="600" letter-spacing="0.16" fill="#000">Prince Albert</text>
+  <text x="1023.43" y="397.24" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="12.21" font-weight="600" letter-spacing="0.19" fill="#000">Battleford</text>
+  <text x="1165.45" y="396.55" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="11.41" font-weight="600" letter-spacing="0.17" fill="#000">Fort Carlton</text>
+  <text x="597.34" y="521.08" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Cochrane</text>
+  <text x="1023.43" y="521.08" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Batoche</text>
+  <text x="490.82" y="582.58" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Field</text>
+  <text x="668.36" y="644.08" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Calgary</text>
+  <text x="1165.45" y="640.65" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="9.2" font-weight="600" letter-spacing="0.14" fill="#000">Qu'Appelle Station</text>
+  <text x="1307.48" y="641.25" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="9.9" font-weight="600" letter-spacing="0.15" fill="#000">Fort Qu'Appelle</text>
+  <text x="419.81" y="704.74" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="12.21" font-weight="600" letter-spacing="0.19" fill="#000">Revelstoke</text>
+  <text x="774.88" y="705.58" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Gleichen</text>
+  <text x="313.29" y="767.08" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Kamloops</text>
+  <text x="526.33" y="767.08" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Banff</text>
+  <text x="952.41" y="766.24" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="12.21" font-weight="600" letter-spacing="0.19" fill="#000">Moose Jaw</text>
+  <text x="1236.47" y="767.08" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Regina</text>
+  <text x="1378.5" y="765.55" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="11.41" font-weight="600" letter-spacing="0.17" fill="#000">Indian Head</text>
+  <text x="1520.52" y="763.65" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="9.2" font-weight="600" letter-spacing="0.14" fill="#000">Portage la Prairie</text>
+  <text x="1733.57" y="767.08" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Selkirk</text>
+  <text x="419.81" y="828.58" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Golden</text>
+  <text x="845.89" y="827.05" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="11.41" font-weight="600" letter-spacing="0.17" fill="#000">Medicine Hat</text>
+  <text x="1058.93" y="826.36" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="10.6" font-weight="600" letter-spacing="0.16" fill="#000">Swift Current</text>
+  <text x="242.27" y="890.08" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Yale</text>
+  <text x="597.34" y="888.55" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="11.41" font-weight="600" letter-spacing="0.17" fill="#000">Fort Macleod</text>
+  <text x="739.37" y="889.24" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="12.21" font-weight="600" letter-spacing="0.19" fill="#000">Lethbridge</text>
+  <text x="952.41" y="888.55" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="11.41" font-weight="600" letter-spacing="0.17" fill="#000">Maple Creek</text>
+  <text x="1520.52" y="890.08" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Brandon</text>
+  <text x="1662.55" y="890.08" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Winnipeg</text>
+  <text x="171.26" y="1012.24" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="12.21" font-weight="600" letter-spacing="0.19" fill="#000">Vancouver</text>
+  <text x="313.29" y="1012.24" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="12.21" font-weight="600" letter-spacing="0.19" fill="#000">Port Moody</text>
+  <text x="1662.55" y="1013.08" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="13.19" font-weight="600" letter-spacing="0.20" fill="#000">Emerson</text>
+  <text x="1556.03" y="1073.05" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="11.41" font-weight="600" letter-spacing="0.17" fill="#000">St. Boniface</text>
+  <text x="242.27" y="1133.25" text-anchor="middle" font-family="&#39;EB Garamond&#39;, serif" font-size="9.9" font-weight="600" letter-spacing="0.15" fill="#000">New Westminster</text>
   </g>
 </svg>

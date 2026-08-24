@@ -41,8 +41,6 @@ function neighbours(col, row) {
 // the mountain chokepoint, the Lower Mainland cluster, the Vancouver Island
 // crossing, and the Battleford/Prince Albert/Edmonton northern arc.
 const EDGES = [
-  ['Victoria', 'Esquimalt'], ['Victoria', 'Nanaimo'],
-  ['Nanaimo', 'Vancouver'],                                    // the water-gap crossing — see BRIDGE below
   ['Vancouver', 'Port Moody'], ['Vancouver', 'New Westminster'], ['Port Moody', 'New Westminster'],
   ['Vancouver', 'Yale'], ['Yale', 'Kamloops'], ['Kamloops', 'Revelstoke'],
   ['Revelstoke', 'Golden'], ['Golden', 'Field'], ['Field', 'Banff'], ['Banff', 'Cochrane'], ['Cochrane', 'Calgary'],
@@ -52,9 +50,18 @@ const EDGES = [
   ['Regina', 'Brandon'], ['Brandon', 'Portage la Prairie'], ['Portage la Prairie', 'Winnipeg'],
   ['Winnipeg', 'St. Boniface'], ['Winnipeg', 'Selkirk'], ['Winnipeg', 'Emerson'],
   ['Calgary', 'Fort Macleod'], ['Fort Macleod', 'Lethbridge'],
-  ['Calgary', 'Edmonton'], ['Edmonton', 'Battleford'], ['Battleford', 'Prince Albert'], ['Prince Albert', 'Regina'],
+  // northern boreal arc (board-rework-2): the real Carlton Trail order,
+  // Edmonton - Fort Pitt - Battleford - Fort Carlton - Batoche - Prince
+  // Albert - Regina, plus a dead-end spur to Victoria Settlement (a real
+  // mission east of Edmonton, never on any through-route) — replaces the
+  // old direct Edmonton-Battleford and Battleford-Prince Albert edges with
+  // the new intermediate towns spliced in.
+  ['Calgary', 'Edmonton'], ['Edmonton', 'Victoria Settlement'],
+  ['Edmonton', 'Fort Pitt'], ['Fort Pitt', 'Battleford'],
+  ['Battleford', 'Fort Carlton'], ['Fort Carlton', 'Batoche'], ['Batoche', 'Prince Albert'],
+  ['Prince Albert', 'Regina'],
 ];
-const BRIDGE = new Set(['Nanaimo|Vancouver', 'Vancouver|Nanaimo']);
+const BRIDGE = new Set();
 
 const land = new Set();  // "col,row" already marked as land
 const add = (c, r) => land.add(`${c},${r}`);
@@ -73,37 +80,36 @@ for (const [a, b] of EDGES) {
 for (const c of byName.values()) add(c.col, c.row);
 
 // ---- terrain typing ---------------------------------------------------------
-// RESCALE (24x22 grid): re-derived from where the actual cities in cities.json
-// now sit, not by eye and not by resizing the old 40x34 thresholds (both of
-// which the rescale spike explicitly flagged as shortcuts to fix properly).
-// Region rules per docs/western-canada-board-research.md §4 and the build
-// report's own city-role list:
-//  - Northern boreal arc: Edmonton (9,2), Battleford (13,5), Prince Albert
-//    (15,3) — rows 0-6 catches all three with a small margin, same "sparse
-//    forest, low value" role as the Canadian board's Shield interior.
+// BOARD-REWORK-2: re-derived again after removing Vancouver Island (rows
+// 18-19 no longer exist at all) and adding 4 northern towns, all of which
+// still land comfortably inside the existing boreal-arc row band. Region
+// rules per docs/western-canada-board-research.md §4 and the build report's
+// own city-role list:
+//  - Northern boreal arc: Edmonton (9,2), Victoria Settlement (10,0), Fort
+//    Pitt (12,2), Prince Albert (15,3), Battleford (13,5), Fort Carlton
+//    (15,5) — rows 0-6 catches all of these with a small margin, same
+//    "sparse forest, low value" role as the Canadian board's Shield
+//    interior. Batoche (13,7) falls just outside this band (see below).
 //  - Rockies/Selkirks mountain chokepoint: Cochrane (7,7), Field (6,8),
 //    Calgary (8,9), Revelstoke (5,10), Gleichen (10,10), Banff (6,11),
 //    Kamloops (3,11), Golden (5,12) — every one of these lands inside
 //    cols 3-10, rows 7-12, which is exactly the box used below. Fort Macleod
 //    and Lethbridge (both row 13) are deliberately just outside this box —
 //    prairie/foothills towns, not mountain towns, per the build report.
+//    Batoche (13,7) sits at row 7 but col 13, well outside the col 3-10
+//    mountain box, so it correctly falls through to prairie below — a real
+//    South Saskatchewan River parkland/prairie town, not a mountain one.
 //  - Fraser Canyon (Onderdonk's contract corridor): cols 0-3, rows 11-14 —
 //    catches Yale (2,13) in the canyon proper, shading down to plains at
 //    Kamloops (already covered by the mountain box above).
 //  - Lower Mainland lowlands: cols 0-3, rows 15-17 — Vancouver, Port Moody,
-//    New Westminster, Nanaimo (the mainland side and the near shore).
-//  - Vancouver Island south of the water gap: cols 0-2, rows 18-21 — plains
-//    near Victoria (row 19), forest further south near Esquimalt (row 21),
-//    mirroring the original board's "plains near town, forest further south"
-//    split.
+//    New Westminster and the near shore (Vancouver Island removed entirely).
 //  - Everything else still standing: prairie.
 function terrainFor(col, row) {
   if (row <= 6) return 'F';                                          // northern boreal arc
   if (row >= 7 && row <= 12 && col >= 3 && col <= 10) return 'M';     // Rockies/Selkirks chokepoint
   if (row >= 11 && row <= 14 && col <= 3) return 'M';                 // Fraser Canyon
   if (row >= 15 && row <= 17 && col <= 3) return 'P';                 // Lower Mainland lowlands
-  if (row >= 18 && row <= 19 && col <= 2) return 'P';                 // Vancouver Island (near shore)
-  if (row >= 20 && col <= 2) return 'F';                              // Vancouver Island (further south)
   return 'P';                                                         // prairie
 }
 

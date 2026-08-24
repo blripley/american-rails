@@ -1,5 +1,5 @@
 {
-  "_note": "1881-87 cities for the Western Canada (CPR) map. lat/lon are real modern coordinates for the historical site; name is the name IN USE 1881-87 (see docs/western-canada-board-research.md §5 for the period-name-trap checklist — Lethbridge and Vancouver are both accepted anachronisms for part of the window, kept per the locked design decision). full/shared are the two printed income values, tiered by role (capital/hub > CPR divisional point or documented construction-era population > construction camp/garrison/thin place) per docs/western-canada-board-research.md §1 and its explicit note that a Historical-Atlas-quality population ladder does not exist for this era. hub = non-developable (black square); the 5 locked hubs are Winnipeg, Calgary, Edmonton, Regina, Vancouver — NOT Victoria, which the research doc's own §2 recommends as a hub but the design's locked decision (see build task) overrides in favour of Edmonton+Regina. special = one of the 3 $10 connection cities (Winnipeg, Calgary, Vancouver). region is for terrain authoring and the research doc only.",
+  "_note": "1881-87 cities for the Western Canada (CPR) map. lat/lon are real modern coordinates for the historical site; name is the name IN USE 1881-87 (see docs/western-canada-board-research.md §5 for the period-name-trap checklist — Lethbridge and Vancouver are both accepted anachronisms for part of the window, kept per the locked design decision). full/shared are the two printed income values, tiered by role (capital/hub > CPR divisional point or documented construction-era population > construction camp/garrison/thin place) per docs/western-canada-board-research.md §1 and its explicit note that a Historical-Atlas-quality population ladder does not exist for this era. hub = non-developable (black square); the 5 locked hubs are Winnipeg, Calgary, Edmonton, Regina, Vancouver. special = one of the 3 $10 connection cities (Winnipeg, Calgary, Vancouver). region is for terrain authoring and the research doc only. BOARD-REWORK-2 (Ben's direct feedback after playing the board): Victoria, Esquimalt and Nanaimo (the whole Vancouver Island water-gap cluster) were removed outright — the crossing didn't fit the board well and wasn't worth keeping; this does not touch the hub set (Victoria was never a hub). Four new, real, individually-sourced towns were added to the northern Edmonton-Battleford-Prince Albert corridor instead (Victoria Settlement, Fort Pitt, Fort Carlton, Batoche — see each entry's own note and docs/western-canada-board-research.md's board-rework-2 addendum), and Field/Golden/Revelstoke each got a modest +1/+1 value bump as the mountain corridor's own 'higher-priced reward' per Ben's request.",
   "cities": [
     {
       "name": "Winnipeg",
@@ -90,6 +90,49 @@
       "shared": 3,
       "region": "SK",
       "note": "Founded 1866 as a Presbyterian mission; ~500 people at the mission by end of 1882, 'more than 5,000 in the area'. Capital of the District of Saskatchewan until 1905. Off the CPR main line, historically reachable only via the Qu'Appelle, Long Lake & Saskatchewan Railroad — a branch destination, not a mainline stop."
+    },
+    {
+      "name": "Victoria Settlement",
+      "lat": 54.021,
+      "lon": -112.502,
+      "full": 2,
+      "shared": 1,
+      "region": "AB",
+      "note": "NEW (board-rework-2, northern-density pass): a real Methodist mission founded 1862 by Rev. George McDougall on the North Saskatchewan River (HBC's own adjoining post, Fort Victoria, dates to 1864); Metis population grew to ~130 by 1870 via Red River settlers taking up river-lot farms, with one of the first Protestant schools west of Manitoba on-site. Later known as Pakan (after Cree chief Pakannuk), but 'Victoria Settlement' is the name in use through this board's 1881-87 window. No population figure specific to 1881-87 was found beyond the 1870 estimate -- not invented past that. Kept at the board's thin-documentation floor (2/1), same tier as Fort Qu'Appelle, rather than guessing a higher number.",
+      "nudge": [1, -1],
+      "nudgeWhy": "NEW: raw projection lands directly hex-adjacent to Edmonton (their real ~100km separation compresses to one hex step at this grid density); nudged one hex further along the real bearing from Edmonton (east-northeast) to clear it -- a bearing-constrained 1-hex nudge, found by the same solver method as the rescale-final pass"
+    },
+    {
+      "name": "Fort Pitt",
+      "lat": 53.549,
+      "lon": -109.712,
+      "full": 2,
+      "shared": 1,
+      "region": "SK",
+      "note": "NEW (board-rework-2, northern-density pass): HBC fur-trade/provisioning post on the North Saskatchewan River, roughly midway between Edmonton and Battleford on the real Carlton Trail corridor. A 1885 North-West Rebellion site: Cree forces under Big Bear besieged and burned it in April 1885 after the nearby Frog Lake killings, and NWMP/HBC occupants evacuated by river to Battleford. No town population figure exists (it was a fort/post, not a settled town) -- valued at the board's garrison/post floor (2/1), same tier as Fort Macleod and Fort Qu'Appelle.",
+      "region_note": "role/dates HIGH (Canadian Encyclopedia, Parks Canada); no population claim made"
+    },
+    {
+      "name": "Fort Carlton",
+      "lat": 52.870,
+      "lon": -106.530,
+      "full": 2,
+      "shared": 1,
+      "region": "SK",
+      "note": "NEW (board-rework-2, northern-density pass): HBC fur-trade/provisioning post on the North Saskatchewan River near Duck Lake, established 1810; served as the main NWMP base of operations in the district through most of this board's window until the March 1885 Battle of Duck Lake, after which it was evacuated and accidentally burned. A real, well-documented 1885 Rebellion site (the Metis provisional government at Batoche demanded its surrender). No town population figure exists (fort/post, not a settled town) -- valued at the same garrison/post floor as Fort Pitt and Fort Macleod (2/1).",
+      "nudge": [0, 1],
+      "nudgeWhy": "NEW: raw projection lands directly hex-adjacent to Prince Albert (they are genuinely close, ~90km, at this grid's compression); nudged one hex south along the real bearing (Fort Carlton sits south-southwest of Prince Albert), the nearest hex clear of both Prince Albert and Battleford"
+    },
+    {
+      "name": "Batoche",
+      "lat": 52.722,
+      "lon": -106.111,
+      "full": 3,
+      "shared": 2,
+      "region": "SK",
+      "note": "NEW (board-rework-2, northern-density pass): Metis settlement founded 1872 by Red River colonists on the South Saskatchewan River; became the seat of Louis Riel's provisional government (declared 18 March 1885) and the site of the climactic Battle of Batoche (9-12 May 1885), the end of the North-West Resistance. Population ~500 in 1885 (HIGH, cross-referenced across sources) -- the single best-documented new town added in this pass, valued a tier above the garrison/post floor (3/2, matching Portage la Prairie's similarly-documented ~1,000-range settlements) given both its real population figure and its outsized historical/political weight.",
+      "nudge": [-2, 2],
+      "nudgeWhy": "NEW: raw projection collides with Fort Carlton's own raw position (they are genuinely ~30km apart in reality, well under one hex step at this density); Fort Carlton was resolved first (smaller 1-hex nudge, see above), so Batoche was nudged further along its own real bearing from Prince Albert (south-southwest) until clear of Fort Carlton, Prince Albert and Battleford all at once -- a larger nudge than the rest of this pass needed, a direct consequence of the real Fort Carlton/Duck Lake/Batoche cluster being unusually tight, the same shape of problem the original build's Golden nudge documented"
     },
     {
       "name": "Fort Qu'Appelle",
@@ -293,19 +336,19 @@
       "name": "Revelstoke",
       "lat": 50.998,
       "lon": -118.196,
-      "full": 2,
-      "shared": 1,
+      "full": 3,
+      "shared": 2,
       "region": "BC",
-      "note": "Surveyed as 'Farwell' in 1885, renamed Revelstoke in 1886 after Lord Revelstoke, the British financier whose firm helped underwrite CPR construction finance. Barely exists before 1885."
+      "note": "Surveyed as 'Farwell' in 1885, renamed Revelstoke in 1886 after Lord Revelstoke, the British financier whose firm helped underwrite CPR construction finance. Barely exists before 1885. VALUE BUMP (board-rework-2, Ben's direct feedback): raised 2/1 -> 3/2 along with Field and Golden, the three central stops of the actual Rogers/Kicking Horse Pass sequence -- 'a bit more difficult, with higher priced cities as the reward, is a good idea, but not too much.' A modest +1/+1, not a re-tier."
     },
     {
       "name": "Golden",
       "lat": 51.298,
       "lon": -116.964,
-      "full": 2,
-      "shared": 1,
+      "full": 3,
+      "shared": 2,
       "region": "BC",
-      "note": "Emerged as a construction tent town in 1884-85 at the Kicking Horse/Columbia River junction; was originally intended as the mountain divisional point (a role that went to Revelstoke only in 1899). Tiny population in-era.",
+      "note": "Emerged as a construction tent town in 1884-85 at the Kicking Horse/Columbia River junction; was originally intended as the mountain divisional point (a role that went to Revelstoke only in 1899). Tiny population in-era. VALUE BUMP (board-rework-2): 2/1 -> 3/2, see Revelstoke's note.",
       "nudge": [-1, 3],
       "nudgeWhy": "RESCALE: real-world Golden is WSW of Field, but at 24x22 density the whole Field-Banff-Cochrane-Revelstoke pileup boxes in every hex within 2 steps of that direct line; nudged further southwest, the nearest hex a bearing-constrained solver found clear of all four neighbours -- a bigger nudge than the rest of this cluster needed, a direct consequence of the mountain corridor's real-world density, not an arbitrary placement"
     },
@@ -313,43 +356,10 @@
       "name": "Field",
       "lat": 51.398,
       "lon": -116.487,
-      "full": 2,
-      "shared": 1,
+      "full": 3,
+      "shared": 2,
       "region": "BC",
-      "note": "CPR station near the base of the Kicking Horse Pass 'Big Hill' grade, established during mid-1880s mountain-section construction."
-    },
-    {
-      "name": "Victoria",
-      "lat": 48.428,
-      "lon": -123.365,
-      "full": 5,
-      "shared": 3,
-      "region": "BC",
-      "note": "Capital of the united Colony of British Columbia since 1866, and of the province since 1871; population 5,925 at the 1881 census — the largest hard population figure of any place in this whole research doc after Winnipeg. NOT a locked hub on this board (the design brief overrides the research doc's own hub recommendation in favour of Edmonton+Regina) — valued high as a developable city instead, on the logic used repeatedly on the Canadian board that a remote, high-value prize justifies the cost of the spur (here, the Vancouver Island water-gap crossing) that reaches it.",
-      "nudge": [0, 2],
-      "nudgeWhy": "RESCALE: kept south down-island of Nanaimo, same as the original board, but the rescaled grid's rows 18-21 exist specifically to give this cluster room (see project.mjs) -- Victoria sits 2 hexes south of Nanaimo, mirroring how far down-island it sits in reality relative to the Nanaimo-Vancouver crossing point"
-    },
-    {
-      "name": "Esquimalt",
-      "lat": 48.432,
-      "lon": -123.409,
-      "full": 2,
-      "shared": 1,
-      "region": "BC",
-      "note": "Royal Navy's Pacific Station headquarters since 1865; the Esquimalt & Nanaimo Railway reached it in 1886 and the naval dockyard was completed in 1887. No standalone population figure found (folded into greater Victoria in most sources).",
-      "nudge": [2, 2],
-      "nudgeWhy": "RESCALE: projects onto the same hex as Victoria (they are real, adjoining neighbours, ~5 km apart in reality). A straight south nudge needs 4 rows of clearance at this density and pushes the whole island cluster into the printed company-plates strip at the bottom of the frame, so shifted east instead (2 hexes east, same row as Victoria) -- enough hex distance to clear Victoria and New Westminster both while keeping the whole island within the board's vertical budget"
-    },
-    {
-      "name": "Nanaimo",
-      "lat": 49.166,
-      "lon": -123.936,
-      "full": 4,
-      "shared": 3,
-      "region": "BC",
-      "note": "HBC coal operation since 1852; grew from ~1,000 (1874) toward ~10,000 by 1900 — no single figure pinned to 1881-87 specifically, so this value is an interpolated mid-era estimate, not a sourced fact for this exact window.",
-      "nudge": [0, 2],
-      "nudgeWhy": "RESCALE: Vancouver Island is physically separate from the mainland (see terrain.json's water-gap region). Shifted 2 hexes south of its raw projected position -- which otherwise lands 2 hexes due west of Vancouver at the SAME row, i.e. would read as ordinary adjacent mainland rather than an island across a strait. The 2-hex south shift plus the off-map hexes hand-carved into terrain.json puts exactly one land hex, (1,16), between Nanaimo and Vancouver: a real, single-tile bridge crossing, not a wide land connection -- see docs/western-canada-board-rescale-final.md for the exact hex-by-hex reasoning"
+      "note": "CPR station near the base of the Kicking Horse Pass 'Big Hill' grade, established during mid-1880s mountain-section construction. VALUE BUMP (board-rework-2): 2/1 -> 3/2, see Revelstoke's note."
     }
   ]
 }
