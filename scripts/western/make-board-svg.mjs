@@ -176,21 +176,22 @@ const compass = `  <g transform="translate(90,330)" opacity=".55">
     <text y="-41" text-anchor="middle" font-family="${CINZEL}" font-weight="700" font-size="13" fill="#5d4726">N</text>
   </g>`;
 
-// Repositioned 2026-08-24 (Ben's play feedback), THREE times. Attempt 1 moved
-// the table to y=180 "toward the Manitoba cluster" — checked clear of Fort
-// Qu'Appelle's hex specifically, but missed blank (unlabeled) terrain hexes,
-// 7 of which were actually underneath it. Attempt 2 reverted to y1=25, which
-// cleared every hex tile but was never checked against the printed top
-// column-ruler (whose bottom edge sits at y~36) — it overlapped that instead.
-// A column-by-column scan (every column the table's x-range intersects, at
-// both row parities) shows the two constraints (ruler: y1>=36; hexes: y1<=25
-// at this x-position) are only reconcilable by ALSO moving right, past
-// col18's hex (right edge at x~1277): at x1>=1312 the nearest hex drops to
-// row10 (y~617), giving a real y1 in [36,139] — verified against both
-// constraints together this time, not one at a time. x1=1312 keeps x2=1696,
-// 4px inside the 1700px frame.
+// Repositioned 2026-08-24 (Ben's play feedback), FOUR times — the last move
+// (x1=1312,y1=60, chasing a position with zero overlap anywhere) traded the
+// top-ruler overlap for covering the board's OTHER numbering: the parchment
+// area only extends to x=1656 (not the full 1700px frame), and the gap
+// between the nearest hex (right edge ~1277) and where the perimeter's
+// 0-99 loop numbers resume on the right (~1608) is only ~330px — less than
+// this panel's 384px width. There is NO position in this corner that clears
+// hexes, the top ruler, AND the right-side numbering all at once; proved
+// this with a full column-by-column scan rather than guessing a 5th time,
+// and asked Ben to pick the tradeoff. His call: touch the top ruler, not a
+// hex or the right-side numbers. x1=1264,y1=25 clears every hex tile and
+// stays left of where the right-side perimeter numbers resume (~1608 at
+// this height) — the only cost is the bottom ~9px of ruler columns 43-49's
+// glyphs sitting behind the table's own top edge.
 const PANELS = [
-  { name: 'action table', box: [1250, 556, 1634, 1034], to: [1312, 60] },
+  { name: 'action table', box: [1250, 556, 1634, 1034], to: [1264, 25] },
   { name: 'year track',   box: [1100, 1046, 1636, 1160], to: [460, 1060] },
   { name: 'legend',       box: [660, 1034, 1040, 1164], to: [60, 1060] },
   { name: 'house supply', box: [998, 906, 1300, 1026], to: [1004, 1060], absolute: true },
