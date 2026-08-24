@@ -522,3 +522,85 @@ or all of 1881-87:
   important place-name in the entire story and essentially uninhabited —
   it may fit the board better as a marked terrain feature/route waypoint
   near Eagle Pass than as a priced city hex.
+
+---
+
+## 7. Addendum (board-rework-2): Vancouver Island removed, northern corridor densified
+
+Ben played the board himself and gave direct feedback: the Vancouver Island
+water-gap crossing "does not fit on the board very well" and should be
+removed, and the northern Edmonton-Battleford-Prince Albert branch has "no
+benefit to building up that direction right now" and should get more towns.
+This addendum documents both changes' research.
+
+### 7a. Vancouver Island removal
+
+Victoria, Esquimalt and Nanaimo (§1d above) were removed from the board
+entirely, along with the hand-carved water-gap terrain and the two grid
+rows that existed only to give the island room south of the mainland. This
+is a board-content decision, not a correction to the research above — §1d's
+entries for these three places remain accurate historical research, just no
+longer represented on the map. It does not touch the hub set: Victoria was
+never one of the 5 locked hubs (§2's own recommendation to make Victoria a
+hub was already overridden by the locked design decision before this
+rework), and New Westminster and Port Moody — real mainland BC coast
+cities, never part of the island problem — are unaffected and remain on the
+board.
+
+### 7b. Four new northern towns, researched to the same HIGH/MEDIUM/LOW standard as §1
+
+Candidates considered: Fort Carlton, Fort Pitt, Duck Lake, Batoche, Victoria
+Mission/Pakan, and St. Albert. All six are real, documented 1861-87
+settlements in or near this corridor. Four were selected for real,
+well-sourced geographic spread along the route (rather than piling three or
+four onto the same tight Duck Lake/Batoche/Fort Carlton cluster, which sit
+within ~30km of each other in reality); Duck Lake and St. Albert were set
+aside as the two thinner/most-redundant candidates, not because either is
+poorly documented, but see the notes below.
+
+| Place | Name in use 1881-87 | Notes | Confidence |
+|---|---|---|---|
+| **Fort Pitt** | Fort Pitt | HBC fur-trade/provisioning post on the North Saskatchewan River, roughly midway between Edmonton and Battleford — real, on the Carlton Trail corridor. A 1885 North-West Rebellion site: besieged and burned by Cree forces under Big Bear in April 1885 (in the aftermath of the Frog Lake killings); NWMP/HBC occupants evacuated downriver to Battleford. No town population figure exists — it was a fur-trade post/garrison, not a settled town, the same honest limitation Fort Macleod and Fort Qu'Appelle already carry on this board. | HIGH (role, dates, Rebellion involvement — Canadian Encyclopedia, Parks Canada); no population claim made |
+| **Fort Carlton** | Fort Carlton | HBC fur-trade/provisioning post on the North Saskatchewan River near Duck Lake, established 1810 — one of the HBC's most important prairie posts. Served as the main North-West Mounted Police base of operations in the district through most of this board's window, until the Battle of Duck Lake (26 March 1885) forced its evacuation; it was accidentally burned shortly after. Real and heavily documented as a 1885 Rebellion site (the Métis provisional government at Batoche demanded its surrender in March 1885). Like Fort Pitt, no town population figure exists — a fort/post, not a settled town. | HIGH (role, dates, Rebellion involvement — Canadian Encyclopedia, Parks Canada, University of Saskatchewan's Indigenous Saskatchewan Encyclopedia); no population claim made |
+| **Batoche** | Batoche | Métis settlement founded 1872 by colonists from the Red River Settlement; Xavier Letendre "dit Batoche" built a ferry crossing there in 1873. Became the seat of Louis Riel's provisional government (declared 18 March 1885) and the site of the climactic Battle of Batoche (9-12 May 1885), the resistance's final and most significant engagement. Population **500** in 1885 — a real, cross-referenced hard figure, better-documented than most of this board's existing thin/unsourced places. | HIGH (settlement history, population figure, Rebellion role — Wikipedia/Parks Canada's Batoche National Historic Site page, Britannica, University of Saskatchewan) |
+| **Victoria Settlement** | Victoria Settlement (also Fort Victoria for the adjoining HBC post; "Pakan," after Cree chief Pakannuk, became the common name later) | Methodist mission founded 1862 by Rev. George McDougall on the North Saskatchewan River east of Edmonton, on a traditional Indigenous camping ground; the HBC's own adjoining post, Fort Victoria, dates to 1864. Métis population grew to roughly 130 by 1870 as Red River families took up river-lot farms; the mission ran one of the first Protestant schools west of Manitoba and later a hospital. No population figure specific to 1881-87 itself was found — the 1870 figure is the best-documented number and is not extrapolated forward. | HIGH (founding, role — Canadian Encyclopedia, Alberta's Historic Places, OMI World); MEDIUM (population, era-specific) |
+
+**Why Duck Lake and St. Albert were set aside:**
+
+- **Duck Lake** — real and extremely well-documented (site of the opening
+  Battle of Duck Lake, 26 March 1885, the conflict's first engagement) but
+  sits only ~10-20km from both Fort Carlton and Batoche in reality. At this
+  board's hex scale, all three compress toward the same 1-2 hexes; adding
+  Duck Lake alongside both would have meant either an implausible pile of
+  nudges in one small corner of the board or effectively duplicating
+  Fort Carlton/Batoche's own story beats (the same 1885 Rebellion opening
+  chapter) without adding new geographic reach. Fort Carlton and Batoche
+  between them already carry Duck Lake's historical moment (the Battle of
+  Duck Lake was fought between the two).
+- **St. Albert** — real, well-documented (founded 1861 by Father Albert
+  Lacombe, Alberta's oldest non-fortified community, a genuinely sizeable
+  Métis/Catholic mission by the 1880s) but sits only ~12km from Edmonton
+  itself — close enough in reality that at this board's compression it
+  would land immediately hex-adjacent to Edmonton, needing a nudge large
+  enough to misrepresent the real geography, and would read as "a second
+  Edmonton" rather than a new place to visit. Victoria Settlement, sitting
+  genuinely further out (roughly 100km east of Edmonton) gives real
+  geographic spread along the corridor that St. Albert's near-Edmonton
+  location does not.
+
+**Placement:** all four project cleanly using the existing `project.mjs`
+formula (no grid changes were needed to accommodate them — the northern
+boreal-arc rows already had room). Fort Pitt needed no nudge; Victoria
+Settlement, Fort Carlton and Batoche each needed a small (1-2 hex),
+bearing-constrained nudge to clear an already-occupied hex, documented in
+each entry's own `nudgeWhy` field in `cities.json`, following the same
+solver methodology as the grid-rescale pass (smallest nudge along the real
+compass bearing from the nearest conflicting city, not a blind search).
+
+**Route:** the four new towns were spliced into the existing route network
+in real Carlton Trail order: Edmonton – Fort Pitt – Battleford – Fort
+Carlton – Batoche – Prince Albert – Regina, plus a dead-end spur from
+Edmonton to Victoria Settlement (which was never on a through-route in
+reality). See `docs/western-canada-board-rework-2.md` for the full build
+report, including the 16-game bot measurement of how much traffic this
+corridor sees now.
