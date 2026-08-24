@@ -113,8 +113,15 @@ const craigellachiePx = {
 };
 const labels = [
   region('BRITISH COLUMBIA', 300, 210, 17, 5),
-  region('THE PRAIRIES', 900, 90, 18, 6),
-  region('NORTH-WEST TERRITORIES', 900, 118, 13, 3),
+  // Moved 2026-08-24: the OY 60->85 grid shift (fixing the top-border overlap,
+  // see project.mjs) pushed row0/row1 hexes down into these labels' old
+  // position (x~900, y~90-123) -- confirmed 4 real hex tiles now covered that
+  // spot. Re-scanned the terrain grid for a genuinely clear column range: x
+  // 800-1010 has land as early as row0 (y<=47, no room at all), but x
+  // 960-1210 stays clear until row2 (y<=161) -- moved here, verified against
+  // the actual terrain.json data, not guessed.
+  region('THE PRAIRIES', 1080, 125, 18, 6),
+  region('NORTH-WEST TERRITORIES', 1080, 153, 13, 3),
   // BOARD-REWORK-2: repositioned for the 24x18 grid (HEX 38, was 40/20 rows)
   // -- the coastline sits around row 15 (Vancouver's own row), same as the
   // prior pass, just recomputed for the new pixel scale. Vancouver Island
