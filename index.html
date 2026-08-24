@@ -13342,6 +13342,7 @@ function endActionPhase(s){
 
 /* -- individual actions -- */
 function doFund5(s, companyId){ if (s.turnPhase!=='funding') return false; if (isRemoved(s.companies[companyId])) return false;
+  if (!s.players[s.currentPlayer].shares.includes(companyId)) return false;   // only a company you hold a share in
   s.companies[companyId].treasury += 5; pushLog(s, `${s.players[s.currentPlayer].name}: Fund $5 to ${COMPANIES[companyId].name}.`); completeAction(s); return true; }
 function doTake2(s, mode){ if (s.turnPhase!=='take2choice') return false; const cur=s.currentPlayer;
   if (mode==='take'){ s.players[cur].money += 2; pushLog(s, `${s.players[cur].name}: Take $2 from the bank.`); }
@@ -13507,7 +13508,7 @@ function maybeRunBot(){ if (botTimer) return; if (!botDrivesNow(gameState)) retu
 function botFallback(s){ switch(s.turnPhase){
   case 'bidding': return 'pass';
   case 'chooseAction': return 'choose:'+(availableActionRows(s)[0]||'pass');
-  case 'funding': return 'fund:'+activeCompanyIds(s)[0];
+  case 'funding': { const owned=ownedOnMapCompanies(s,s.currentPlayer); return owned.length?'fund:'+owned[0]:'decline'; }
   case 'take2choice': return 'take2:take';
   case 'auctionSelect': { const a=activeCompanyIds(s).find(id=>s.companies[id].sharesInSupply>0); return a?'auc:'+a:'back'; }
   case 'pickNextAuction': return 'pickauc:'+s.setupQueue[0];
@@ -13822,7 +13823,10 @@ function botDecide(s){ const me=s.currentPlayer, diff=s.players[me].bot||'easy';
     case 'placeStartCube': return 'hex:'+botStartCity(s, me, diff);
     case 'confirmStartCube': return 'startok';                 // a bot picked it deliberately — nothing to reconsider
     case 'chooseAction': return 'choose:'+botAction(s, me, diff);
-    case 'funding': return 'fund:'+botFundCo(s, me, diff);
+    // 'decline' (not 'back') on nothing-to-fund: 'back' would re-free the row for THIS bot to
+    // reconsider, and since nothing changes between decisions it would just pick fund5 again —
+    // decline spends the action-phase slot outright, same as a human choosing wrong and losing the turn
+    case 'funding': { const co=botFundCo(s, me, diff); return co ? 'fund:'+co : 'decline'; }
     case 'take2choice': return botTake2(s, me, diff);
     case 'auctionSelect': { const ap=auctionPlan(s, me, diff); if(ap.pick) return 'auc:'+ap.pick;
       botAvoidRow(s, me, 'auction'); return 'back'; }   // backing out frees the row again — don't re-pick it and spin
@@ -13971,7 +13975,7 @@ function botStartCity(s, me, diff){ const empties=Object.keys(BOARD).filter(id=>
   if (diff==='easy') return empties[Math.floor(botNoise(s,me,'startCity:'+empties.join(','))*empties.length)];
   return empties.sort((a,b)=>cityScore(s,b,diff)-cityScore(s,a,diff))[0]; }
 function botFundCo(s, me, diff){ const owned=[...new Set(s.players[me].shares)].filter(cid=>s.companies[cid].onMap && !isRemoved(s.companies[cid]));
-  if(!owned.length) return activeCompanyIds(s)[0];
+  if(!owned.length) return null;   // Fund only ever pays into a company you hold a share in — nothing to fund
   if(diff==='easy') return owned.sort((a,b)=>s.companies[a].treasury-s.companies[b].treasury)[0];
   // fund companies you DOMINATE (the treasury mostly benefits you) and that actually need it to build
   const score=cid=>{ const co=s.companies[cid], dom= totalHeld(s,cid)? heldBy(s,cid,me)/totalHeld(s,cid):1;
@@ -14088,9 +14092,12 @@ function botAction(s, me, diff){ const rows=availableActionRows(s), money=s.play
       }
       add('auction', av); } }
   // Fund $5 is $5 of bank money turned into track — worth my slice of the income it buys, and worth
-  // much more when it is the only thing standing between a company and a city it can reach.
-  let fundV=0.8;
+  // much more when it is the only thing standing between a company and a city it can reach. Only a
+  // company I actually hold a share in is a legal target, so with nothing owned this is worth 0 —
+  // not the floor other rows get — so bots never chase a row they can't complete.
+  let fundV=0;
   for(const cid of [...new Set(s.players[me].shares)]){ const co=s.companies[cid]; if(!co.onMap||isRemoved(co)) continue;
+    if (fundV===0) fundV=0.8;
     const slice=incomeSlice(s,me,cid);
     let v = 5/2.8*0.8*slice*rl*0.5;                            // ~1.8 cubes of track, part of which lands on cities
     if (diff!=='easy'){ const plan=bestExpansion(s,me,cid,4,diff);
@@ -14465,8 +14472,10 @@ function renderActions(s){
       h+=`<button class="act-btn" onclick="AR.ui('choose:${row}')" title="${ACTION_LABELS[row]}">${actFig(row)}<span class="act-lbl">${ACTION_SHORT[row]||ACTION_LABELS[row]}</span></button>`;
   } else if (tp==='developing'){ const legal=legalDevelopHexes(s);
     h=`<span class="prompt"><b>Develop</b>: click a city with track (not a hub).${legal.length===0?' None available.':''}</span>`+btn('Back','back','class="ghost"');
-  } else if (tp==='funding'){ h=`<span class="prompt"><b>Fund $5</b>: choose a company treasury.</span>`;
-    for (const id of activeCompanyIds(s)) h+=`<button class="co-btn" style="background:${COMPANIES[id].color}" onclick="AR.ui('fund:${id}')">${coCube(id)}${COMPANIES[id].name}</button>`;
+  } else if (tp==='funding'){ const owned=ownedOnMapCompanies(s,s.currentPlayer);
+    h=`<span class="prompt"><b>Fund $5</b>: choose a company you own a share in.</span>`;
+    if (owned.length===0) h+=`<span class="label">You don't own a share in any company on the map. </span>`;
+    for (const id of owned) h+=`<button class="co-btn" style="background:${COMPANIES[id].color}" onclick="AR.ui('fund:${id}')">${coCube(id)}${COMPANIES[id].name}</button>`;
     h+=btn('Back','back','class="ghost"');
   } else if (tp==='take2choice'){ h=`<span class="prompt"><b>Take $2</b>:</span>`+btn('Take $2 (bank)','take2:take')+btn('Everyone else pays $2 to bank','take2:fromEach');
     if (s.players.length>=4){ const canExp=ownedExpandableCompanies(s,s.currentPlayer).length>0; h+=btn('Expand 2 instead','take2expand', canExp?'':'disabled'); }
@@ -14926,7 +14935,7 @@ window.__selfTest = function(){
     else if(tp==='confirmStartCube'){ applyUi(gameState,'startok'); }
     else if(tp==='chooseAction'){ applyUi(gameState,'choose:'+s.availableRows[0]); }
     else if(tp==='take2choice'){ applyUi(gameState,'take2:take'); }
-    else if(tp==='funding'){ applyUi(gameState,'fund:'+activeCompanyIds(gameState)[0]); }
+    else if(tp==='funding'){ const owned=ownedOnMapCompanies(gameState,gameState.currentPlayer); applyUi(gameState, owned.length?'fund:'+owned[0]:'decline'); }
     else if(tp==='expanding'){ applyUi(gameState,'endexpand'); }
     else if(tp==='turnDone'){ applyUi(gameState,'done'); }
     else applyUi(gameState,'decline'); s=st(); } return s; }
@@ -15195,6 +15204,15 @@ window.__selfTest = function(){
     m.companies.american.treasury=2; m.companies.american.cubesInSupply=10;
     m.hexes[cityHexByName('Chicago')]={cubes:['american'],developed:false};
     assert('fund: useful when the company is poor and has somewhere to build', fundIsUseful(m,0)); }
+  // Fund $5 may only pay into a company the current player actually holds a share in
+  { const m=miniState(); m.turnPhase='funding'; m.currentPlayer=0;
+    m.players[0].shares=['american']; m.companies.american.onMap=true;
+    m.companies.national.onMap=true;
+    assert('fund: rejects a company you own no share in', doFund5(m,'national')===false);
+    assert('fund: treasury of the unowned company is untouched', m.companies.national.treasury===0);
+    assert('fund: accepts a company you do own a share in', doFund5(m,'american')===true);
+    assert('fund: treasury of the owned company gets the $5', m.companies.american.treasury===5);
+    assert('fund: bot fallback returns null with nothing owned', botFundCo({...m, players:[{shares:[]}]},0,'medium')===null); }
   // sniping moved down a rung
   { const m=miniState(); m.turnPhase='bidding'; m.currentPlayer=0; m.round=2;
     m.players.forEach(p=>{p.persona='tycoon';});
