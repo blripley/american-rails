@@ -12966,7 +12966,7 @@ const MAPS = {
     // down toward the Manitoba cluster, year track/legend swapped, house
     // supply nudged left. Must equal scripts/western/make-board-svg.mjs's
     // PANELS "to" values exactly (established convention).
-    at:{x:1264,y:45}, yt:{x:460,y:1060}, houseSupply:{x:1004,y:1060},
+    at:{x:1264,y:45}, yt:{x:460,y:1060}, houseSupply:{x:1038,y:1112},
     years:{start:1881, end:1887},
     // Softer forest/mountain expansion cost than the shared US/Canadian
     // default (see expandCost): Ben's feedback was that $3/$5 was "way too
@@ -14195,23 +14195,19 @@ function furnitureOverlay(s){ let ov='';
   // development houses set out in the supply box (layout follows the cube-style toggle)
   if (typeof s.developmentSupply==='number'){ const n=s.developmentSupply, rng=hexRng(4242,1717);
     const rr = cubeStyle==='tidy' ? 5 : 14;
-    // +26/+26 inset and a 170x22 scatter area (2026-08-24, 3rd attempt — the
-    // +19/220x50 version was only checked against one game's house count and
-    // seed; scatterSpots' first point can land anywhere in its box including
-    // right at the edge, and a rotated house icon's worst-case bounding
-    // swelling is ~13.5px at this scale, so a single sampled game passing
-    // proves nothing about the worst case. The +26/170x22 follow-up fixed
-    // containment but over-corrected: shrinking the scatter area that far
-    // crammed all 12 houses into a visibly bunched cluster (Ben's report).
-    // The printed box is 302x120. A 15px inset (272x90 scatter) fixed the
-    // bunching but only left 3-10px of measured margin across all 12 counts
-    // -- too close to the ~13.5px estimated worst-case swelling to trust as
-    // a real safety buffer, just luck that this sample didn't hit it. 20px
-    // inset / 262x80 scatter re-verified across every developmentSupply
-    // count 1..12 with real margin (double digits) on every side, while
-    // keeping the scatter area large enough that houses still spread out
-    // naturally instead of bunching.
-    cubeLayout(n, HOUSE_SUPPLY.x+20, HOUSE_SUPPLY.y+20, 262, 80, rng).map(p=>({...p, rot:(rng()-0.5)*rr})).sort((a,b)=>a.y-b.y)
+    // 2026-08-24: several wc-specific inset attempts here (baked into this
+    // shared call) silently broke the American/Canadian boards, which use a
+    // different, working convention instead — their MAPS.<id>.houseSupply
+    // anchor is pre-offset (+34,+52) from the printed box's true corner.
+    // MAPS.wc.houseSupply now matches that same convention (see its entry),
+    // so this call is back to a single shared, per-map-anchor-relative form.
+    // Scatter height 60->50: measuring the ACTUAL rendered icons (not just
+    // their nominal scatter point) found a genuine, pre-existing -4.5px
+    // bottom overflow on ALL THREE boards at height 60 — this was never a
+    // wc-only bug, just never noticed on us/ca until Ben looked closely at
+    // the Canadian board. Re-verified positive margin on every side, all
+    // three boards, across every developmentSupply count 1-12.
+    cubeLayout(n, HOUSE_SUPPLY.x, HOUSE_SUPPLY.y, 250, 50, rng).map(p=>({...p, rot:(rng()-0.5)*rr})).sort((a,b)=>a.y-b.y)
       .forEach(h=>{ ov+=`<ellipse cx="${h.x.toFixed(1)}" cy="${(h.y+10).toFixed(1)}" rx="10" ry="3.2" fill="#000" opacity="0.2"/>`+houseSVG(h.x,h.y,0.82,h.rot); }); }
   // remaining company cubes in each plate's well (layout follows the cube-style toggle)
   COMPANY_IDS.forEach((id,i)=>{ const c=s.companies[id]; if(isRemoved(c)) return;
