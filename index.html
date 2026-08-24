@@ -12857,10 +12857,12 @@ const CA_CARD_NAMES = {
   american:'GRAND TRUNK', national:'GREAT WESTERN', continental:'NORTHERN',
   majestic:'ST LAWRENCE', liberty:'EUROPEAN', republic:'NOVA SCOTIA',
 };
-// Western Canada fictionalizes the CPR's real near-monopoly into one dominant
-// company plus five regional subsidiaries (docs/western-canada-board-research.md
-// §3): 'american' carries the boosted companyCounts override below and plays
-// the real CPR itself; the other five are three real, period-chartered
+// Western Canada fictionalizes the CPR's real near-monopoly into one company
+// plus five regional subsidiaries (docs/western-canada-board-research.md §3):
+// 'american' carries the companyCounts override below and plays the real CPR
+// itself (tuned down from an initial "biggest company" framing to an ordinary
+// company per Ben's 2026-08-24 play feedback); the other five are three real,
+// period-chartered
 // colonization railways plus two real construction contractors (the research
 // doc's own recommendation — there are not five genuinely separate operating
 // companies in this region/era, so two of the five slots are contractor names
@@ -12952,11 +12954,11 @@ const MAPS = {
     // cp-tuning.md, 2026-08-23): 38 cubes was structurally too large for CP
     // to spend down in a 7-round game (a 16-game bot measurement found it
     // worst-in-class on income/cube-spend/share-sale rate, with treasury
-    // cash sitting idle instead). 28 sits close to, not above, the existing
-    // shared-table cube max (31) — cube count wasn't the asymmetry that
-    // needed to survive; the elevated share count carries the "dominant
-    // company" framing on its own.
-    companyCounts: { american:{shares:7, cubes:28} },
+    // cash sitting idle instead). Share count brought back down to the
+    // shared-table default (5) on Ben's direct call after playing it
+    // himself, 2026-08-24 — not historically motivated, just "7 is too
+    // many"; cubes stay at 28.
+    companyCounts: { american:{shares:5, cubes:28} },
   },
 };
 const MAP_IDS = Object.keys(MAPS).filter(id => MAPS[id].cells);
@@ -15350,19 +15352,20 @@ window.__selfTest = function(){
     // spend its own cube pile down in a 7-round game (worst-in-class on every
     // bot-measured metric except treasury, where cash just sat idle). A
     // 16-game measurement sweep found 28 cubes to be a real, reproducible
-    // sweet spot (24 and 30-38 both measured worse), so cubes came down close
-    // to the shared-table max (31) while shares stayed elevated at 7 — shares
-    // was never the broken variable, so keeping it high preserves the
-    // "biggest company" framing even though cubes alone no longer is (national
-    // now has slightly more, 29 vs 28).
-    assert('WC: the dominant company\'s share count is overridden and bigger than any existing company',
-      companyShares('american')===7 && companyCubes('american')===28
-      && companyShares('american')>Math.max(...COMPANY_IDS.map(id=>COMPANIES[id].shares)));
+    // sweet spot (24 and 30-38 both measured worse).
+    // NOTE (2026-08-24, Ben's direct call after playing it): shares brought
+    // back down from 7 to the shared-table default (5) — "not historically
+    // accurate, but 7 is too many." This drops the "visibly biggest company"
+    // framing entirely (5 shares ties its own unmodified default, and 28
+    // cubes is now below its own default of 31) — CP plays as an ordinary,
+    // slightly smaller company, not a monopoly-flavoured one. Intentional.
+    assert('WC: the dominant company\'s override is applied correctly',
+      companyShares('american')===5 && companyCubes('american')===28);
     assert('WC: the five subsidiaries still read the shared COMPANIES table (no override needed)',
       COMPANY_IDS.filter(id=>id!=='american').every(id=>companyShares(id)===COMPANIES[id].shares && companyCubes(id)===COMPANIES[id].cubes));
     const wcState = createInitialState({mode:'local', names:['A','B','C','D']});
     assert('WC: a fresh game seeds the dominant company\'s overridden supply',
-      wcState.companies.american.sharesInSupply===7 && wcState.companies.american.cubesInSupply===28);
+      wcState.companies.american.sharesInSupply===5 && wcState.companies.american.cubesInSupply===28);
 
     // the era — 1881-1887, not the two existing boards' 1851-1857
     assert('WC: map declares the 1881-1887 play window', MAPS.wc.years.start===1881 && MAPS.wc.years.end===1887);
