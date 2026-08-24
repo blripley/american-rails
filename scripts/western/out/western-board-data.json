@@ -28,19 +28,19 @@
     "OOOOOOOOOFCFOOOOOOOOOOOO",
     "OOOOOOOOFFFFFOOOOOOOOOOO",
     "OOOOOOOOFCFFCFOFFOOOOOOO",
-    "OOOOOOOFFFFFFFFCFOOOOOOO",
-    "OOOOOOOOFFFOFFFFFFOOOOOO",
-    "OOOOOOOFFFOOFCFCFOOOOOOO",
-    "OOOOOOOFFFFOOFFFFFOOOOOO",
-    "OOOOOMMCMMOOPCPPPPOOOOOO",
-    "OOOOOMCPMMMOOPPPPPPOOOOO",
-    "OOOMMMMMCMMOOOPCPCPOOOOO",
-    "OOOMMCMMMMCPPPPPPPPPPPOP",
-    "OOMCMMCMMMMPCPPPCPCPCPPC",
-    "OOMMMCMMMMMCPPCPPPPPPPPP",
-    "OMCMPPPCPCPPCPPOOPPPCPCP",
+    "OOOOOOOPPFPPFPFCFOOOOOOO",
+    "OOOOOOOOFPPOFPPFFFOOOOOO",
+    "OOOOOOOFPFOOFCFCFOOOOOOO",
+    "OOOOOOOFPFFOOFFFPFOOOOOO",
+    "OOOOOMMCPPOOPCPPPPOOOOOO",
+    "OOOOOMCPMPPOOPPPPPPOOOOO",
+    "OOOMMMMMCPPOOOPCPCPOOOOO",
+    "OOOPMCMMPPCPPPPPPPPFFPOP",
+    "OOMCPPCMPPPPCPPPCPCFCPPC",
+    "OOMMPCMMPPPCFPCPPPPPPPPP",
+    "OMCMPPPCPCPFCPPOOPPPCPCP",
     "OMMMPOOPPPPOPPOOOOOPPPPP",
-    "PCPCPOOOOOOOOOOOOOOOPPCP",
+    "PCPCPOOOOOOOOOOOOOOOPFCP",
     "OPPPPOOOOOOOOOOOOOOOPCPP",
     "OPCPOOOOOOOOOOOOOOOOPPOO"
   ],
@@ -52,13 +52,17 @@
     "C": "city"
   },
   "regions": {
-    "_note": "Why each area is the terrain it is. Purely documentation — the generator/build script reads only `grid`. Re-derived for board-rework-2's 24x18 grid from where the actual cities in cities.json now sit (not resized from any older grid's thresholds, and not eyeballed — see gen-terrain.mjs's terrainFor()).",
-    "Northern boreal arc": "Rows 0-6. Forest. Edmonton (9,2), Victoria Settlement (10,0), Fort Pitt (12,2), Prince Albert (15,3), Battleford (13,5) and Fort Carlton (15,5) all sit in this band, off the CPR mainline proper — matching the research doc's note that this area saw very little of the real 1881-87 construction story and should read as sparse, low-value scenery, same choice as the Canadian board's Shield interior. (Batoche, at row 7, falls just outside this band into the prairie/mountain-box rules below — see next entry.)",
-    "Rockies and Selkirks chokepoint": "Cols 3-10, rows 7-12. Mountain. Every one of Cochrane (7,7), Field (6,8), Calgary (8,9), Revelstoke (5,10), Gleichen (10,10), Banff (6,11), Kamloops (3,11) and Golden (5,12) lands inside this box — the single hardest and most expensive stretch of the whole railway, per the research doc's terrain section. Fort Macleod and Lethbridge (both row 13) sit deliberately just outside it: prairie/foothills towns, not mountain towns. Batoche (13,7) also falls outside this box (col 13 is past its col-10 edge), so it correctly reads as prairie/parkland rather than mountain — a real South Saskatchewan River valley town, not a Rockies one.",
-    "Mountain-band chokepoint relief": "(7,8), one hex directly between Cochrane and Field/Calgary, hand-converted from mountain to plains — the one change in this pass that isn't purely mechanical region-rule output. Per the required reading's own flag: the real CPR route through here is a genuine single-file chain (Field-Cochrane-Banff-Calgary-Revelstoke-Golden-Kamloops-Gleichen), and the forest/mountain 'one cube per hex, forever' rule (intentional, unchanged, shared by all three boards) means one company claiming that whole chain early can permanently wall off every rival from the Pacific coast. The Canadian board hit the same shape of problem once and fixed it the same way: turn one hinge hex from forest to plains, so a second company can route Calgary -> (8,8) [mountain, its own cube] -> (7,8) [plains, unlimited] -> Cochrane/Field, alongside whatever the first company already claimed on the strict main line -- without touching the mountain rule or removing the challenge everywhere else. This is a small, deliberately narrow fix (one hex, at the single busiest hinge of the whole corridor, per the build report's own account of a company owning 'Calgary, Cochrane, Field, Golden, Revelstoke, Banff' in one 16-game measurement) -- not a full redesign of the mountain band's shape, which the task brief explicitly allows deferring if a bigger geometry change isn't safe to combine with everything else in this pass. See docs/western-canada-board-rework-2.md for the honest scope of what this one hex does and doesn't fix.",
-    "Fraser Canyon": "Cols 0-3, rows 11-14. Mountain, shading toward plains at Kamloops (already in the box above). Onderdonk's Fraser Canyon contract — Yale (2,13) sits right in this band.",
-    "Lower Mainland lowlands": "Cols 0-3, rows 14-17. Plains. Vancouver, Port Moody, New Westminster and the near shore — flat lowland delta country opening onto the Strait of Georgia. Vancouver Island (Victoria, Esquimalt, Nanaimo) and its water-gap crossing were removed entirely in this pass; there is no island cluster or off-map strait carving left on this board.",
-    "Prairie corridor": "Everything else still standing (Manitoba, Saskatchewan/Assiniboia, and Alberta east of the foothills), plus Batoche's own hex (13,7), which the mountain box's column range doesn't reach. Plains — the flat-to-rolling country that let Van Horne's crews lay 500+ miles in a single season (1882)."
+    "_note": "Why each area is the terrain it is. Purely documentation — the generator/build script reads only `grid`. The base rules below are board-rework-2's original region boxes (still visible as the underlying shape); the 'TERRAIN-MIX' entries that follow are this pass's hand-carved overrides on top of those boxes, applied for patchiness and MB/SK highland realism, and are the ones that actually explain the grid's current mountain/forest layout. See docs/western-canada-board-terrain-mix.md for the full patch-size measurement and research behind every override.",
+    "Northern boreal arc (base rule)": "Rows 0-6. Forest, before this pass's overrides. Edmonton (9,2), Victoria Settlement (10,0), Fort Pitt (12,2), Prince Albert (15,3), Battleford (13,5) and Fort Carlton (15,5) all sit in this band, off the CPR mainline proper — matching the research doc's note that this area saw very little of the real 1881-87 construction story. (Batoche, at row 7, falls just outside this band — see the prairie corridor entry.)",
+    "Rockies and Selkirks chokepoint (base rule)": "Cols 3-10, rows 7-12. Mountain, before this pass's overrides. Every one of Cochrane (7,7), Field (6,8), Calgary (8,9), Revelstoke (5,10), Gleichen (10,10), Banff (6,11), Kamloops (3,11) and Golden (5,12) lands inside this box. Fort Macleod and Lethbridge (both row 13) sit deliberately just outside it: prairie/foothills towns, not mountain towns.",
+    "Fraser Canyon (base rule)": "Cols 0-3, rows 11-14. Mountain, before this pass's overrides. Onderdonk's Fraser Canyon contract — Yale (2,13) sits right in this band.",
+    "Lower Mainland lowlands": "Cols 0-3, rows 14-17. Plains, unchanged by this pass. Vancouver, Port Moody, New Westminster and the near shore.",
+    "Prairie corridor": "Everything else still standing (Manitoba, Saskatchewan/Assiniboia, and Alberta east of the foothills), plus Batoche's own hex (13,7). Plains — the flat-to-rolling country that let Van Horne's crews lay 500+ miles in a single season (1882) — except where a TERRAIN-MIX highland override below adds a real forested hill patch.",
+    "TERRAIN-MIX: mountain-band patchiness (18 hexes M->P)": "Ben's feedback, confirmed by measurement (see docs/western-canada-board-terrain-mix.md), was that this board's mountain band read as far bigger and more solid than the American board's actual mountain patches. Converted to plains, all with real-geography justification, not arbitrary thinning: (8,7),(9,7) — east of Cochrane, the real direction of the abrupt Plains-to-Cordillera transition the research doc describes, i.e. genuine foothill/prairie edge, not the mountain side. (9,8),(10,8) and (9,9),(10,9) and (8,10),(9,10) — Calgary's (8,9) own east, north-east and south neighbours; real Calgary sits at the mountain front with prairie opening out to its east and south, not mountain on all six sides as the un-patched grid had it. (9,11),(10,11) and (8,11),(8,12),(9,12),(10,12) — the approach from Banff/Golden toward Medicine Hat and Gleichen (10,10), which real-world is foothill/prairie country, not a mountain wall four hexes deep. (3,10) and (4,11),(4,12),(5,11) — the Rocky Mountain Trench, a real lowland corridor between the Rocky Mountains and the Columbia Mountains that Golden (5,12) and the Kamloops (3,11) approach both genuinely sit in/near; also opens the Interior Plateau's real rolling-plateau character (vs. true mountain) around Kamloops. Net result: the band splits into two patches instead of one — a 15-hex core (Cochrane-Field-Banff-Calgary(north/west side)-Revelstoke-Golden(east side)-Gleichen(west side) front range) and an 8-hex Fraser Canyon/Kamloops-approach patch — vs. the American board's own largest mountain patch, independently measured at 19 hexes. The old single relief hex (7,8) is still plains but is no longer load-bearing on its own now that the band isn't a single-file gauntlet.",
+    "TERRAIN-MIX: northern boreal patchiness (12 hexes F->P)": "Real boreal-forest cover thins out and mixes with aspen-parkland grassland well before it becomes solid canopy — this board's original rows-0-6 rule painted the whole band as uniform solid forest, which overstates that. Opened plains gaps through the middle of the arc (row 3: (7,3),(8,3),(10,3),(11,3),(13,3); row 4: (9,4),(10,4),(13,4),(14,4); row 5: (8,5); row 6: (8,6),(16,6)) while keeping real forest cover immediately around Edmonton, Victoria Settlement, Fort Pitt, Battleford, Fort Carlton and Prince Albert themselves (the river-valley woods those settlements actually sat in/near) and the north cap nearest Victoria Settlement (rows 0-1, the genuinely coldest/most solidly boreal part of this band). Splits the once-solid 46-hex block into a 28-hex main patch plus two small 3-hex pockets (34 hexes total from this cut alone, before the highland additions below restore a few).",
+    "TERRAIN-MIX: Cypress Hills": "(11,13) and (12,12), forest. Real, well-documented forested upland straddling the Alberta-Saskatchewan border (highest point in Canada between the Rockies and Labrador; site of the 1873 Cypress Hills Massacre), roughly 30-40km SSW of the real Maple Creek (49.916N,-109.484W) — this board's Maple Creek sits at (12,13). Projected position of the hills' high point lands almost exactly beside Maple Creek/Medicine Hat at this grid's resolution; placed as the two hexes immediately flanking those two cities rather than forcing a false distance. HIGH confidence (the feature and its relationship to Maple Creek are both well sourced); see docs/western-canada-board-terrain-mix.md.",
+    "TERRAIN-MIX: Manitoba Escarpment (Riding Mountain / Duck Mountain)": "(19,10),(20,10),(19,11), forest, immediately north of Portage la Prairie (20,11). Riding Mountain (now a National Park, ~750m, heavily forested, real coordinates ~50.66N/-99.99W) projects almost exactly onto Portage la Prairie's own nudged hex, so the patch is placed on the nearest open land in the real bearing (north/north-west) from the city instead of overwriting it. Duck Mountain (forested upland straddling the MB/SK border, ~51.6N/-101W, ~110km from Riding Mountain in reality) is folded into the same compressed 3-hex patch rather than given its own disconnected hex off any route — an explicit compression, documented rather than hidden, the same kind of call the board's Duck Lake/Batoche precedent already made. MEDIUM confidence on the exact hex (a real, well-documented feature compressed to fit the grid, not an invented one).",
+    "TERRAIN-MIX: Pembina Hills / Pembina Valley": "(21,15), forest, one hex near Emerson (22,15). A real escarpment feature in the far south of Manitoba, but the thinnest-documented of the highland features considered for this pass — kept to a single hex rather than a full patch to match how lightly it's sourced (MEDIUM confidence on the feature's role, LOW on any precise extent at this scale). See docs/western-canada-board-terrain-mix.md for the features considered and set aside (the Canadian Shield edge near Whiteshell projects at or past the board's own eastern edge and was not used; the Missouri Coteau is a real hilly grassland belt, not forest, and the engine has no distinct 'hills' terrain type, so it was left as ordinary plains rather than mislabelled forest)."
   },
   "cells": [
     {
@@ -191,14 +195,14 @@
       "row": 3,
       "x": 553.6,
       "y": 231,
-      "terrain": "forest"
+      "terrain": "plains"
     },
     {
       "col": 8,
       "row": 3,
       "x": 619.5,
       "y": 231,
-      "terrain": "forest"
+      "terrain": "plains"
     },
     {
       "col": 9,
@@ -212,14 +216,14 @@
       "row": 3,
       "x": 751.1,
       "y": 231,
-      "terrain": "forest"
+      "terrain": "plains"
     },
     {
       "col": 11,
       "row": 3,
       "x": 816.9,
       "y": 231,
-      "terrain": "forest"
+      "terrain": "plains"
     },
     {
       "col": 12,
@@ -233,7 +237,7 @@
       "row": 3,
       "x": 948.5,
       "y": 231,
-      "terrain": "forest"
+      "terrain": "plains"
     },
     {
       "col": 14,
@@ -272,14 +276,14 @@
       "row": 4,
       "x": 652.4,
       "y": 288,
-      "terrain": "forest"
+      "terrain": "plains"
     },
     {
       "col": 10,
       "row": 4,
       "x": 718.2,
       "y": 288,
-      "terrain": "forest"
+      "terrain": "plains"
     },
     {
       "col": 12,
@@ -293,14 +297,14 @@
       "row": 4,
       "x": 915.6,
       "y": 288,
-      "terrain": "forest"
+      "terrain": "plains"
     },
     {
       "col": 14,
       "row": 4,
       "x": 981.5,
       "y": 288,
-      "terrain": "forest"
+      "terrain": "plains"
     },
     {
       "col": 15,
@@ -335,7 +339,7 @@
       "row": 5,
       "x": 619.5,
       "y": 345,
-      "terrain": "forest"
+      "terrain": "plains"
     },
     {
       "col": 9,
@@ -399,7 +403,7 @@
       "row": 6,
       "x": 586.5,
       "y": 402,
-      "terrain": "forest"
+      "terrain": "plains"
     },
     {
       "col": 9,
@@ -441,7 +445,7 @@
       "row": 6,
       "x": 1113.1,
       "y": 402,
-      "terrain": "forest"
+      "terrain": "plains"
     },
     {
       "col": 17,
@@ -480,14 +484,14 @@
       "row": 7,
       "x": 619.5,
       "y": 459,
-      "terrain": "mountain"
+      "terrain": "plains"
     },
     {
       "col": 9,
       "row": 7,
       "x": 685.3,
       "y": 459,
-      "terrain": "mountain"
+      "terrain": "plains"
     },
     {
       "col": 12,
@@ -572,14 +576,14 @@
       "row": 8,
       "x": 652.4,
       "y": 516,
-      "terrain": "mountain"
+      "terrain": "plains"
     },
     {
       "col": 10,
       "row": 8,
       "x": 718.2,
       "y": 516,
-      "terrain": "mountain"
+      "terrain": "plains"
     },
     {
       "col": 13,
@@ -676,14 +680,14 @@
       "row": 9,
       "x": 685.3,
       "y": 573,
-      "terrain": "mountain"
+      "terrain": "plains"
     },
     {
       "col": 10,
       "row": 9,
       "x": 751.1,
       "y": 573,
-      "terrain": "mountain"
+      "terrain": "plains"
     },
     {
       "col": 14,
@@ -733,7 +737,7 @@
       "row": 10,
       "x": 257.5,
       "y": 630,
-      "terrain": "mountain"
+      "terrain": "plains"
     },
     {
       "col": 4,
@@ -772,14 +776,14 @@
       "row": 10,
       "x": 586.5,
       "y": 630,
-      "terrain": "mountain"
+      "terrain": "plains"
     },
     {
       "col": 9,
       "row": 10,
       "x": 652.4,
       "y": 630,
-      "terrain": "mountain"
+      "terrain": "plains"
     },
     {
       "col": 10,
@@ -853,14 +857,14 @@
       "row": 10,
       "x": 1310.5,
       "y": 630,
-      "terrain": "plains"
+      "terrain": "forest"
     },
     {
       "col": 20,
       "row": 10,
       "x": 1376.4,
       "y": 630,
-      "terrain": "plains"
+      "terrain": "forest"
     },
     {
       "col": 21,
@@ -899,14 +903,14 @@
       "row": 11,
       "x": 356.2,
       "y": 687,
-      "terrain": "mountain"
+      "terrain": "plains"
     },
     {
       "col": 5,
       "row": 11,
       "x": 422,
       "y": 687,
-      "terrain": "mountain"
+      "terrain": "plains"
     },
     {
       "col": 6,
@@ -931,21 +935,21 @@
       "row": 11,
       "x": 619.5,
       "y": 687,
-      "terrain": "mountain"
+      "terrain": "plains"
     },
     {
       "col": 9,
       "row": 11,
       "x": 685.3,
       "y": 687,
-      "terrain": "mountain"
+      "terrain": "plains"
     },
     {
       "col": 10,
       "row": 11,
       "x": 751.1,
       "y": 687,
-      "terrain": "mountain"
+      "terrain": "plains"
     },
     {
       "col": 11,
@@ -1021,7 +1025,7 @@
       "row": 11,
       "x": 1343.4,
       "y": 687,
-      "terrain": "plains"
+      "terrain": "forest"
     },
     {
       "col": 20,
@@ -1078,7 +1082,7 @@
       "row": 12,
       "x": 323.3,
       "y": 744,
-      "terrain": "mountain"
+      "terrain": "plains"
     },
     {
       "col": 5,
@@ -1110,21 +1114,21 @@
       "row": 12,
       "x": 586.5,
       "y": 744,
-      "terrain": "mountain"
+      "terrain": "plains"
     },
     {
       "col": 9,
       "row": 12,
       "x": 652.4,
       "y": 744,
-      "terrain": "mountain"
+      "terrain": "plains"
     },
     {
       "col": 10,
       "row": 12,
       "x": 718.2,
       "y": 744,
-      "terrain": "mountain"
+      "terrain": "plains"
     },
     {
       "col": 11,
@@ -1142,7 +1146,7 @@
       "row": 12,
       "x": 849.8,
       "y": 744,
-      "terrain": "plains"
+      "terrain": "forest"
     },
     {
       "col": 13,
@@ -1312,7 +1316,7 @@
       "row": 13,
       "x": 816.9,
       "y": 801,
-      "terrain": "plains"
+      "terrain": "forest"
     },
     {
       "col": 12,
@@ -1560,7 +1564,7 @@
       "row": 15,
       "x": 1475.1,
       "y": 915,
-      "terrain": "plains"
+      "terrain": "forest"
     },
     {
       "col": 22,
@@ -2203,10 +2207,10 @@
   ],
   "summary": {
     "tiles": 210,
-    "forest": 46,
+    "forest": 40,
     "city": 35,
-    "mountain": 41,
-    "plains": 88,
+    "plains": 112,
+    "mountain": 23,
     "totalFullValue": 114,
     "totalSharedValue": 73
   }
