@@ -13391,8 +13391,21 @@ function computeDividends(s){ const steps=[];
 }
 function applyDivStep(s, step){ step.payments.forEach(pm=> s.players[pm.player].money += pm.amount);
   pushLog(s, `${COMPANIES[step.company].name} pays $${step.per}/share (income ${step.income}, ${step.held} held).`); }
+// One recap line per player who actually got paid this round — what they drew from each company,
+// then their total — so the log reads as a summary once the per-company lines have scrolled away.
+function logDividendSummary(s, steps){
+  const byPlayer = s.players.map(()=>({}));
+  steps.forEach(st=> st.payments.forEach(pm=>{ byPlayer[pm.player][st.company] = (byPlayer[pm.player][st.company]||0) + pm.amount; }));
+  s.players.forEach((p,i)=>{
+    const parts = Object.entries(byPlayer[i]);
+    if (!parts.length) return;
+    const total = parts.reduce((t,[,amt])=>t+amt, 0);
+    const detail = parts.map(([cid,amt])=>`${COMPANIES[cid].name} $${amt}`).join(', ');
+    pushLog(s, `${p.name} dividend: ${detail} — total $${total}.`);
+  });
+}
 function doDividends(s){ const steps=computeDividends(s);
-  if (!ANIM){ steps.forEach(st=>applyDivStep(s,st)); endRound(s); return; }
+  if (!ANIM){ steps.forEach(st=>applyDivStep(s,st)); logDividendSummary(s, steps); endRound(s); return; }
   // animated: pause the game, send the trains back to the turn-order numbers, then pay company-by-company
   s.phase='payout';
   if (s.markers) s.phaseOrder.forEach((seat,i)=>{ s.markers[seat]={phase:-1,row:i}; });
@@ -14545,7 +14558,8 @@ function runPayout(){ const s=gameState; if (!s || !s.payout){ return; }
     if (!gameState || !gameState.payout){ clearInterval(payoutTimer); payoutTimer=null; return; }
     const s=gameState; s.payout.idx++;
     if (s.payout.idx >= s.payout.steps.length){
-      clearInterval(payoutTimer); payoutTimer=null; s.payout=null;
+      clearInterval(payoutTimer); payoutTimer=null; const steps=s.payout.steps; s.payout=null;
+      logDividendSummary(s, steps);
       endRound(s); window.gameState=s; render(s); net.maybeBroadcast(); saveGame();
       maybeRunBot(); // new round started — kick off the first player's turn if it's a bot (else the game hangs here)
       return;
